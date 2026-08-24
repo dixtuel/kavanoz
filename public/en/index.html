@@ -11,10 +11,13 @@
 <meta property="og:title" content="Virtual Jar">
 <meta property="og:description" content="Drop a note or memory into the shared jar.">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="/style.css?v=9">
+<link rel="stylesheet" href="/style.css?v=10">
 </head>
 <body>
 <div class="site-wrapper">
+  <div class="wall-ambient-lighting" aria-hidden="true"></div>
+  <div class="wall-plane-sage" aria-hidden="true"></div>
+
   <!-- Header -->
   <header class="site wrap">
     <a class="brand" href="/en/">
@@ -62,7 +65,7 @@
     </div>
   </header>
 
-  <main>
+  <main class="showcase-main">
     <!-- Main Showcase: Big Active Jar on Left, Staggered Wooden Shelves on Right -->
     <div class="wrap showcase-grid">
       <!-- Left: Big Active Virtual Jar (Sealed Mail Envelopes Physics) -->
@@ -141,13 +144,25 @@
         <!-- Shelf 1 (Upper Shelf - Shorter, Right-Aligned) -->
         <div class="shelf-row shelf-row--upper">
           <div class="shelf-jars-wrap" id="shelf-1-jars"></div>
-          <div class="shelf-board"></div>
+          <div class="shelf-board-3d">
+            <div class="shelf-board-top"></div>
+            <div class="shelf-board-front"></div>
+            <div class="shelf-board-shadow"></div>
+            <div class="shelf-bracket left"></div>
+            <div class="shelf-bracket right"></div>
+          </div>
         </div>
 
         <!-- Shelf 2 (Lower Shelf - Longer, Left-Extended) -->
         <div class="shelf-row shelf-row--lower">
           <div class="shelf-jars-wrap" id="shelf-2-jars"></div>
-          <div class="shelf-board"></div>
+          <div class="shelf-board-3d">
+            <div class="shelf-board-top"></div>
+            <div class="shelf-board-front"></div>
+            <div class="shelf-board-shadow"></div>
+            <div class="shelf-bracket left"></div>
+            <div class="shelf-bracket right"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -308,7 +323,7 @@
   <div class="modal-box">
     <button class="modal-close" id="shelf-list-modal-close" aria-label="Close">×</button>
     <h3>Shelved Jars</h3>
-    <p class="modal-subtitle">Past jars that filled up and were archived:</p>
+    <p class="modal-subtitle">Past jars that filled up and were archived (Tap to view):</p>
     <ul class="shelf-list" id="shelf-list-items"></ul>
   </div>
 </div>
@@ -330,7 +345,7 @@
 
 <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 <script src="/vendor/matter.min.js?v=1"></script>
-<script src="/jar-physics.js?v=9"></script>
-<script src="/app.js?v=9"></script>
+<script src="/jar-physics.js?v=10"></script>
+<script src="/app.js?v=10"></script>
 </body>
 </html>

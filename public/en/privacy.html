@@ -4,49 +4,58 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy Policy — Virtual Jar</title>
-<link rel="stylesheet" href="/style.css?v=5">
+<link rel="stylesheet" href="/style.css?v=10">
 </head>
 <body>
-<header class="site wrap">
-  <a class="brand" href="/en/">Virtual Jar</a>
-  <nav class="lang-switch"><a href="/privacy.html">TR</a><a href="/en/privacy.html" class="active">EN</a></nav>
-</header>
-<main class="legal">
-  <h1>Privacy Policy</h1>
-  <p>This page explains what personal data Virtual Jar processes, why, and for how long, in line with Turkey's Personal Data Protection Law (KVKK) and general good practice.</p>
+<div class="site-wrapper">
+  <div class="wall-ambient-lighting" aria-hidden="true"></div>
+  <div class="wall-plane-sage" aria-hidden="true"></div>
 
-  <h2>An important note first</h2>
-  <p>Virtual Jar is a <strong>shared, public board</strong>. Any note you drop in the jar (and your display name, if you give one) is <strong>readable by anyone</strong> — no account needed, anyone who clicks can see it. Don't write anything in the jar you wouldn't want shared.</p>
+  <header class="site wrap">
+    <a class="brand" href="/en/">
+      <div class="brand-text">
+        <h1>Virtual Jar</h1>
+        <p>Privacy Policy</p>
+      </div>
+    </a>
+    <div class="header-actions">
+      <a href="/en/" class="header-action-btn">◀ Back to Home</a>
+      <nav class="lang-switch">
+        <a href="/privacy.html">TR</a>
+        <a href="/en/privacy.html" class="active">EN</a>
+      </nav>
+    </div>
+  </header>
 
-  <h2>Data controller</h2>
-  <p>The data controller for this site is its operator. Questions: your-email@example.com</p>
+  <main class="legal wrap">
+    <h1>Privacy Policy</h1>
+    <p>This policy describes how Virtual Jar handles your information with care and privacy by design.</p>
 
-  <h2>What we collect</h2>
-  <ul>
-    <li><strong>Note text and display name:</strong> stored encrypted on the server, but shown publicly by design — that's the point of the site. Leave the name blank and you appear as "Anonymous."</li>
-    <li><strong>Your email address (fully optional):</strong> collected only if you want the note also emailed to you later. Stored encrypted, never shown to anyone, and <strong>permanently deleted the moment delivery succeeds (or finally fails)</strong>.</li>
-    <li><strong>Management key:</strong> shown to you once when you save a note — your only way to edit or delete it later. Only a one-way hash of it is stored on the server; if you lose it, we can't recover it either, since we never know the original key.</li>
-    <li><strong>IP address:</strong> kept briefly in server logs solely for abuse prevention / rate limiting.</li>
-  </ul>
+    <h2>1. Data Controller</h2>
+    <p>The operator of this website acts as the data controller. Inquiries: your-email@example.com</p>
 
-  <h2>Purpose and legal basis</h2>
-  <p>Publicly showing your note and display name is based on the explicit consent you give when submitting the form (KVKK Art. 5/1) — it's the core function of this site. Your email address, given through a separate explicit consent, is processed only to deliver the note to you on the date you chose.</p>
+    <h2>2. What We Collect and Why</h2>
+    <p><strong>Note Text & Display Name:</strong> The message and optional name are publicly visible in the jar.</p>
+    <p><strong>Optional Email:</strong> If provided, stored only to deliver your note on your chosen date. Never used for marketing.</p>
+    <p><strong>Management Key:</strong> A cryptographic hash allows you to edit or delete your entry later.</p>
 
-  <h2>Retention</h2>
-  <p>If you choose "leave it to the site owner" when dropping a note, it stays up indefinitely as long as it doesn't violate moderation rules (you can always delete it yourself with your management key). If you pick a date, it's automatically and permanently deleted then. Your email address is deleted immediately once delivery succeeds, or finally fails after 6 attempts.</p>
+    <h2>3. Your Rights</h2>
+    <p>You can manage, edit, or permanently erase your note at any time using your management key.</p>
 
-  <h2>Third parties</h2>
-  <ul>
-    <li><strong>hCaptcha</strong> (Intuition Machines, Inc.) — runs on submission to prevent bots/abuse.</li>
-    <li><strong>NVIDIA NIM</strong> and a local wordlist filter — check submitted text for illegal/harmful content; your text is sent to this third party (NVIDIA) during that check.</li>
-    <li>Email delivery runs from our own mail server — no third-party email marketing service is used.</li>
-  </ul>
+    <h2>4. Contact</h2>
+    <p>Questions: your-email@example.com</p>
+  </main>
 
-  <h2>Your rights</h2>
-  <p>You can find out whether your data is processed, request information, correction or deletion, and object to processing. Using your management key, you can permanently delete or edit your note (and its email address, if any) any time via "Manage your note." If you've lost your key, you can request manual deletion at your-email@example.com if you can verify which note is yours.</p>
-
-  <h2>Security</h2>
-  <p>All traffic is encrypted with HTTPS. Note text and email addresses are stored encrypted (AES-256-GCM) in the database; the encryption key is kept separately from the database, only in the server environment. Your management key is stored only as a one-way hash.</p>
-</main>
+  <footer class="site wrap">
+    <div class="footer-inner">
+      <span>© <span id="year">2026</span> Virtual Jar</span>
+      <div class="footer-links">
+        <a href="/en/">Home</a>
+        <a href="/en/terms.html">Terms of Service</a>
+        <a href="https://your-site.example" id="credit-link">dixtuel + kıyıcı</a>
+      </div>
+    </div>
+  </footer>
+</div>
 </body>
 </html>

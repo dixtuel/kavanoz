@@ -3,50 +3,59 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Gizlilik Politikası — Sanal Kavanoz</title>
-<link rel="stylesheet" href="/style.css?v=5">
+<title>Gizlilik & KVKK — Sanal Kavanoz</title>
+<link rel="stylesheet" href="/style.css?v=10">
 </head>
 <body>
-<header class="site wrap">
-  <a class="brand" href="/">Sanal Kavanoz</a>
-  <nav class="lang-switch"><a href="/privacy.html" class="active">TR</a><a href="/en/privacy.html">EN</a></nav>
-</header>
-<main class="legal">
-  <h1>Gizlilik Politikası</h1>
-  <p>Bu sayfa, Sanal Kavanoz'u kullanırken hangi kişisel verilerinin, ne amaçla ve ne kadar süreyle işlendiğini 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında açıklar.</p>
+<div class="site-wrapper">
+  <div class="wall-ambient-lighting" aria-hidden="true"></div>
+  <div class="wall-plane-sage" aria-hidden="true"></div>
 
-  <h2>Önce önemli bir uyarı</h2>
-  <p>Sanal Kavanoz <strong>ortak, herkese açık bir panodur</strong>. Kavanoza bıraktığın not (ve varsa görünen ismin) <strong>herkes tarafından okunabilir</strong> — hesap gerektirmez, tıklayan herkes görür. Paylaşmak istemediğin hiçbir bilgiyi kavanoza yazma.</p>
+  <header class="site wrap">
+    <a class="brand" href="/">
+      <div class="brand-text">
+        <h1>Sanal Kavanoz</h1>
+        <p>Gizlilik Politikası & KVKK Aydınlatma Metni</p>
+      </div>
+    </a>
+    <div class="header-actions">
+      <a href="/" class="header-action-btn">◀ Ana Sayfaya Dön</a>
+      <nav class="lang-switch">
+        <a href="/privacy.html" class="active">TR</a>
+        <a href="/en/privacy.html">EN</a>
+      </nav>
+    </div>
+  </header>
 
-  <h2>Veri sorumlusu</h2>
-  <p>Bu sitenin veri sorumlusu, siteyi işleten kişidir. Sorularınız için: your-email@example.com</p>
+  <main class="legal wrap">
+    <h1>Gizlilik Politikası & KVKK Aydınlatma Metni</h1>
+    <p>6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") ve ilgili mevzuat uyarınca, Sanal Kavanoz olarak kişisel verilerinin güvenliğine önem veriyoruz.</p>
 
-  <h2>Hangi veriler işlenir</h2>
-  <ul>
-    <li><strong>Not metni ve görünen isim:</strong> sunucuda şifreli saklanır, ancak amacı gereği <strong>herkese açık olarak gösterilir</strong>. Görünen ismi boş bırakırsan "Anonim" olarak görünürsün.</li>
-    <li><strong>E-posta adresin (tamamen opsiyonel):</strong> yalnız notunu ileride sana da mail olarak göndermemiz için istenir. Şifreli saklanır, kimseye gösterilmez, <strong>teslimat yapıldığı (ya da nihai olarak başarısız olduğu) anda kalıcı olarak silinir</strong>.</li>
-    <li><strong>Yönetim anahtarı:</strong> notu kaydettiğinde sana bir kez gösterilen, notunu silmen/düzenlemen için gereken tek erişim aracı. Sunucuda yalnız bunun tek yönlü özeti (hash'i) saklanır — kaybedersen biz de kurtaramayız, çünkü orijinal anahtarı biz de bilmiyoruz.</li>
-    <li><strong>IP adresi:</strong> yalnız kötüye kullanım/oran sınırlama (rate-limit) amacıyla geçici olarak, sunucu loglarında kısa süreliğine tutulur.</li>
-  </ul>
+    <h2>1. Veri Sorumlusu</h2>
+    <p>Bu sitenin veri sorumlusu, siteyi işleten kişidir. Sorularınız için: your-email@example.com</p>
 
-  <h2>İşleme amacı ve hukuki sebep</h2>
-  <p>Not ve görünen isminin herkese açık gösterilmesi, formu gönderirken verdiğin açık rızaya dayanır (KVKK m.5/1) — bu sitenin temel işlevi budur. E-posta adresin, yalnız verdiğin ayrı bir açık rıza ile, seçtiğin tarihte notu sana iletmek amacıyla işlenir.</p>
+    <h2>2. Hangi Verileri Neden İşliyoruz?</h2>
+    <p><strong>Not İçeriği ve Görünecek İsim:</strong> İlettiğin not ve (isteğe bağlı) görünen isim, panoda herkese açık olarak yayınlanır. Anonim kalmak için gerçek ismini vermeyebilirsin.</p>
+    <p><strong>E-posta Adresi (İsteğe Bağlı):</strong> Yalnızca seçtiğin tarihte notunu sana iletmek amacıyla saklanır. Reklam, bülten veya üçüncü taraflarla paylaşım yapılmaz.</p>
+    <p><strong>Yönetim Anahtarı:</strong> Notunu sonradan düzenleyebilmen veya silebilmen için üretilir. Veritabanında yalnızca güvenli tek yönlü özeti tutulur.</p>
 
-  <h2>Saklama süresi</h2>
-  <p>Notu bırakırken "site yöneticisine bırak" seçersen, not moderasyon kurallarına aykırı olmadığı sürece süresiz kalır (silme hakkını her zaman yönetim anahtarınla kullanabilirsin). "Tarih seç" dersen, seçtiğin tarihte otomatik ve kalıcı olarak silinir. E-posta adresin, teslimat yapıldığı ya da 6 başarısız denemeden sonra teslim edilemediği an kalıcı olarak silinir.</p>
+    <h2>3. Haklarınız</h2>
+    <p>Kişisel verinin işlenip işlenmediğini öğrenme, bilgi talep etme, düzeltme/silme isteme hakkına sahipsin. Yönetim anahtarınla dilediğin zaman notunu silebilirsin.</p>
 
-  <h2>Üçüncü taraflar</h2>
-  <ul>
-    <li><strong>hCaptcha</strong> (Intuition Machines, Inc.) — bot/istismar koruması için form gönderiminde çalışır.</li>
-    <li><strong>NVIDIA NIM</strong> ve yerel kelime filtresi — gönderilen metnin yasa dışı/zararlı içerik içerip içermediğini kontrol eder; metin bu kontrol sırasında üçüncü tarafa (NVIDIA) iletilir.</li>
-    <li>Mail teslimatı kendi sunucumuzdan yapılır, üçüncü taraf bir e-posta pazarlama servisi kullanılmaz.</li>
-  </ul>
+    <h2>4. İletişim</h2>
+    <p>Sorularınız için: your-email@example.com</p>
+  </main>
 
-  <h2>Haklarınız (KVKK m.11)</h2>
-  <p>Kişisel verinin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltme/silme isteme ve itiraz etme hakkına sahipsin. Yönetim anahtarınla notunu ve varsa e-posta adresini istediğin an kalıcı olarak silebilir veya düzenleyebilirsin — "Notunu yönet" bölümünden. Anahtarını kaybettiysen, notun hangisi olduğunu doğrulayabildiğin sürece your-email@example.com üzerinden manuel silme talebinde bulunabilirsin.</p>
-
-  <h2>Güvenlik</h2>
-  <p>Tüm bağlantı HTTPS ile şifrelenir. Not metni ve e-posta adresin veritabanında AES-256-GCM ile şifreli tutulur; şifreleme anahtarı veritabanından ayrı, yalnızca sunucu ortamında saklanır. Yönetim anahtarın yalnız tek yönlü (hash'lenmiş) haliyle saklanır.</p>
-</main>
+  <footer class="site wrap">
+    <div class="footer-inner">
+      <span>© <span id="year">2026</span> Sanal Kavanoz</span>
+      <div class="footer-links">
+        <a href="/">Ana Sayfa</a>
+        <a href="/terms.html">Şartlar</a>
+        <a href="https://your-site.example" id="credit-link">dixtuel + kıyıcı</a>
+      </div>
+    </div>
+  </footer>
+</div>
 </body>
 </html>

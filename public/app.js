@@ -28,7 +28,10 @@
       backToActive: "◀ Aktif Kavanoza Dön",
       capacityBadge: function (n, cap) { return "Kapasite: " + n + " / " + cap + " Not"; },
       archivedCapacityBadge: function (n) { return "Arşiv: " + n + " Not"; },
-      moreJarsLabel: "Daha Eski",
+      archiveMenuTitle: "+ Arşiv Menüsü",
+      archiveMenuMore: function (n) { return "+" + n + " Daha Eski"; },
+      archiveMenuSub: "Geçmiş Kavanozlar",
+      archiveMenuAction: "Tümünü İncele 📋",
       shelfJarBadge: function (id) { return "Kavanoz #" + id; },
       notesCountSuffix: " Not",
       archivedPrefix: "Arşivlendi: ",
@@ -57,7 +60,10 @@
       backToActive: "◀ Back to Active Jar",
       capacityBadge: function (n, cap) { return "Capacity: " + n + " / " + cap + " Notes"; },
       archivedCapacityBadge: function (n) { return "Archive: " + n + " Notes"; },
-      moreJarsLabel: "Older Jars",
+      archiveMenuTitle: "+ Archive Menu",
+      archiveMenuMore: function (n) { return "+" + n + " Older Jars"; },
+      archiveMenuSub: "Past Jars",
+      archiveMenuAction: "View All 📋",
       shelfJarBadge: function (id) { return "Jar #" + id; },
       notesCountSuffix: " Notes",
       archivedPrefix: "Archived: ",
@@ -474,12 +480,12 @@
   if (backToActiveBtn) {
     backToActiveBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      document.querySelectorAll(".small-jar-button").forEach(function (c) { c.classList.remove("is-active"); });
+      document.querySelectorAll(".jarbtn").forEach(function (c) { c.classList.remove("is-active"); });
       loadActiveJar();
     });
   }
 
-  // ---------------- Kademeli Raflar & 3D CSS Kavanozlar (Yalnızca Gerçek Veri) ----------------
+  // ---------------- Kademeli 3D Raflar (Üstte 2 Kavanoz, Altta 3 Kavanoz: 2 Eski + 1 Arşiv Menüsü) ----------------
   var shelf1El = document.getElementById("shelf-1-jars");
   var shelf2El = document.getElementById("shelf-2-jars");
   var shelfListModal = document.getElementById("shelf-list-modal");
@@ -497,19 +503,19 @@
   function createShelfJarCard(jar, active) {
     var btn = document.createElement("button");
     btn.type = "button";
-    btn.className = "small-jar-button" + (active ? " is-active" : "");
+    btn.className = "jarbtn" + (active ? " is-active" : "");
     btn.setAttribute("aria-label", T.shelfJarBadge(jar.id) + " kavanozunu aç");
 
     var tint = getJarTint(jar.id);
     var dateStr = formatDate(jar.archivedAt || jar.createdAt);
 
     btn.innerHTML =
-      '<span class="small-jar">' +
-        '<span class="small-jar__lid"><i /><i /><i /></span>' +
-        '<span class="small-jar__neck"></span>' +
-        '<span class="small-jar__body">' +
-          '<span class="small-jar__shine"></span>' +
-          '<span class="jar-label jar-label--' + tint + '">' +
+      '<span class="jar">' +
+        '<span class="small-lid"><i /><i /><i /></span>' +
+        '<span class="small-neck"></span>' +
+        '<span class="small-glass">' +
+          '<span class="small-glass-shine"></span>' +
+          '<span class="label ' + tint + '">' +
             '<strong>' + escapeHtml(T.shelfJarBadge(jar.id)) + '</strong>' +
             '<small>' + escapeHtml(T.archivedPrefix + dateStr) + '</small>' +
             '<em>' + jar.noteCount + T.notesCountSuffix + '</em>' +
@@ -519,10 +525,37 @@
       '</span>';
 
     btn.addEventListener("click", function () {
-      document.querySelectorAll(".small-jar-button").forEach(function (c) { c.classList.remove("is-active"); });
+      document.querySelectorAll(".jarbtn").forEach(function (c) { c.classList.remove("is-active"); });
       btn.classList.add("is-active");
       viewArchivedJar(jar.id, jar);
     });
+    return btn;
+  }
+
+  function createArchiveMenuJar(remainingCount) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "jarbtn archive-selector-btn";
+    btn.setAttribute("aria-label", "Eski Kavanozlar Menüsü");
+
+    var titleText = remainingCount > 0 ? T.archiveMenuMore(remainingCount) : T.archiveMenuTitle;
+
+    btn.innerHTML =
+      '<span class="jar">' +
+        '<span class="small-lid archive-menu-lid"><i /><i /><i /></span>' +
+        '<span class="small-neck"></span>' +
+        '<span class="small-glass archive-menu-glass">' +
+          '<span class="small-glass-shine"></span>' +
+          '<span class="label archive-menu-label">' +
+            '<strong>' + escapeHtml(titleText) + '</strong>' +
+            '<small>' + escapeHtml(T.archiveMenuSub) + '</small>' +
+            '<em>' + escapeHtml(T.archiveMenuAction) + '</em>' +
+          '</span>' +
+        '</span>' +
+        '<span class="jar-contact-shadow"></span>' +
+      '</span>';
+
+    btn.addEventListener("click", openShelfListModal);
     return btn;
   }
 
@@ -539,35 +572,22 @@
       return;
     }
 
-    // 1. Üst Raf: En fazla 2 gerçek kavanoz
-    var upperCapacity = 2;
-    var lowerCapacity = 3;
-
-    var upperJars = items.slice(0, upperCapacity);
+    // 1. Üst Raf: Tam 2 Eski Kavanoz
+    var upperJars = items.slice(0, 2);
     upperJars.forEach(function (jar) {
       shelf1El.appendChild(createShelfJarCard(jar, !currentJarIsActive && currentJarId === jar.id));
     });
 
-    // 2. Alt Raf: En fazla 3 gerçek kavanoz
-    var lowerJars = items.slice(upperCapacity, upperCapacity + lowerCapacity);
+    // 2. Alt Raf: 3 Slot (2 Eski Kavanoz + En Alt Sağda Arşiv Menüsü Kavanozu)
+    var lowerJars = items.slice(2, 4);
     lowerJars.forEach(function (jar) {
       shelf2El.appendChild(createShelfJarCard(jar, !currentJarIsActive && currentJarId === jar.id));
     });
 
-    // Kalan gerçek arşiv kavanoz sayısı
+    // En alt sağdaki 3. slot: Arşiv Menüsü ve Kalan Sayaç
     var shownCount = upperJars.length + lowerJars.length;
     var remainingCount = Math.max(total - shownCount, 0);
-
-    if (remainingCount > 0) {
-      var moreCard = document.createElement("button");
-      moreCard.type = "button";
-      moreCard.className = "shelf-jar-more";
-      moreCard.innerHTML =
-        '<span class="shelf-more-num">+' + remainingCount + '</span>' +
-        '<span class="shelf-more-label">' + T.moreJarsLabel + '</span>';
-      moreCard.addEventListener("click", openShelfListModal);
-      shelf2El.appendChild(moreCard);
-    }
+    shelf2El.appendChild(createArchiveMenuJar(remainingCount));
   }
 
   function loadShelf() {
@@ -589,7 +609,7 @@
     shelfListItems.innerHTML = "";
 
     if (allArchivedJars.length === 0) {
-      shelfListItems.innerHTML = '<li>' + T.shelfEmpty + '</li>';
+      shelfListItems.innerHTML = '<li style="padding:16px; text-align:center;">' + T.shelfEmpty + '</li>';
       openModal("shelf-list-modal");
       return;
     }
@@ -601,6 +621,7 @@
         '<span class="shelf-list-meta">' + formatDate(jar.archivedAt || jar.createdAt) + ' · ' + jar.noteCount + T.notesCountSuffix + '</span>';
       li.addEventListener("click", function () {
         closeModal("shelf-list-modal");
+        document.querySelectorAll(".jarbtn").forEach(function (c) { c.classList.remove("is-active"); });
         viewArchivedJar(jar.id, jar);
       });
       shelfListItems.appendChild(li);
