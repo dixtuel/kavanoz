@@ -4,20 +4,20 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Virtual Jar — drop a note in the shared jar</title>
-<meta name="description" content="One shared jar everyone drops notes into. Write yours, signed or anonymous; when the jar fills up it moves to the shelf and a new one begins.">
+<meta name="description" content="One shared jar everyone drops notes into. Drag it around, give it a shake. When it fills up it moves to the shelf and a new one begins.">
 <link rel="canonical" href="https://kavanoz.dxtl.com.tr/en/">
 <link rel="alternate" hreflang="tr" href="https://kavanoz.dxtl.com.tr/">
 <link rel="alternate" hreflang="en" href="https://kavanoz.dxtl.com.tr/en/">
 <meta property="og:title" content="Virtual Jar">
 <meta property="og:description" content="Drop a note in the shared jar.">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="../style.css?v=2">
+<link rel="stylesheet" href="../style.css?v=3">
 </head>
 <body>
 <header class="site wrap">
   <a class="brand" href="/en/">
-    <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="8" y="10" width="16" height="18" rx="4" fill="#D98E3B"/><rect x="10" y="6" width="12" height="6" rx="2" fill="#B5502D"/></svg>
-    Virtual Jar
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="8" y="10" width="16" height="18" rx="4" fill="#E2A33D"/><rect x="10" y="6" width="12" height="6" rx="2" fill="#7C9660"/></svg>
+    virtual jar
   </a>
   <nav class="lang-switch">
     <a href="/">TR</a>
@@ -29,51 +29,32 @@
   <div class="wrap hero">
     <div>
       <p class="eyebrow">One shared jar</p>
-      <h1>Everyone's notes,<br><em>one</em> jar.</h1>
-      <p class="lede">Write something, drop it in. Signed or anonymous. Anyone can click and read it. Pick a date if you'd like it emailed to you that day too — totally optional. When the jar fills to the brim it moves to the shelf and a new one starts.</p>
-      <div class="cta-row">
-        <a href="#birak" class="btn btn-primary">Drop a note</a>
-        <a href="#kavanoz" class="btn btn-ghost">Look inside</a>
+      <h1>Write something,<br><span class="accent">drop</span> it in.</h1>
+      <p class="lede">Everyone's writing into the same jar — add yours. Signed or anonymous. Drag it around, give it a shake. When it fills up it moves to the shelf and a new one starts.</p>
+
+      <div class="quick-drop">
+        <div class="quick-drop-trigger" id="quick-drop-trigger">
+          <span>What do you want to leave today?</span>
+          <button type="button" id="quick-drop-btn">Write</button>
+        </div>
       </div>
     </div>
-    <div class="jar-stage">
-      <svg class="jar-hero" viewBox="0 0 220 260" aria-hidden="true">
-        <defs>
-          <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#dfe8de" stop-opacity="0.22"/>
-            <stop offset="100%" stop-color="#dfe8de" stop-opacity="0.06"/>
-          </linearGradient>
-          <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#F0AE5C" stop-opacity="0.55"/>
-            <stop offset="100%" stop-color="#B5502D" stop-opacity="0.45"/>
-          </linearGradient>
-          <linearGradient id="lidGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#8a7050"/>
-            <stop offset="100%" stop-color="#5c4a34"/>
-          </linearGradient>
-        </defs>
-        <g class="float-group">
-          <rect class="lid" x="70" y="24" width="80" height="26" rx="6"/>
-          <rect class="glass" x="50" y="50" width="120" height="180" rx="26"/>
-          <path class="liquid" d="M50 150 q60 -22 120 0 v54 a26 26 0 0 1 -26 26 h-68 a26 26 0 0 1 -26 -26 z"/>
-          <g transform="translate(78,96) rotate(-6)">
-            <rect class="scroll" x="0" y="0" width="64" height="42" rx="4"/>
-            <line class="scroll-line" x1="10" y1="12" x2="54" y2="12"/>
-            <line class="scroll-line" x1="10" y1="21" x2="54" y2="21"/>
-            <line class="scroll-line" x1="10" y1="30" x2="40" y2="30"/>
-          </g>
-          <ellipse class="shine" cx="76" cy="90" rx="10" ry="60"/>
-          <rect class="wax" x="102" y="18" width="16" height="16" rx="8"/>
-        </g>
-      </svg>
+
+    <div class="jar-canvas-wrap">
+      <div class="jar-canvas-glass">
+        <svg class="jar-outline" viewBox="0 0 220 260" aria-hidden="true">
+          <rect x="70" y="18" width="80" height="24" rx="7" fill="#7C9660"/>
+          <rect x="48" y="42" width="124" height="200" rx="30" fill="rgba(255,253,248,0.55)" stroke="rgba(46,42,34,0.18)" stroke-width="2"/>
+          <ellipse cx="80" cy="66" rx="10" ry="40" fill="rgba(255,255,255,0.45)"/>
+        </svg>
+        <canvas id="jar-canvas"></canvas>
+      </div>
+      <div class="jar-count-badge" id="jar-count-badge">…</div>
+      <p class="jar-hint">drag the notes, shake the jar 🫙</p>
     </div>
   </div>
 
-  <section id="birak" class="wrap">
-    <div class="section-head">
-      <h2>Drop your note</h2>
-      <p>What you write becomes public — anyone can read it. An email isn't required, only if you'd also like this note delivered to you later.</p>
-    </div>
+  <section id="birak" class="wrap" hidden>
     <form id="note-form" class="panel" novalidate>
       <div class="field">
         <label for="message">Your note</label>
@@ -86,37 +67,41 @@
         <input type="text" id="displayName" name="displayName" maxlength="60" placeholder="Leave blank to appear as “Anonymous”">
       </div>
 
-      <div class="field">
-        <label class="consent" style="margin:0 0 6px;">
-          <input type="checkbox" id="wantMail">
-          <span>I'd also like this note emailed to me later</span>
-        </label>
-      </div>
-      <div id="mail-fields" class="row-2" style="display:none;">
+      <button type="button" class="more-options-toggle" id="more-options-toggle">+ email / retention options</button>
+
+      <div id="more-options" hidden>
         <div class="field">
-          <label for="email">Email address</label>
-          <input type="email" id="email" name="email" placeholder="you@example.com">
+          <label class="consent" style="margin:0 0 6px;">
+            <input type="checkbox" id="wantMail">
+            <span>I'd also like this note emailed to me later</span>
+          </label>
         </div>
+        <div id="mail-fields" class="row-2" style="display:none;">
+          <div class="field">
+            <label for="email">Email address</label>
+            <input type="email" id="email" name="email" placeholder="you@example.com">
+          </div>
+          <div class="field">
+            <label for="mailSendAt">When? (at most 5 years)</label>
+            <input type="date" id="mailSendAt" name="mailSendAt">
+          </div>
+        </div>
+
         <div class="field">
-          <label for="mailSendAt">When? (at most 5 years)</label>
-          <input type="date" id="mailSendAt" name="mailSendAt">
+          <label>How long should the note stay in the jar?</label>
+          <div class="choice-group" id="retention-group">
+            <button type="button" data-retention="admin" class="selected">Leave it to the site owner</button>
+            <button type="button" data-retention="until_date">Pick a date</button>
+          </div>
+          <input type="date" id="retentionUntil" name="retentionUntil" style="display:none; margin-top:12px;">
         </div>
       </div>
 
-      <div class="field">
-        <label>How long should the note stay in the jar?</label>
-        <div class="choice-group" id="retention-group">
-          <button type="button" data-retention="admin" class="selected">Leave it to the site owner</button>
-          <button type="button" data-retention="until_date">Pick a date</button>
-        </div>
-        <input type="date" id="retentionUntil" name="retentionUntil" style="display:none; margin-top:12px;">
-        <div class="hint">"Leave it to the owner" keeps the note up indefinitely (subject to moderation). Pick a date and it's deleted automatically then.</div>
-      </div>
+      <div class="h-captcha" data-sitekey="0f66ee14-2e0a-477a-a32a-4998af14680e" data-theme="light"></div>
 
-      <div class="h-captcha" data-sitekey="0f66ee14-2e0a-477a-a32a-4998af14680e" data-theme="dark"></div>
-
-      <div style="margin-top:22px;">
+      <div style="margin-top:18px; display:flex; gap:10px;">
         <button type="submit" class="btn btn-primary" id="submit-btn">Drop it in the jar</button>
+        <button type="button" class="btn btn-ghost" id="cancel-drop-btn">Cancel</button>
       </div>
       <div class="form-msg" id="form-msg" role="status" aria-live="polite"></div>
     </form>
@@ -124,28 +109,10 @@
 
   <section id="kavanoz" class="wrap">
     <div class="section-head">
-      <h2>Active jar</h2>
+      <h2>Spilled from the jar</h2>
       <p id="jar-progress-text">Loading…</p>
     </div>
-    <div class="jar-viewer-layout">
-      <div class="jar-view-stage" id="jar-view-stage">
-        <svg class="jar-base" viewBox="0 0 220 260" aria-hidden="true">
-          <defs>
-            <linearGradient id="liquidGradFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#F0AE5C" stop-opacity="0.5"/>
-              <stop offset="100%" stop-color="#B5502D" stop-opacity="0.4"/>
-            </linearGradient>
-          </defs>
-          <rect x="70" y="24" width="80" height="26" rx="6" fill="#5c4a34"/>
-          <rect x="50" y="50" width="120" height="180" rx="26" fill="rgba(223,232,222,0.10)" stroke="rgba(241,233,216,0.25)"/>
-          <rect class="fill-level" id="fill-level-rect" x="52" y="228" width="116" height="0" />
-        </svg>
-        <div class="jar-fill-label" id="jar-fill-label"></div>
-      </div>
-      <div class="note-list-panel">
-        <ul class="note-list" id="note-list"></ul>
-      </div>
-    </div>
+    <div class="note-masonry" id="note-masonry"></div>
     <button class="btn btn-ghost load-more" id="load-more-active" hidden>Show more</button>
   </section>
 
@@ -163,7 +130,7 @@
       <h2>Manage your note</h2>
       <p>When you dropped your note, we gave you a private key. Use it to edit or delete that note.</p>
     </div>
-    <div class="panel" style="max-width:520px;">
+    <div class="panel" style="max-width:480px;">
       <div class="field">
         <label for="manageKey">Management key</label>
         <input type="text" id="manageKey" placeholder="xxxxxxxxxxxxxxxxxxxx">
@@ -186,14 +153,8 @@
           </label>
         </div>
         <div id="manage-mail-fields" class="row-2" style="display:none;">
-          <div class="field">
-            <label for="manageEmail">Email address</label>
-            <input type="email" id="manageEmail">
-          </div>
-          <div class="field">
-            <label for="manageMailSendAt">Delivery date</label>
-            <input type="date" id="manageMailSendAt">
-          </div>
+          <div class="field"><label for="manageEmail">Email address</label><input type="email" id="manageEmail"></div>
+          <div class="field"><label for="manageMailSendAt">Delivery date</label><input type="date" id="manageMailSendAt"></div>
         </div>
         <div class="manage-actions">
           <button type="button" class="btn btn-primary" id="manage-save-btn">Save changes</button>
@@ -229,6 +190,8 @@
 </div>
 
 <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-<script src="../app.js?v=2"></script>
+<script src="../vendor/matter.min.js"></script>
+<script src="../jar-physics.js"></script>
+<script src="../app.js?v=3"></script>
 </body>
 </html>

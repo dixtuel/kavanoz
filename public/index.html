@@ -17,20 +17,20 @@
 </script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Sanal Kavanoz — ortak kavanoza bir not bırak</title>
-<meta name="description" content="Herkesin bıraktığı notların düştüğü tek bir ortak kavanoz. Notunu yaz, istersen adınla istersen anonim bırak; kavanoz dolunca rafa kalkar, yenisi başlar.">
+<meta name="description" content="Herkesin bıraktığı notların düştüğü tek bir ortak kavanoz. Kavanozu sallayıp içindekileri karıştırabilirsin. Kavanoz dolunca rafa kalkar, yenisi başlar.">
 <link rel="canonical" href="https://kavanoz.dxtl.com.tr/">
 <link rel="alternate" hreflang="tr" href="https://kavanoz.dxtl.com.tr/">
 <link rel="alternate" hreflang="en" href="https://kavanoz.dxtl.com.tr/en/">
 <meta property="og:title" content="Sanal Kavanoz">
 <meta property="og:description" content="Ortak kavanoza bir not bırak.">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="style.css?v=2">
+<link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
 <header class="site wrap">
   <a class="brand" href="/">
-    <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="8" y="10" width="16" height="18" rx="4" fill="#D98E3B"/><rect x="10" y="6" width="12" height="6" rx="2" fill="#B5502D"/></svg>
-    Sanal Kavanoz
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="8" y="10" width="16" height="18" rx="4" fill="#E2A33D"/><rect x="10" y="6" width="12" height="6" rx="2" fill="#7C9660"/></svg>
+    sanal kavanoz
   </a>
   <nav class="lang-switch">
     <a href="/" class="active">TR</a>
@@ -42,51 +42,32 @@
   <div class="wrap hero">
     <div>
       <p class="eyebrow">Ortak kavanoz</p>
-      <h1>Herkesin notu<br><em>tek bir</em> kavanozda.</h1>
-      <p class="lede">Bir şey yaz, kavanoza bırak. İster adınla, ister anonim. Herkes tıklayıp okuyabilir. İstersen bir tarih seç, o gün notunu mail olarak da sana gönderelim — zorunlu değil. Kavanoz ağzına kadar dolunca rafa kalkar, yenisi başlar.</p>
-      <div class="cta-row">
-        <a href="#birak" class="btn btn-primary">Kavanoza bırak</a>
-        <a href="#kavanoz" class="btn btn-ghost">İçine bak</a>
+      <h1>Bir şey yaz,<br>kavanoza <span class="accent">bırak</span>.</h1>
+      <p class="lede">Herkes aynı kavanoza not atıyor — sen de bırak. İster adınla ister anonim. Kavanozu sürükleyip sallayabilirsin. Dolunca rafa kalkar, yenisi başlar.</p>
+
+      <div class="quick-drop">
+        <div class="quick-drop-trigger" id="quick-drop-trigger">
+          <span>Bugün ne bırakmak istersin?</span>
+          <button type="button" id="quick-drop-btn">Yaz</button>
+        </div>
       </div>
     </div>
-    <div class="jar-stage">
-      <svg class="jar-hero" viewBox="0 0 220 260" aria-hidden="true">
-        <defs>
-          <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stop-color="#dfe8de" stop-opacity="0.22"/>
-            <stop offset="100%" stop-color="#dfe8de" stop-opacity="0.06"/>
-          </linearGradient>
-          <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#F0AE5C" stop-opacity="0.55"/>
-            <stop offset="100%" stop-color="#B5502D" stop-opacity="0.45"/>
-          </linearGradient>
-          <linearGradient id="lidGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stop-color="#8a7050"/>
-            <stop offset="100%" stop-color="#5c4a34"/>
-          </linearGradient>
-        </defs>
-        <g class="float-group">
-          <rect class="lid" x="70" y="24" width="80" height="26" rx="6"/>
-          <rect class="glass" x="50" y="50" width="120" height="180" rx="26"/>
-          <path class="liquid" d="M50 150 q60 -22 120 0 v54 a26 26 0 0 1 -26 26 h-68 a26 26 0 0 1 -26 -26 z"/>
-          <g transform="translate(78,96) rotate(-6)">
-            <rect class="scroll" x="0" y="0" width="64" height="42" rx="4"/>
-            <line class="scroll-line" x1="10" y1="12" x2="54" y2="12"/>
-            <line class="scroll-line" x1="10" y1="21" x2="54" y2="21"/>
-            <line class="scroll-line" x1="10" y1="30" x2="40" y2="30"/>
-          </g>
-          <ellipse class="shine" cx="76" cy="90" rx="10" ry="60"/>
-          <rect class="wax" x="102" y="18" width="16" height="16" rx="8"/>
-        </g>
-      </svg>
+
+    <div class="jar-canvas-wrap">
+      <div class="jar-canvas-glass">
+        <svg class="jar-outline" viewBox="0 0 220 260" aria-hidden="true">
+          <rect x="70" y="18" width="80" height="24" rx="7" fill="#7C9660"/>
+          <rect x="48" y="42" width="124" height="200" rx="30" fill="rgba(255,253,248,0.55)" stroke="rgba(46,42,34,0.18)" stroke-width="2"/>
+          <ellipse cx="80" cy="66" rx="10" ry="40" fill="rgba(255,255,255,0.45)"/>
+        </svg>
+        <canvas id="jar-canvas"></canvas>
+      </div>
+      <div class="jar-count-badge" id="jar-count-badge">…</div>
+      <p class="jar-hint">notları sürükle, kavanozu salla 🫙</p>
     </div>
   </div>
 
-  <section id="birak" class="wrap">
-    <div class="section-head">
-      <h2>Kavanoza bırak</h2>
-      <p>Yazdığın not herkese açık olur, herkes okuyabilir. Mail adresi zorunlu değil — yalnız ileride bu notu kendine mail olarak da almak istersen gerekiyor.</p>
-    </div>
+  <section id="birak" class="wrap" hidden>
     <form id="note-form" class="panel" novalidate>
       <div class="field">
         <label for="message">Notun</label>
@@ -99,37 +80,41 @@
         <input type="text" id="displayName" name="displayName" maxlength="60" placeholder="Boş bırakırsan “Anonim” görünür">
       </div>
 
-      <div class="field">
-        <label class="consent" style="margin:0 0 6px;">
-          <input type="checkbox" id="wantMail">
-          <span>Bu notu ileride mail olarak da almak istiyorum</span>
-        </label>
-      </div>
-      <div id="mail-fields" class="row-2" style="display:none;">
+      <button type="button" class="more-options-toggle" id="more-options-toggle">+ mail / saklama süresi seçenekleri</button>
+
+      <div id="more-options" hidden>
         <div class="field">
-          <label for="email">Mail adresi</label>
-          <input type="email" id="email" name="email" placeholder="ornek@eposta.com">
+          <label class="consent" style="margin:0 0 6px;">
+            <input type="checkbox" id="wantMail">
+            <span>Bu notu ileride mail olarak da almak istiyorum</span>
+          </label>
         </div>
+        <div id="mail-fields" class="row-2" style="display:none;">
+          <div class="field">
+            <label for="email">Mail adresi</label>
+            <input type="email" id="email" name="email" placeholder="ornek@eposta.com">
+          </div>
+          <div class="field">
+            <label for="mailSendAt">Ne zaman gönderilsin? (en fazla 5 yıl)</label>
+            <input type="date" id="mailSendAt" name="mailSendAt">
+          </div>
+        </div>
+
         <div class="field">
-          <label for="mailSendAt">Ne zaman gönderilsin? (en fazla 5 yıl)</label>
-          <input type="date" id="mailSendAt" name="mailSendAt">
+          <label>Not ne kadar süre kavanozda kalsın?</label>
+          <div class="choice-group" id="retention-group">
+            <button type="button" data-retention="admin" class="selected">Site yöneticisine bırak</button>
+            <button type="button" data-retention="until_date">Tarih seç</button>
+          </div>
+          <input type="date" id="retentionUntil" name="retentionUntil" style="display:none; margin-top:12px;">
         </div>
       </div>
 
-      <div class="field">
-        <label>Not ne kadar süre kavanozda kalsın?</label>
-        <div class="choice-group" id="retention-group">
-          <button type="button" data-retention="admin" class="selected">Site yöneticisine bırak</button>
-          <button type="button" data-retention="until_date">Tarih seç</button>
-        </div>
-        <input type="date" id="retentionUntil" name="retentionUntil" style="display:none; margin-top:12px;">
-        <div class="hint">"Yöneticiye bırak" seçersen not moderasyon dışında süresiz kalır. Tarih seçersen o tarihte otomatik silinir.</div>
-      </div>
+      <div class="h-captcha" data-sitekey="0f66ee14-2e0a-477a-a32a-4998af14680e" data-theme="light"></div>
 
-      <div class="h-captcha" data-sitekey="0f66ee14-2e0a-477a-a32a-4998af14680e" data-theme="dark"></div>
-
-      <div style="margin-top:22px;">
+      <div style="margin-top:18px; display:flex; gap:10px;">
         <button type="submit" class="btn btn-primary" id="submit-btn">Kavanoza bırak</button>
+        <button type="button" class="btn btn-ghost" id="cancel-drop-btn">Vazgeç</button>
       </div>
       <div class="form-msg" id="form-msg" role="status" aria-live="polite"></div>
     </form>
@@ -137,28 +122,10 @@
 
   <section id="kavanoz" class="wrap">
     <div class="section-head">
-      <h2>Aktif kavanoz</h2>
+      <h2>Kavanozdan dökülenler</h2>
       <p id="jar-progress-text">Yükleniyor…</p>
     </div>
-    <div class="jar-viewer-layout">
-      <div class="jar-view-stage" id="jar-view-stage">
-        <svg class="jar-base" viewBox="0 0 220 260" aria-hidden="true">
-          <defs>
-            <linearGradient id="liquidGradFill" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="#F0AE5C" stop-opacity="0.5"/>
-              <stop offset="100%" stop-color="#B5502D" stop-opacity="0.4"/>
-            </linearGradient>
-          </defs>
-          <rect x="70" y="24" width="80" height="26" rx="6" fill="#5c4a34"/>
-          <rect x="50" y="50" width="120" height="180" rx="26" fill="rgba(223,232,222,0.10)" stroke="rgba(241,233,216,0.25)"/>
-          <rect class="fill-level" id="fill-level-rect" x="52" y="228" width="116" height="0" />
-        </svg>
-        <div class="jar-fill-label" id="jar-fill-label"></div>
-      </div>
-      <div class="note-list-panel">
-        <ul class="note-list" id="note-list"></ul>
-      </div>
-    </div>
+    <div class="note-masonry" id="note-masonry"></div>
     <button class="btn btn-ghost load-more" id="load-more-active" hidden>Daha fazla göster</button>
   </section>
 
@@ -176,7 +143,7 @@
       <h2>Notunu yönet</h2>
       <p>Notu bıraktığında sana özel bir anahtar verdik. O anahtarla notunu silebilir ya da düzenleyebilirsin.</p>
     </div>
-    <div class="panel" style="max-width:520px;">
+    <div class="panel" style="max-width:480px;">
       <div class="field">
         <label for="manageKey">Yönetim anahtarı</label>
         <input type="text" id="manageKey" placeholder="xxxxxxxxxxxxxxxxxxxx">
@@ -199,14 +166,8 @@
           </label>
         </div>
         <div id="manage-mail-fields" class="row-2" style="display:none;">
-          <div class="field">
-            <label for="manageEmail">Mail adresi</label>
-            <input type="email" id="manageEmail">
-          </div>
-          <div class="field">
-            <label for="manageMailSendAt">Gönderim tarihi</label>
-            <input type="date" id="manageMailSendAt">
-          </div>
+          <div class="field"><label for="manageEmail">Mail adresi</label><input type="email" id="manageEmail"></div>
+          <div class="field"><label for="manageMailSendAt">Gönderim tarihi</label><input type="date" id="manageMailSendAt"></div>
         </div>
         <div class="manage-actions">
           <button type="button" class="btn btn-primary" id="manage-save-btn">Değişiklikleri kaydet</button>
@@ -242,6 +203,8 @@
 </div>
 
 <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
-<script src="app.js?v=2"></script>
+<script src="vendor/matter.min.js"></script>
+<script src="jar-physics.js"></script>
+<script src="app.js?v=3"></script>
 </body>
 </html>
