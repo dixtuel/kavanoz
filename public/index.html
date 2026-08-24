@@ -24,7 +24,7 @@
 <meta property="og:title" content="Sanal Kavanoz">
 <meta property="og:description" content="Ortak kavanoza bir hatıra veya not bırak.">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="/style.css?v=5">
+<link rel="stylesheet" href="/style.css?v=6">
 </head>
 <body>
 <div class="site-wrapper">
@@ -60,7 +60,7 @@
   </header>
 
   <main>
-    <!-- Ana Görsel / Vitrin Alanı: Sol Büyük Kavanoz, Sağ İki Ahşap Raf -->
+    <!-- Ana Görsel / Vitrin Alanı: Sol Büyük Kavanoz, Sağ İki Katlı Ahşap Raf -->
     <div class="wrap showcase-grid">
       <!-- Sol: Büyük Aktif Sanal Kavanoz -->
       <div class="jar-stage">
@@ -81,14 +81,11 @@
                   <stop offset="100%" stop-color="rgba(255,255,255,0.75)"/>
                 </linearGradient>
               </defs>
-              <!-- Kapak ve Boğaz -->
               <rect x="90" y="10" width="180" height="34" rx="10" fill="url(#mainLidGrad)" stroke="rgba(40,32,20,0.25)" stroke-width="2"/>
               <line x1="110" y1="20" x2="250" y2="20" stroke="rgba(255,255,255,0.35)" stroke-width="2" stroke-linecap="round"/>
               <rect x="105" y="42" width="150" height="14" fill="#52663E"/>
-              <!-- Şeffaf Cam Gövde -->
               <rect x="24" y="52" width="312" height="344" rx="46" fill="url(#mainGlassGrad)" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
               <rect x="29" y="57" width="302" height="334" rx="42" fill="rgba(255,253,248,0.2)" stroke="rgba(50,42,32,0.12)" stroke-width="1.5"/>
-              <!-- Cam Yansımaları -->
               <path d="M48 85 Q44 260 62 360" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="7" stroke-linecap="round"/>
               <path d="M312 95 Q316 260 298 360" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="4" stroke-linecap="round"/>
             </svg>
@@ -100,7 +97,10 @@
           <div class="jar-progress-card">
             <div class="jar-progress-header">
               <span id="jar-capacity-badge">Kapasite: Yükleniyor…</span>
-              <span>🫙 Aktif</span>
+              <div>
+                <a href="#" class="back-to-active-link" id="back-to-active-btn" hidden>◀ Aktif Kavanoza Dön</a>
+                <span id="jar-status-badge">🫙 Aktif</span>
+              </div>
             </div>
             <div class="jar-progress-bar">
               <div class="jar-progress-fill" id="jar-progress-fill"></div>
@@ -139,22 +139,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Not Kartları Duvarı (Kavanozdan Dökülenler) -->
-    <section class="notes-wall" id="notes-wall-section">
-      <div class="wrap">
-        <div class="wall-header">
-          <div>
-            <h2 id="wall-title">Kavanozdan Dökülenler</h2>
-            <p id="wall-subtitle">Yükleniyor…</p>
-          </div>
-        </div>
-        <div class="note-masonry" id="note-masonry"></div>
-        <div class="load-more-wrap">
-          <button type="button" class="btn btn-ghost" id="load-more-btn" hidden>Daha fazla göster</button>
-        </div>
-      </div>
-    </section>
   </main>
 
   <!-- Alt Bilgi (Footer) -->
@@ -334,11 +318,7 @@
 
 <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 <script src="/vendor/matter.min.js?v=1"></script>
-<script src="/jar-physics.js?v=5"></script>
-<script src="/app.js?v=5"></script>
-<script>
-var hwLink = document.getElementById("how-it-works-link");
-if (hwLink) hwLink.addEventListener("click", function(e) { e.preventDefault(); document.getElementById("how-it-works-modal").hidden = false; });
-</script>
+<script src="/jar-physics.js?v=6"></script>
+<script src="/app.js?v=6"></script>
 </body>
 </html>

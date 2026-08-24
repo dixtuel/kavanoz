@@ -23,12 +23,11 @@
       manageDeleted: "Not silindi.",
       manageSaved: "Değişiklikler kaydedildi.",
       confirmDelete: "Bu notu kalıcı olarak silmek istediğine emin misin?",
+      activeJarBadge: "🫙 Aktif Kavanoz",
+      archivedJarBadge: function (id) { return "📦 Kavanoz #" + id; },
       backToActive: "◀ Aktif Kavanoza Dön",
       capacityBadge: function (n, cap) { return "Kapasite: " + n + " / " + cap + " Not"; },
-      jarTitleActive: "Kavanozdan Dökülenler",
-      jarTitleArchived: function (id) { return "Kavanoz #" + id + " Arşivi"; },
-      progressActive: function (n, cap) { return "Şu anki aktif kavanozda " + n + " / " + cap + " not var."; },
-      progressArchived: function (n, date) { return "Rafa kaldırılma tarihi: " + date + " (" + n + " Not)"; },
+      archivedCapacityBadge: function (n) { return "Arşiv: " + n + " Not"; },
       moreJarsLabel: "Daha Eski",
       shelfJarBadge: function (id) { return "Kavanoz #" + id; },
       notesCountSuffix: " Not",
@@ -53,12 +52,11 @@
       manageDeleted: "Note deleted.",
       manageSaved: "Changes saved.",
       confirmDelete: "Are you sure you want to permanently delete this note?",
+      activeJarBadge: "🫙 Active Jar",
+      archivedJarBadge: function (id) { return "📦 Jar #" + id; },
       backToActive: "◀ Back to Active Jar",
       capacityBadge: function (n, cap) { return "Capacity: " + n + " / " + cap + " Notes"; },
-      jarTitleActive: "Spilled from the Jar",
-      jarTitleArchived: function (id) { return "Archive of Jar #" + id; },
-      progressActive: function (n, cap) { return "Current active jar has " + n + " / " + cap + " notes."; },
-      progressArchived: function (n, date) { return "Archived on: " + date + " (" + n + " Notes)"; },
+      archivedCapacityBadge: function (n) { return "Archive: " + n + " Notes"; },
       moreJarsLabel: "Older Jars",
       shelfJarBadge: function (id) { return "Jar #" + id; },
       notesCountSuffix: " Notes",
@@ -185,9 +183,15 @@
 
   // ---------------- Nasıl Çalışır Modalı ----------------
   var howItWorksBtn = document.getElementById("how-it-works-btn");
+  var howItWorksLink = document.getElementById("how-it-works-link");
   var howItWorksModal = document.getElementById("how-it-works-modal");
   var howItWorksClose = document.getElementById("how-it-works-close");
-  if (howItWorksBtn) howItWorksBtn.addEventListener("click", function () { openModal("how-it-works-modal"); });
+  function openHowItWorks(e) {
+    if (e) e.preventDefault();
+    openModal("how-it-works-modal");
+  }
+  if (howItWorksBtn) howItWorksBtn.addEventListener("click", openHowItWorks);
+  if (howItWorksLink) howItWorksLink.addEventListener("click", openHowItWorks);
   if (howItWorksClose) howItWorksClose.addEventListener("click", function () { closeModal("how-it-works-modal"); });
   if (howItWorksModal) {
     howItWorksModal.addEventListener("click", function (e) {
@@ -355,12 +359,12 @@
   // ---------------- Fizik Kavanozu & Sallama ----------------
   var jarCanvas = document.getElementById("jar-canvas");
   var jarCapacityBadge = document.getElementById("jar-capacity-badge");
+  var jarStatusBadge = document.getElementById("jar-status-badge");
   var jarProgressFill = document.getElementById("jar-progress-fill");
   var jarShakeBtn = document.getElementById("jar-shake-btn");
+  var backToActiveBtn = document.getElementById("back-to-active-btn");
 
   if (jarCanvas && window.Matter && window.KavanozJar) {
-    var glassEl = jarCanvas.closest(".jar-canvas-glass");
-    var rect = jarCanvas.parentElement.getBoundingClientRect();
     jarCanvas.width = 304;
     jarCanvas.height = 330;
     window.__kavanozJar = new window.KavanozJar(jarCanvas, {
@@ -388,7 +392,7 @@
     if (!jarDrawerItems) return;
     jarDrawerItems.innerHTML = "";
     if (activeNotesList.length === 0) {
-      jarDrawerItems.innerHTML = '<div style="padding:10px; color:var(--ink-dim); font-size:0.85rem;">' + T.empty + '</div>';
+      jarDrawerItems.innerHTML = '<div style="padding:16px; color:var(--ink-dim); font-size:0.85rem; text-align:center;">' + T.empty + '</div>';
       return;
     }
     activeNotesList.forEach(function (note) {
@@ -396,7 +400,8 @@
       item.className = "drawer-note-item";
       item.innerHTML =
         '<div class="drawer-note-name">' + escapeHtml(note.displayName || T.anon) + '</div>' +
-        '<div class="drawer-note-snippet">' + escapeHtml(note.message) + '</div>';
+        '<div class="drawer-note-snippet">' + escapeHtml(note.message) + '</div>' +
+        '<div class="drawer-note-date">' + escapeHtml(formatDate(note.createdAt)) + '</div>';
       item.addEventListener("click", function () { showNoteModal(note); });
       jarDrawerItems.appendChild(item);
     });
@@ -410,59 +415,28 @@
     });
   }
 
-  // ---------------- Not Kartları Duvarı (Masonry) ----------------
-  var CARD_COLORS = ["#FFFDF8", "#FCE8E8", "#E6F4EA", "#E8F0FE", "#FEF7E0", "#F3E8FD"];
-  var CARD_ROTATIONS = [-2, 1.5, -1, 2, -1.8, 1, 2.2, -1.5];
-
-  var masonryEl = document.getElementById("note-masonry");
-  var loadMoreBtn = document.getElementById("load-more-btn");
-  var wallTitle = document.getElementById("wall-title");
-  var wallSubtitle = document.getElementById("wall-subtitle");
-  var wallSection = document.getElementById("notes-wall-section");
-
   var currentJarId = null;
   var currentJarIsActive = true;
-  var lastNoteId = null;
 
-  function renderNoteCards(notes, append) {
-    if (!masonryEl) return;
-    if (!append) masonryEl.innerHTML = "";
-    if (notes.length === 0 && !append) {
-      masonryEl.innerHTML = '<p style="color:var(--ink-dim); grid-column:1/-1;">' + T.empty + '</p>';
-      return;
-    }
-    notes.forEach(function (note, i) {
-      var card = document.createElement("div");
-      card.className = "note-card";
-      var color = CARD_COLORS[(note.id + i) % CARD_COLORS.length];
-      var rot = CARD_ROTATIONS[(note.id + i) % CARD_ROTATIONS.length];
-      card.style.setProperty("--card-color", color);
-      card.style.setProperty("--rot", rot + "deg");
-      card.innerHTML =
-        '<div class="snippet">' + escapeHtml(note.message) + '</div>' +
-        '<div class="meta"><span>' + escapeHtml(note.displayName || T.anon) + '</span><span>' + escapeHtml(formatDate(note.createdAt)) + '</span></div>';
-      card.addEventListener("click", function () { showNoteModal(note); });
-      masonryEl.appendChild(card);
-    });
-  }
-
-  function loadJarNotes(jarId, append) {
-    var url = "/api/jars/" + jarId + "/notes?limit=24" + (append && lastNoteId ? "&before=" + lastNoteId : "");
+  function loadJarNotes(jarId) {
+    var url = "/api/jars/" + jarId + "/notes?limit=60";
     return fetch(url)
       .then(function (res) { return res.json(); })
       .then(function (data) {
         var items = data.items || [];
-        renderNoteCards(items, append);
-        if (items.length > 0) lastNoteId = items[items.length - 1].id;
-        if (loadMoreBtn) loadMoreBtn.hidden = items.length < 24;
+        activeNotesList = items;
+        if (jarDrawerPanel && !jarDrawerPanel.hidden) renderDrawerNotes();
+        if (window.__kavanozJar) {
+          window.__kavanozJar.setNotes(items);
+        }
         return data;
       });
   }
 
   function loadActiveJar() {
     currentJarIsActive = true;
-    lastNoteId = null;
-    if (wallTitle) wallTitle.textContent = T.jarTitleActive;
+    if (backToActiveBtn) backToActiveBtn.hidden = true;
+    if (jarStatusBadge) jarStatusBadge.textContent = T.activeJarBadge;
 
     fetch("/api/jars/active")
       .then(function (res) { return res.json(); })
@@ -475,64 +449,38 @@
           var pct = Math.min(100, Math.round((summary.noteCount / summary.capacity) * 100));
           jarProgressFill.style.width = pct + "%";
         }
-        if (wallSubtitle) {
-          wallSubtitle.textContent = T.progressActive(summary.noteCount, summary.capacity);
-        }
-
-        return loadJarNotes(currentJarId, false).then(function (data) {
-          var items = data.items || [];
-          activeNotesList = items;
-          if (jarDrawerPanel && !jarDrawerPanel.hidden) renderDrawerNotes();
-          if (window.__kavanozJar) {
-            window.__kavanozJar.setNotes(items);
-          }
-        });
+        return loadJarNotes(currentJarId);
       })
       .catch(function () {
-        if (wallSubtitle) wallSubtitle.textContent = T.loadError;
+        if (jarCapacityBadge) jarCapacityBadge.textContent = T.loadError;
       });
   }
 
   function viewArchivedJar(jarId, meta) {
     currentJarIsActive = false;
     currentJarId = jarId;
-    lastNoteId = null;
 
-    if (wallTitle) wallTitle.textContent = T.jarTitleArchived(jarId);
-    if (wallSubtitle) {
-      wallSubtitle.innerHTML =
-        '<a href="#" id="back-to-active-btn" style="display:inline-block; font-weight:700; color:var(--amber-deep); margin-bottom:4px;">' +
-        T.backToActive + '</a><br>' + T.progressArchived(meta.noteCount, formatDate(meta.archivedAt));
-
-      var backBtn = document.getElementById("back-to-active-btn");
-      if (backBtn) {
-        backBtn.addEventListener("click", function (e) {
-          e.preventDefault();
-          loadActiveJar();
-          if (wallSection) wallSection.scrollIntoView({ behavior: "smooth" });
-        });
-      }
+    if (backToActiveBtn) backToActiveBtn.hidden = false;
+    if (jarStatusBadge) jarStatusBadge.textContent = T.archivedJarBadge(jarId);
+    if (jarCapacityBadge) {
+      jarCapacityBadge.textContent = T.archivedCapacityBadge(meta.noteCount) + " (" + formatDate(meta.archivedAt) + ")";
+    }
+    if (jarProgressFill) {
+      jarProgressFill.style.width = "100%";
     }
 
-    loadJarNotes(jarId, false).then(function (data) {
-      var items = data.items || [];
-      activeNotesList = items;
-      if (jarDrawerPanel && !jarDrawerPanel.hidden) renderDrawerNotes();
-      if (window.__kavanozJar) {
-        window.__kavanozJar.setNotes(items);
-      }
-    });
-
-    if (wallSection) wallSection.scrollIntoView({ behavior: "smooth" });
+    loadJarNotes(jarId);
   }
 
-  if (loadMoreBtn) {
-    loadMoreBtn.addEventListener("click", function () {
-      loadJarNotes(currentJarId, true);
+  if (backToActiveBtn) {
+    backToActiveBtn.addEventListener("click", function (e) {
+      e.preventDefault();
+      document.querySelectorAll(".shelf-jar-card").forEach(function (c) { c.classList.remove("active-view"); });
+      loadActiveJar();
     });
   }
 
-  // ---------------- Raflar (Shelves - Mockup Görseline Uygun İki Raflı Düzen) ----------------
+  // ---------------- Raflar (Shelves) ----------------
   var shelf1El = document.getElementById("shelf-1-jars");
   var shelf2El = document.getElementById("shelf-2-jars");
   var shelfListModal = document.getElementById("shelf-list-modal");
@@ -588,15 +536,14 @@
       return;
     }
 
-    // 1. Raf: İlk 2 veya 3 kavanoz
+    // 1. Raf: İlk 2 kavanoz
     var shelf1Items = items.slice(0, 2);
     shelf1Items.forEach(function (jar, i) {
       shelf1El.appendChild(createShelfJarCard(jar, i));
     });
 
-    // 2. Raf: Sonraki kavanozlar + Sağ altta "+X" butonu
-    var remainingVisibleSlots = 3; // 2 kavanoz + 1 more butonu veya 3 kavanoz
-    var shelf2Jars = items.slice(2, 2 + 2); // 2 kavanoz
+    // 2. Raf: Sonraki 2 kavanoz + Sağ altta "+X" butonu
+    var shelf2Jars = items.slice(2, 4);
     var shownCount = shelf1Items.length + shelf2Jars.length;
     var extraCount = total - shownCount;
 
