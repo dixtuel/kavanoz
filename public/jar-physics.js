@@ -1,6 +1,7 @@
 /*
  * Sanal Kavanoz — Matter.js 2D Fizik Motoru
  * Kavanoz içine düşen renkli, mühürlü mektup zarfları, sallama ve tıklama fiziği.
+ * Sızdırmaz fizik sınırları ve dinamik kafes kontrolü.
  */
 (function (global) {
   "use strict";
@@ -58,8 +59,8 @@
   function KavanozJar(canvas, opts) {
     this.canvas = canvas;
     this.opts = opts || {};
-    this.width = canvas.clientWidth || 282;
-    this.height = canvas.clientHeight || 305;
+    this.width = canvas.clientWidth || 288;
+    this.height = canvas.clientHeight || 312;
     this.notes = [];
     this._setup();
   }
@@ -95,15 +96,47 @@
     });
     this.render = render;
 
-    // Kavanoz iç fizik sınırları
+    // Sızdırmaz kavanoz iç fizik kafesi (Kalın ve tam kapalı sınırlar)
     var w = this.width, h = this.height;
-    var wallOpts = { isStatic: true, restitution: 0.18, friction: 0.65, render: { visible: false } };
-    var floor = Bodies.rectangle(w / 2, h + 8, w * 0.94, 20, wallOpts);
-    var leftWall = Bodies.rectangle(w * 0.06, h * 0.5, 18, h * 0.98, wallOpts);
-    var rightWall = Bodies.rectangle(w * 0.94, h * 0.5, 18, h * 0.98, wallOpts);
-    var floorLeft = Bodies.rectangle(w * 0.14, h * 0.94, w * 0.22, 18, Object.assign({ angle: -0.38 }, wallOpts));
-    var floorRight = Bodies.rectangle(w * 0.86, h * 0.94, w * 0.22, 18, Object.assign({ angle: 0.38 }, wallOpts));
-    World.add(engine.world, [floor, leftWall, rightWall, floorLeft, floorRight]);
+    var wallOpts = { isStatic: true, restitution: 0.25, friction: 0.6, render: { visible: false } };
+    
+    var floor = Bodies.rectangle(w / 2, h + 15, w * 1.5, 40, wallOpts);
+    var ceiling = Bodies.rectangle(w / 2, 8, w * 1.5, 40, wallOpts); // Üstten kaçmayı önleyen tavan
+    var leftWall = Bodies.rectangle(-10, h / 2, 50, h * 2, wallOpts);
+    var rightWall = Bodies.rectangle(w + 10, h / 2, 50, h * 2, wallOpts);
+
+    // Kavisli taban ve boyun yönlendiricileri
+    var floorLeft = Bodies.rectangle(w * 0.12, h * 0.94, w * 0.28, 30, Object.assign({ angle: -0.42 }, wallOpts));
+    var floorRight = Bodies.rectangle(w * 0.88, h * 0.94, w * 0.28, 30, Object.assign({ angle: 0.42 }, wallOpts));
+    var neckLeft = Bodies.rectangle(w * 0.14, 26, w * 0.26, 30, Object.assign({ angle: 0.45 }, wallOpts));
+    var neckRight = Bodies.rectangle(w * 0.86, 26, w * 0.26, 30, Object.assign({ angle: -0.45 }, wallOpts));
+
+    World.add(engine.world, [floor, ceiling, leftWall, rightWall, floorLeft, floorRight, neckLeft, neckRight]);
+
+    // Zarfların kavanoz dışına asla taşmaması için her karede güvenlik kontrolü
+    var self = this;
+    Events.on(engine, "beforeUpdate", function () {
+      var minX = 22, maxX = w - 22;
+      var minY = 28, maxY = h - 22;
+      for (var i = 0; i < self.notes.length; i++) {
+        var b = self.notes[i];
+        if (!b || !b.position) continue;
+        if (b.position.x < minX) {
+          Body.setPosition(b, { x: minX + 2, y: b.position.y });
+          Body.setVelocity(b, { x: Math.abs(b.velocity.x) * 0.4, y: b.velocity.y });
+        } else if (b.position.x > maxX) {
+          Body.setPosition(b, { x: maxX - 2, y: b.position.y });
+          Body.setVelocity(b, { x: -Math.abs(b.velocity.x) * 0.4, y: b.velocity.y });
+        }
+        if (b.position.y < minY) {
+          Body.setPosition(b, { x: b.position.x, y: minY + 2 });
+          Body.setVelocity(b, { x: b.velocity.x, y: Math.abs(b.velocity.y) * 0.4 });
+        } else if (b.position.y > maxY) {
+          Body.setPosition(b, { x: b.position.x, y: maxY - 2 });
+          Body.setVelocity(b, { x: b.velocity.x, y: -Math.abs(b.velocity.y) * 0.4 });
+        }
+      }
+    });
 
     var mouse = Mouse.create(render.canvas);
     mouse.pixelRatio = dpr;
@@ -122,7 +155,6 @@
     });
 
     // Zarf tıklandığında ilişkili notu aç
-    var self = this;
     var pressStart = null;
     Events.on(mouseConstraint, "mousedown", function (e) {
       pressStart = { x: e.mouse.position.x, y: e.mouse.position.y, body: mouseConstraint.body, time: Date.now() };
@@ -133,7 +165,7 @@
       var dy = e.mouse.position.y - pressStart.y;
       var dist = Math.sqrt(dx * dx + dy * dy);
       var duration = Date.now() - pressStart.time;
-      if (pressStart.body && dist < 8 && duration < 400 && self.opts.onNoteClick) {
+      if (pressStart.body && dist < 10 && duration < 450 && self.opts.onNoteClick) {
         var noteData = pressStart.body.plugin && pressStart.body.plugin.noteData;
         if (noteData) self.opts.onNoteClick(noteData);
       }
@@ -156,7 +188,7 @@
       if (dt > 12) {
         var vx = (e.clientX - lastX) / dt;
         if (Math.abs(vx) > 0.04) {
-          self.shake(Math.min(Math.abs(vx) * 28, 7));
+          self.shake(Math.min(Math.abs(vx) * 22, 5.5));
         }
         lastX = e.clientX;
         lastT = now;
@@ -168,7 +200,7 @@
     Runner.run(runner, engine);
     Render.run(render);
 
-    this._dropZoneX = [w * 0.2, w * 0.8];
+    this._dropZoneX = [w * 0.25, w * 0.75];
   };
 
   KavanozJar.prototype.clearNotes = function () {
@@ -194,7 +226,7 @@
       }
       self.addNote(1, [notesList[dropped]]);
       dropped++;
-    }, 60);
+    }, 50);
   };
 
   KavanozJar.prototype.addNote = function (count, notesData) {
@@ -209,13 +241,13 @@
       }
       var x = this._dropZoneX[0] + Math.random() * (this._dropZoneX[1] - this._dropZoneX[0]);
       var color = NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)];
-      var w = 46, h = 30; // Zarf boyutları (50 adede kadar kavanoza mükemmel oturur)
-      var body = Bodies.rectangle(x, -25 - Math.random() * 45, w, h, {
+      var w = 46, h = 30; // Zarf boyutları
+      var body = Bodies.rectangle(x, 32 + (i % 3) * 6, w, h, {
         chamfer: { radius: 3.5 },
-        angle: (Math.random() - 0.5) * 1.2,
+        angle: (Math.random() - 0.5) * 0.8,
         restitution: 0.2,
         friction: 0.7,
-        frictionAir: 0.015,
+        frictionAir: 0.02,
         density: 0.002,
         render: {
           sprite: { texture: envelopeTexture(color), xScale: w / 66, yScale: h / 44 },
@@ -231,13 +263,13 @@
     var Matter = global.Matter;
     if (!Matter) return;
     var Body = Matter.Body;
-    var s = strength || 1.8;
+    var s = strength || 1.6;
     this.notes.forEach(function (body) {
       Body.applyForce(body, body.position, {
-        x: (Math.random() - 0.5) * 0.04 * s,
-        y: -Math.random() * 0.022 * s,
+        x: (Math.random() - 0.5) * 0.028 * s,
+        y: -Math.random() * 0.016 * s,
       });
-      Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.25 * s);
+      Body.setAngularVelocity(body, (Math.random() - 0.5) * 0.2 * s);
     });
 
     var glass = this.canvas.closest(".jar-canvas-glass");
