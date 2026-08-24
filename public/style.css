@@ -59,18 +59,16 @@ a:hover { text-decoration: underline; }
   justify-content: space-between;
   position: relative;
   isolation: isolate;
-  background: #F7F3E9;
+  background: #F0EDE1;
   overflow: hidden;
 }
 
-/* Arka Plan Duvar Bölünmesi: Sol Fildişi, Sağ Adaçayı Sıva */
+/* Arka Plan: Fildişi ve Adaçayı Tonlarının Yumuşak, Tek Parça Karışımı */
 .wall-plane-sage {
   position: absolute;
   z-index: -2;
-  inset: 0 0 0 41%;
-  background: linear-gradient(118deg, #9DB49B 0%, #8EA890 48%, #78947B 100%);
-  clip-path: polygon(25% 0, 100% 0, 100% 100%, 0 100%);
-  box-shadow: inset 30px 0 45px rgba(35, 55, 38, 0.08);
+  inset: 0;
+  background: linear-gradient(125deg, #F7F3E9 0%, #F1EFDE 20%, #E4E6CE 42%, #CFDBC2 62%, #A9C0A3 82%, #8EA893 100%);
 }
 
 .wall-ambient-lighting {
@@ -145,6 +143,10 @@ header.site {
   display: flex;
   align-items: center;
   gap: 10px;
+}
+
+.header-info-group {
+  display: contents;
 }
 
 .header-action-btn {
@@ -1259,11 +1261,6 @@ footer.site-footer-full {
 
 /* ---------- Mobil ve Tablet Uyumluluk ---------- */
 @media (max-width: 1024px) {
-  .wall-plane-sage {
-    left: 0;
-    top: 460px;
-    clip-path: none;
-  }
   .showcase-grid {
     grid-template-columns: 1fr;
     gap: 45px;
@@ -1298,6 +1295,12 @@ footer.site-footer-full {
     width: 100%;
     justify-content: space-between;
     flex-wrap: wrap;
+    row-gap: 10px;
+  }
+  .header-info-group {
+    display: flex;
+    align-items: center;
+    gap: 10px;
   }
   .brand-text h1 {
     font-size: 1.65rem;
@@ -1351,9 +1354,30 @@ footer.site-footer-full {
     padding: 22px 18px;
     border-radius: var(--radius-md);
   }
-  .footer-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+  footer.site-footer-full {
+    padding: 14px clamp(12px, 4vw, 20px) 20px;
+  }
+  .footer-inner-spread {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    gap: 14px;
+  }
+  .footer-inner-spread::-webkit-scrollbar {
+    display: none;
+  }
+  .footer-inner-spread > span {
+    flex: 0 0 auto;
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+  .footer-links {
+    flex-wrap: nowrap;
+    gap: 12px;
+  }
+  .footer-links a {
+    font-size: 0.72rem;
+    white-space: nowrap;
   }
 }
