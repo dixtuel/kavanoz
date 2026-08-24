@@ -274,9 +274,9 @@ async function markMailFailed(id) {
 
 // Gönderenin seçtiği saklama süresi dolan notları temizler (site yöneticisi takdirine bırakılanlar hiç silinmez).
 async function purgeExpiredByRetention() {
-  const dueJars = await client.execute({
-    sql: `SELECT id, jar_id FROM notes WHERE retention_mode='until_date' AND retention_until<=strftime('%Y-%m-%dT%H:%M:%fZ','now')`,
-  });
+  const dueJars = await client.execute(
+    `SELECT id, jar_id FROM notes WHERE retention_mode='until_date' AND retention_until<=strftime('%Y-%m-%dT%H:%M:%fZ','now')`
+  );
   for (const row of dueJars.rows) {
     await deleteNoteById(Number(row.id), Number(row.jar_id));
   }
