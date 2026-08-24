@@ -34,7 +34,7 @@
 
   KavanozJar.prototype._setup = function () {
     var Matter = global.Matter;
-    var Engine = Matter.Engine, Render = Matter.Render, World = Matter.World, Bodies = Matter.Bodies,
+    var Engine = Matter.Engine, Render = Matter.Render, Runner = Matter.Runner, World = Matter.World, Bodies = Matter.Bodies,
       Mouse = Matter.Mouse, MouseConstraint = Matter.MouseConstraint, Body = Matter.Body, Events = Matter.Events;
 
     var engine = Engine.create();
@@ -119,7 +119,10 @@
     });
     window.addEventListener("pointerup", function () { shaking = false; });
 
-    Engine.run(engine);
+    // Matter 0.20'de Engine.run(engine) tek parametreli çağrı kırık (Runner.run'a
+    // runner konumunda engine geçiyor, motor hiç tick almıyor) — Runner'ı elle kur.
+    var runner = Runner.create();
+    Runner.run(runner, engine);
     Render.run(render);
 
     this._dropZoneX = [w * 0.2, w * 0.8];
