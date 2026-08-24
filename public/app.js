@@ -360,25 +360,46 @@
     return '<svg viewBox="0 0 40 46" aria-hidden="true"><rect x="12" y="6" width="16" height="8" rx="3" fill="#7C9660"/><rect x="6" y="14" width="28" height="28" rx="8" fill="#E2A33D" opacity="0.85"/></svg>';
   }
 
+  var ROW_SIZE = 5;
+  var shelfItems = [];
+
+  function renderPantry() {
+    shelfGrid.innerHTML = "";
+    if (shelfItems.length === 0) {
+      shelfGrid.innerHTML = '<p style="color:var(--ink-dim)">' + T.shelfEmpty + "</p>";
+      return;
+    }
+    for (var i = 0; i < shelfItems.length; i += ROW_SIZE) {
+      var rowItems = shelfItems.slice(i, i + ROW_SIZE);
+      var row = document.createElement("div");
+      row.className = "pantry-row";
+      var jarsWrap = document.createElement("div");
+      jarsWrap.className = "pantry-jars";
+      rowItems.forEach(function (jar) {
+        var card = document.createElement("button");
+        card.type = "button";
+        card.className = "shelf-jar";
+        card.innerHTML = jarIconSvg() + '<div class="count">' + jar.noteCount + "</div>" + '<div class="date">' + escapeHtml(formatDate(jar.archivedAt)) + "</div>";
+        card.addEventListener("click", function () { viewArchivedJar(jar.id, jar); });
+        jarsWrap.appendChild(card);
+      });
+      var plank = document.createElement("div");
+      plank.className = "pantry-plank";
+      row.appendChild(jarsWrap);
+      row.appendChild(plank);
+      shelfGrid.appendChild(row);
+    }
+  }
+
   function loadShelf(append) {
     var url = "/api/jars/shelf?limit=18" + (append && lastShelfId ? "&before=" + lastShelfId : "");
     fetch(url)
       .then(function (res) { return res.json(); })
       .then(function (data) {
         var items = data.items || [];
-        if (!append) shelfGrid.innerHTML = "";
-        if (items.length === 0 && !append) {
-          shelfGrid.innerHTML = '<p style="color:var(--ink-dim)">' + T.shelfEmpty + "</p>";
-          return;
-        }
-        items.forEach(function (jar) {
-          var card = document.createElement("button");
-          card.type = "button";
-          card.className = "shelf-jar";
-          card.innerHTML = jarIconSvg() + '<div class="count">' + jar.noteCount + "</div>" + '<div class="date">' + escapeHtml(formatDate(jar.archivedAt)) + "</div>";
-          card.addEventListener("click", function () { viewArchivedJar(jar.id, jar); });
-          shelfGrid.appendChild(card);
-        });
+        if (!append) shelfItems = [];
+        shelfItems = shelfItems.concat(items);
+        renderPantry();
         if (items.length > 0) lastShelfId = items[items.length - 1].id;
         loadMoreShelfBtn.hidden = items.length < 18;
       })

@@ -9,6 +9,20 @@
   var NOTE_COLORS = ["#F2A2A2", "#A8CDD6", "#B7C9A0", "#F2CB6E", "#D9C9F0"];
   var MAX_NOTES = 34;
 
+  // Zarf/mektup görünümlü küçük bir doku üretir (data URI, ağ isteği yok).
+  var envelopeCache = {};
+  function envelopeTexture(color) {
+    if (envelopeCache[color]) return envelopeCache[color];
+    var svg =
+      '<svg xmlns="http://www.w3.org/2000/svg" width="52" height="34" viewBox="0 0 52 34">' +
+      '<rect x="1.5" y="1.5" width="49" height="31" rx="4" fill="' + color + '" stroke="rgba(46,42,34,0.32)" stroke-width="1.5"/>' +
+      '<path d="M3 4 L26 20 L49 4" fill="none" stroke="rgba(46,42,34,0.34)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>' +
+      "</svg>";
+    var uri = "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+    envelopeCache[color] = uri;
+    return uri;
+  }
+
   function KavanozJar(canvas, opts) {
     this.canvas = canvas;
     this.opts = opts || {};
@@ -85,14 +99,17 @@
       }
       var x = this._dropZoneX[0] + Math.random() * (this._dropZoneX[1] - this._dropZoneX[0]);
       var color = NOTE_COLORS[Math.floor(Math.random() * NOTE_COLORS.length)];
-      var body = Bodies.rectangle(x, -20 - Math.random() * 60, 25, 17, {
-        chamfer: { radius: 4 },
+      var w = 34, h = 22;
+      var body = Bodies.rectangle(x, -20 - Math.random() * 60, w, h, {
+        chamfer: { radius: 3 },
         angle: (Math.random() - 0.5) * 1.2,
         restitution: 0.25,
         friction: 0.7,
         frictionAir: 0.012,
         density: 0.0018,
-        render: { fillStyle: color, strokeStyle: "rgba(0,0,0,0.12)", lineWidth: 1 },
+        render: {
+          sprite: { texture: envelopeTexture(color), xScale: w / 52, yScale: h / 34 },
+        },
       });
       World.add(this.engine.world, body);
       this.notes.push(body);
