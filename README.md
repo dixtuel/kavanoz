@@ -28,4 +28,4 @@ Bu repo (public, MIT) kimlik-bağlama verisi içermez. Canlı ortamda `/srv/miko
 
 ## Lisans
 
-MIT — Asrın Kılıç (dixtuel)
+MIT — dixtuel
