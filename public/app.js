@@ -6,47 +6,63 @@
   var T = {
     tr: {
       anon: "Anonim",
-      sending: "Gönderiliyor…",
-      errGeneric: "Bir şeyler ters gitti, birazdan tekrar dene.",
-      errCaptcha: "Doğrulamayı tamamlayamadık, tekrar dene.",
+      sending: "Kavanoza bırakılıyor…",
+      dropBtn: "Kavanoza Bırak",
+      errGeneric: "Bir şeyler ters gitti, lütfen tekrar dene.",
+      errCaptcha: "Lütfen doğrulamayı tamamla.",
       errEmail: "Bu mail adresine ulaşılamıyor gibi görünüyor — adresi kontrol eder misin?",
       errContent: "Bu metin yayın kurallarımıza uymuyor, lütfen düzenleyip tekrar dene.",
       errMailDate: "Mail gönderim tarihi bugünden ileri ve en fazla 5 yıl sonrası olmalı.",
       errRetentionDate: "Saklama tarihi bugünden ileri ve en fazla 5 yıl sonrası olmalı.",
       success: "Kavanoza bırakıldı!",
+      copied: "Kopyalandı!",
       loadError: "Yüklenemedi.",
       empty: "Bu kavanoz henüz boş.",
-      shelfEmpty: "Rafta henüz kavanoz yok.",
+      shelfEmpty: "Rafta henüz arşivlenmiş kavanoz yok.",
       manageNotFound: "Bu anahtarla eşleşen bir not bulunamadı.",
       manageDeleted: "Not silindi.",
       manageSaved: "Değişiklikler kaydedildi.",
       confirmDelete: "Bu notu kalıcı olarak silmek istediğine emin misin?",
-      backToActive: "◀ aktif kavanoza dön",
-      jarBadge: function (n, cap) { return n + " / " + cap; },
-      progress: function (n, cap) { return "Şu anki kavanozda " + n + " / " + cap + " not var."; },
-      progressArchived: function (n, date) { return "Rafa kalkma tarihi: " + date; },
+      backToActive: "◀ Aktif Kavanoza Dön",
+      capacityBadge: function (n, cap) { return "Kapasite: " + n + " / " + cap + " Not"; },
+      jarTitleActive: "Kavanozdan Dökülenler",
+      jarTitleArchived: function (id) { return "Kavanoz #" + id + " Arşivi"; },
+      progressActive: function (n, cap) { return "Şu anki aktif kavanozda " + n + " / " + cap + " not var."; },
+      progressArchived: function (n, date) { return "Rafa kaldırılma tarihi: " + date + " (" + n + " Not)"; },
+      moreJarsLabel: "Daha Eski",
+      shelfJarBadge: function (id) { return "Kavanoz #" + id; },
+      notesCountSuffix: " Not",
+      archivedPrefix: "Arşivlendi: ",
     },
     en: {
       anon: "Anonymous",
-      sending: "Sending…",
-      errGeneric: "Something went wrong, try again shortly.",
-      errCaptcha: "We couldn't verify you're human, please try again.",
+      sending: "Dropping into jar…",
+      dropBtn: "Drop in the Jar",
+      errGeneric: "Something went wrong, please try again.",
+      errCaptcha: "Please complete the verification.",
       errEmail: "That email address doesn't look reachable — could you check it?",
       errContent: "This text doesn't meet our content guidelines, please edit and try again.",
       errMailDate: "The delivery date must be in the future, at most 5 years out.",
       errRetentionDate: "The retention date must be in the future, at most 5 years out.",
-      success: "Dropped in the jar!",
+      success: "Dropped into the jar!",
+      copied: "Copied!",
       loadError: "Couldn't load.",
       empty: "This jar is still empty.",
-      shelfEmpty: "No jars on the shelf yet.",
+      shelfEmpty: "No archived jars on the shelf yet.",
       manageNotFound: "No note matches this key.",
       manageDeleted: "Note deleted.",
       manageSaved: "Changes saved.",
       confirmDelete: "Are you sure you want to permanently delete this note?",
-      backToActive: "◀ back to the active jar",
-      jarBadge: function (n, cap) { return n + " / " + cap; },
-      progress: function (n, cap) { return "The current jar has " + n + " of " + cap + " notes."; },
-      progressArchived: function (n, date) { return "Archived on " + date; },
+      backToActive: "◀ Back to Active Jar",
+      capacityBadge: function (n, cap) { return "Capacity: " + n + " / " + cap + " Notes"; },
+      jarTitleActive: "Spilled from the Jar",
+      jarTitleArchived: function (id) { return "Archive of Jar #" + id; },
+      progressActive: function (n, cap) { return "Current active jar has " + n + " / " + cap + " notes."; },
+      progressArchived: function (n, date) { return "Archived on: " + date + " (" + n + " Notes)"; },
+      moreJarsLabel: "Older Jars",
+      shelfJarBadge: function (id) { return "Jar #" + id; },
+      notesCountSuffix: " Notes",
+      archivedPrefix: "Archived: ",
     },
   }[LANG];
 
@@ -61,65 +77,81 @@
   });
 
   function escapeHtml(str) {
+    if (!str) return "";
     var div = document.createElement("div");
     div.textContent = str;
     return div.innerHTML;
   }
 
   function formatDate(iso) {
+    if (!iso) return "";
     try {
-      return new Date(iso).toLocaleDateString(LANG === "en" ? "en-GB" : "tr-TR", { year: "numeric", month: "short", day: "numeric" });
+      return new Date(iso).toLocaleDateString(LANG === "en" ? "en-GB" : "tr-TR", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
     } catch (e) {
       return iso;
     }
   }
 
-  // ---------------- Kavanozun altındaki "Not ekle" butonu -> pop-up ----------------
-  var addNoteBtn = document.getElementById("add-note-btn");
+  // ---------------- Modallar Genel ----------------
+  function openModal(id) {
+    var el = document.getElementById(id);
+    if (el) el.hidden = false;
+  }
+  function closeModal(id) {
+    var el = document.getElementById(id);
+    if (el) el.hidden = true;
+  }
+
+  // ---------------- Not Ekle Modal ----------------
+  var openAddNoteBtns = document.querySelectorAll(".open-add-note-btn");
+  var addNoteModal = document.getElementById("add-note-modal");
+  var addNoteClose = document.getElementById("add-note-modal-close");
   var messageEl = document.getElementById("message");
+  var charCountEl = document.getElementById("char-count");
 
   function openDropForm() {
     openModal("add-note-modal");
-    setTimeout(function () { messageEl.focus(); }, 80);
+    setTimeout(function () { if (messageEl) messageEl.focus(); }, 100);
   }
   function closeDropForm() { closeModal("add-note-modal"); }
 
-  if (addNoteBtn) addNoteBtn.addEventListener("click", openDropForm);
-  var addNoteModalEl = document.getElementById("add-note-modal");
-  if (addNoteModalEl) {
-    document.getElementById("add-note-modal-close").addEventListener("click", closeDropForm);
-    addNoteModalEl.addEventListener("click", function (e) { if (e.target === addNoteModalEl) closeDropForm(); });
-  }
-
-  // ---------------- Header'daki "Notunu yönet" butonu -> pop-up ----------------
-  var manageOpenBtn = document.getElementById("manage-open-btn");
-  var manageModalEl = document.getElementById("manage-modal");
-  if (manageOpenBtn) manageOpenBtn.addEventListener("click", function () { openModal("manage-modal"); });
-  if (manageModalEl) {
-    document.getElementById("manage-modal-close").addEventListener("click", function () { closeModal("manage-modal"); });
-    manageModalEl.addEventListener("click", function (e) { if (e.target === manageModalEl) closeModal("manage-modal"); });
-  }
-
-  var moreToggle = document.getElementById("more-options-toggle");
-  var moreOptions = document.getElementById("more-options");
-  if (moreToggle) {
-    moreToggle.addEventListener("click", function () {
-      var show = moreOptions.hidden;
-      moreOptions.hidden = !show;
-      moreToggle.textContent = show ? "− mail / saklama süresi seçenekleri" : "+ mail / saklama süresi seçenekleri";
+  Array.prototype.forEach.call(openAddNoteBtns, function (btn) {
+    btn.addEventListener("click", openDropForm);
+  });
+  if (addNoteClose) addNoteClose.addEventListener("click", closeDropForm);
+  if (addNoteModal) {
+    addNoteModal.addEventListener("click", function (e) {
+      if (e.target === addNoteModal) closeDropForm();
     });
   }
 
-  var charCountEl = document.getElementById("char-count");
   if (messageEl && charCountEl) {
-    messageEl.addEventListener("input", function () { charCountEl.textContent = messageEl.value.length; });
+    messageEl.addEventListener("input", function () {
+      charCountEl.textContent = messageEl.value.length;
+    });
   }
 
   var wantMailCheckbox = document.getElementById("wantMail");
   var mailFields = document.getElementById("mail-fields");
-  if (wantMailCheckbox) {
+  if (wantMailCheckbox && mailFields) {
     wantMailCheckbox.addEventListener("change", function () {
       mailFields.style.display = wantMailCheckbox.checked ? "grid" : "none";
+    });
+  }
+
+  var moreToggle = document.getElementById("more-options-toggle");
+  var moreOptions = document.getElementById("more-options");
+  if (moreToggle && moreOptions) {
+    moreToggle.addEventListener("click", function () {
+      var show = moreOptions.hidden;
+      moreOptions.hidden = !show;
+      moreToggle.textContent = show
+        ? (LANG === "en" ? "− email / retention options" : "− mail / saklama süresi seçenekleri")
+        : (LANG === "en" ? "+ email / retention options" : "+ mail / saklama süresi seçenekleri");
     });
   }
 
@@ -133,11 +165,86 @@
       Array.prototype.forEach.call(retentionGroup.children, function (b) { b.classList.remove("selected"); });
       btn.classList.add("selected");
       selectedRetention = btn.dataset.retention;
-      retentionUntilInput.style.display = selectedRetention === "until_date" ? "block" : "none";
+      if (retentionUntilInput) {
+        retentionUntilInput.style.display = selectedRetention === "until_date" ? "block" : "none";
+      }
     });
   }
 
-  // ---------------- Form gönderimi ----------------
+  // ---------------- Header / Anahtar Yönetimi Modalı ----------------
+  var manageOpenBtn = document.getElementById("manage-open-btn");
+  var manageModal = document.getElementById("manage-modal");
+  var manageModalClose = document.getElementById("manage-modal-close");
+  if (manageOpenBtn) manageOpenBtn.addEventListener("click", function () { openModal("manage-modal"); });
+  if (manageModalClose) manageModalClose.addEventListener("click", function () { closeModal("manage-modal"); });
+  if (manageModal) {
+    manageModal.addEventListener("click", function (e) {
+      if (e.target === manageModal) closeModal("manage-modal");
+    });
+  }
+
+  // ---------------- Nasıl Çalışır Modalı ----------------
+  var howItWorksBtn = document.getElementById("how-it-works-btn");
+  var howItWorksModal = document.getElementById("how-it-works-modal");
+  var howItWorksClose = document.getElementById("how-it-works-close");
+  if (howItWorksBtn) howItWorksBtn.addEventListener("click", function () { openModal("how-it-works-modal"); });
+  if (howItWorksClose) howItWorksClose.addEventListener("click", function () { closeModal("how-it-works-modal"); });
+  if (howItWorksModal) {
+    howItWorksModal.addEventListener("click", function (e) {
+      if (e.target === howItWorksModal) closeModal("how-it-works-modal");
+    });
+  }
+
+  // ---------------- Note View Modal ----------------
+  var noteModal = document.getElementById("note-modal");
+  var noteModalClose = document.getElementById("note-modal-close");
+  if (noteModalClose) noteModalClose.addEventListener("click", function () { closeModal("note-modal"); });
+  if (noteModal) {
+    noteModal.addEventListener("click", function (e) {
+      if (e.target === noteModal) closeModal("note-modal");
+    });
+  }
+
+  function showNoteModal(note) {
+    if (!note) return;
+    document.getElementById("note-modal-name").textContent = note.displayName || T.anon;
+    document.getElementById("note-modal-date").textContent = formatDate(note.createdAt);
+    document.getElementById("note-modal-message").textContent = note.message;
+    openModal("note-modal");
+  }
+
+  // ---------------- Key Onay Modalı (Yönetim Anahtarı - Mockup Sağ Alt) ----------------
+  var keyModal = document.getElementById("key-modal");
+  var keyModalClose = document.getElementById("key-modal-close");
+  var keyModalOk = document.getElementById("key-modal-ok");
+  var keyCopyBtn = document.getElementById("key-copy-btn");
+  var keyDisplay = document.getElementById("key-display");
+
+  function showKeyModal(key) {
+    if (keyDisplay) keyDisplay.textContent = key;
+    openModal("key-modal");
+  }
+  if (keyModalClose) keyModalClose.addEventListener("click", function () { closeModal("key-modal"); });
+  if (keyModalOk) keyModalOk.addEventListener("click", function () { closeModal("key-modal"); });
+  if (keyModal) {
+    keyModal.addEventListener("click", function (e) {
+      if (e.target === keyModal) closeModal("key-modal");
+    });
+  }
+  if (keyCopyBtn) {
+    keyCopyBtn.addEventListener("click", function () {
+      var text = keyDisplay ? keyDisplay.textContent : "";
+      if (navigator.clipboard && text) {
+        navigator.clipboard.writeText(text).then(function () {
+          var orig = keyCopyBtn.textContent;
+          keyCopyBtn.textContent = T.copied;
+          setTimeout(function () { keyCopyBtn.textContent = orig; }, 1500);
+        }).catch(function () {});
+      }
+    });
+  }
+
+  // ---------------- Form Gönderimi ----------------
   var form = document.getElementById("note-form");
   var formMsg = document.getElementById("form-msg");
   var submitBtn = document.getElementById("submit-btn");
@@ -174,12 +281,12 @@
         retentionMode: selectedRetention,
         hcaptchaToken: hcaptchaToken,
       };
-      if (wantMailCheckbox.checked) {
+      if (wantMailCheckbox && wantMailCheckbox.checked) {
         payload.email = document.getElementById("email").value;
         var mailDate = document.getElementById("mailSendAt").value;
         payload.mailSendAt = mailDate ? new Date(mailDate + "T12:00:00").toISOString() : null;
       }
-      if (selectedRetention === "until_date") {
+      if (selectedRetention === "until_date" && retentionUntilInput) {
         var retDate = retentionUntilInput.value;
         payload.retentionUntil = retDate ? new Date(retDate + "T12:00:00").toISOString() : null;
       }
@@ -192,7 +299,9 @@
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       })
-        .then(function (res) { return res.json().then(function (body) { return { ok: res.ok, body: body }; }); })
+        .then(function (res) {
+          return res.json().then(function (body) { return { ok: res.ok, body: body }; });
+        })
         .then(function (result) {
           if (result.ok) {
             var justAdded = {
@@ -203,20 +312,29 @@
             };
             formMsg.className = "form-msg success";
             formMsg.textContent = T.success;
-            showKeyModal(result.body.managementKey);
             form.reset();
-            mailFields.style.display = "none";
-            retentionUntilInput.style.display = "none";
-            moreOptions.hidden = true;
-            moreToggle.textContent = "+ mail / saklama süresi seçenekleri";
+            if (mailFields) mailFields.style.display = "none";
+            if (retentionUntilInput) retentionUntilInput.style.display = "none";
+            if (moreOptions) moreOptions.hidden = true;
+            if (moreToggle) {
+              moreToggle.textContent = LANG === "en" ? "+ email / retention options" : "+ mail / saklama süresi seçenekleri";
+            }
             selectedRetention = "admin";
-            Array.prototype.forEach.call(retentionGroup.children, function (b) { b.classList.remove("selected"); });
-            retentionGroup.children[0].classList.add("selected");
+            if (retentionGroup) {
+              Array.prototype.forEach.call(retentionGroup.children, function (b) { b.classList.remove("selected"); });
+              retentionGroup.children[0].classList.add("selected");
+            }
             if (window.hcaptcha) window.hcaptcha.reset();
-            charCountEl.textContent = "0";
+            if (charCountEl) charCountEl.textContent = "0";
+
             closeDropForm();
-            if (window.__kavanozJar) window.__kavanozJar.addNote(1, [justAdded]);
+            showKeyModal(result.body.managementKey);
+
+            if (window.__kavanozJar) {
+              window.__kavanozJar.addNote(1, [justAdded]);
+            }
             loadActiveJar();
+            loadShelf();
           } else {
             formMsg.className = "form-msg error";
             formMsg.textContent = ERROR_MAP[result.body.error] || T.errGeneric;
@@ -229,117 +347,100 @@
         })
         .finally(function () {
           submitBtn.disabled = false;
-          submitBtn.textContent = LANG === "en" ? "Drop it in the jar" : "Kavanoza bırak";
+          submitBtn.textContent = T.dropBtn;
         });
     });
   }
 
-  // ---------------- Modallar ----------------
-  function openModal(id) { document.getElementById(id).hidden = false; }
-  function closeModal(id) { document.getElementById(id).hidden = true; }
-
-  var noteModal = document.getElementById("note-modal");
-  if (noteModal) {
-    document.getElementById("note-modal-close").addEventListener("click", function () { closeModal("note-modal"); });
-    noteModal.addEventListener("click", function (e) { if (e.target === noteModal) closeModal("note-modal"); });
-  }
-  function showNoteModal(note) {
-    document.getElementById("note-modal-name").textContent = note.displayName || T.anon;
-    document.getElementById("note-modal-date").textContent = formatDate(note.createdAt);
-    document.getElementById("note-modal-message").textContent = note.message;
-    openModal("note-modal");
-  }
-
-  var keyModal = document.getElementById("key-modal");
-  if (keyModal) {
-    document.getElementById("key-modal-close").addEventListener("click", function () { closeModal("key-modal"); });
-    keyModal.addEventListener("click", function (e) { if (e.target === keyModal) closeModal("key-modal"); });
-    document.getElementById("key-copy-btn").addEventListener("click", function () {
-      var text = document.getElementById("key-display").textContent;
-      if (navigator.clipboard) navigator.clipboard.writeText(text).catch(function () {});
-    });
-  }
-  function showKeyModal(key) {
-    document.getElementById("key-display").textContent = key;
-    openModal("key-modal");
-  }
-
-  // ---------------- Fizik kavanozu ----------------
+  // ---------------- Fizik Kavanozu & Sallama ----------------
   var jarCanvas = document.getElementById("jar-canvas");
-  var jarCountBadge = document.getElementById("jar-count-badge");
-  var jarFillBarInner = document.getElementById("jar-fill-bar-inner");
+  var jarCapacityBadge = document.getElementById("jar-capacity-badge");
+  var jarProgressFill = document.getElementById("jar-progress-fill");
+  var jarShakeBtn = document.getElementById("jar-shake-btn");
+
   if (jarCanvas && window.Matter && window.KavanozJar) {
     var glassEl = jarCanvas.closest(".jar-canvas-glass");
-    jarCanvas.width = glassEl.clientWidth * 0.84;
-    jarCanvas.height = glassEl.clientHeight * 0.82;
-    jarCanvas.style.width = jarCanvas.width + "px";
-    jarCanvas.style.height = jarCanvas.height + "px";
+    var rect = jarCanvas.parentElement.getBoundingClientRect();
+    jarCanvas.width = 304;
+    jarCanvas.height = 330;
     window.__kavanozJar = new window.KavanozJar(jarCanvas, {
-      onNoteClick: function (noteData) { if (noteData) showNoteModal(noteData); },
+      onNoteClick: function (noteData) {
+        if (noteData) showNoteModal(noteData);
+      },
     });
   }
 
-  // ---------------- Kavanozdaki yazılar (açılır/kapanır kısa liste) ----------------
-  var jarListToggle = document.getElementById("jar-list-toggle");
-  var jarQuickList = document.getElementById("jar-quick-list");
-  var lastLoadedNotes = [];
+  if (jarShakeBtn) {
+    jarShakeBtn.addEventListener("click", function () {
+      if (window.__kavanozJar) {
+        window.__kavanozJar.shake(2.8);
+      }
+    });
+  }
 
-  function renderQuickList() {
-    if (lastLoadedNotes.length === 0) {
-      jarQuickList.innerHTML = '<div style="padding:14px; color:var(--ink-dim); font-size:0.85rem;">' + T.empty + "</div>";
+  // ---------------- Kavanozdaki Yazılar Çekmecesi ----------------
+  var jarDrawerToggle = document.getElementById("jar-drawer-toggle");
+  var jarDrawerPanel = document.getElementById("jar-drawer-panel");
+  var jarDrawerItems = document.getElementById("jar-drawer-items");
+  var activeNotesList = [];
+
+  function renderDrawerNotes() {
+    if (!jarDrawerItems) return;
+    jarDrawerItems.innerHTML = "";
+    if (activeNotesList.length === 0) {
+      jarDrawerItems.innerHTML = '<div style="padding:10px; color:var(--ink-dim); font-size:0.85rem;">' + T.empty + '</div>';
       return;
     }
-    jarQuickList.innerHTML = "";
-    lastLoadedNotes.forEach(function (note) {
-      var item = document.createElement("button");
-      item.type = "button";
-      item.className = "jar-quick-list-item";
+    activeNotesList.forEach(function (note) {
+      var item = document.createElement("div");
+      item.className = "drawer-note-item";
       item.innerHTML =
-        '<span class="name">' + escapeHtml(note.displayName || T.anon) + "</span><br>" +
-        '<span class="snippet">' + escapeHtml(note.message) + "</span>";
+        '<div class="drawer-note-name">' + escapeHtml(note.displayName || T.anon) + '</div>' +
+        '<div class="drawer-note-snippet">' + escapeHtml(note.message) + '</div>';
       item.addEventListener("click", function () { showNoteModal(note); });
-      jarQuickList.appendChild(item);
+      jarDrawerItems.appendChild(item);
     });
   }
 
-  if (jarListToggle) {
-    jarListToggle.addEventListener("click", function () {
-      jarQuickList.hidden = !jarQuickList.hidden;
-      if (!jarQuickList.hidden) renderQuickList();
+  if (jarDrawerToggle && jarDrawerPanel) {
+    jarDrawerToggle.addEventListener("click", function () {
+      var hidden = jarDrawerPanel.hidden;
+      jarDrawerPanel.hidden = !hidden;
+      if (!jarDrawerPanel.hidden) renderDrawerNotes();
     });
   }
 
-  // ---------------- Not kartları (masonry) ----------------
-  var CARD_COLORS = ["#F2A2A2", "#A8CDD6", "#B7C9A0", "#F2CB6E", "#D9C9F0", "#FFFDF8"];
-  var CARD_ROTATIONS = [-2.5, 1.5, -1, 2, -1.8, 1, 2.5, -2];
+  // ---------------- Not Kartları Duvarı (Masonry) ----------------
+  var CARD_COLORS = ["#FFFDF8", "#FCE8E8", "#E6F4EA", "#E8F0FE", "#FEF7E0", "#F3E8FD"];
+  var CARD_ROTATIONS = [-2, 1.5, -1, 2, -1.8, 1, 2.2, -1.5];
 
   var masonryEl = document.getElementById("note-masonry");
-  var loadMoreActiveBtn = document.getElementById("load-more-active");
-  var progressText = document.getElementById("jar-progress-text");
-  var jarSection = document.getElementById("kavanoz");
+  var loadMoreBtn = document.getElementById("load-more-btn");
+  var wallTitle = document.getElementById("wall-title");
+  var wallSubtitle = document.getElementById("wall-subtitle");
+  var wallSection = document.getElementById("notes-wall-section");
 
   var currentJarId = null;
   var currentJarIsActive = true;
   var lastNoteId = null;
 
   function renderNoteCards(notes, append) {
+    if (!masonryEl) return;
     if (!append) masonryEl.innerHTML = "";
     if (notes.length === 0 && !append) {
-      masonryEl.innerHTML = '<p style="color:var(--ink-dim)">' + T.empty + "</p>";
+      masonryEl.innerHTML = '<p style="color:var(--ink-dim); grid-column:1/-1;">' + T.empty + '</p>';
       return;
     }
     notes.forEach(function (note, i) {
-      var card = document.createElement("button");
-      card.type = "button";
+      var card = document.createElement("div");
       card.className = "note-card";
       var color = CARD_COLORS[(note.id + i) % CARD_COLORS.length];
       var rot = CARD_ROTATIONS[(note.id + i) % CARD_ROTATIONS.length];
       card.style.setProperty("--card-color", color);
       card.style.setProperty("--rot", rot + "deg");
-      var snippet = note.message.length > 140 ? note.message.slice(0, 140) + "…" : note.message;
       card.innerHTML =
-        '<div class="snippet">' + escapeHtml(snippet) + "</div>" +
-        '<div class="meta"><span>' + escapeHtml(note.displayName || T.anon) + '</span><span>' + escapeHtml(formatDate(note.createdAt)) + "</span></div>";
+        '<div class="snippet">' + escapeHtml(note.message) + '</div>' +
+        '<div class="meta"><span>' + escapeHtml(note.displayName || T.anon) + '</span><span>' + escapeHtml(formatDate(note.createdAt)) + '</span></div>';
       card.addEventListener("click", function () { showNoteModal(note); });
       masonryEl.appendChild(card);
     });
@@ -353,7 +454,7 @@
         var items = data.items || [];
         renderNoteCards(items, append);
         if (items.length > 0) lastNoteId = items[items.length - 1].id;
-        loadMoreActiveBtn.hidden = items.length < 24;
+        if (loadMoreBtn) loadMoreBtn.hidden = items.length < 24;
         return data;
       });
   }
@@ -361,133 +462,195 @@
   function loadActiveJar() {
     currentJarIsActive = true;
     lastNoteId = null;
+    if (wallTitle) wallTitle.textContent = T.jarTitleActive;
+
     fetch("/api/jars/active")
       .then(function (res) { return res.json(); })
       .then(function (summary) {
         currentJarId = summary.id;
-        if (jarCountBadge) jarCountBadge.textContent = T.jarBadge(summary.noteCount, summary.capacity);
-        if (jarFillBarInner) jarFillBarInner.style.width = Math.min(100, Math.round((summary.noteCount / summary.capacity) * 100)) + "%";
-        progressText.textContent = T.progress(summary.noteCount, summary.capacity);
+        if (jarCapacityBadge) {
+          jarCapacityBadge.textContent = T.capacityBadge(summary.noteCount, summary.capacity);
+        }
+        if (jarProgressFill) {
+          var pct = Math.min(100, Math.round((summary.noteCount / summary.capacity) * 100));
+          jarProgressFill.style.width = pct + "%";
+        }
+        if (wallSubtitle) {
+          wallSubtitle.textContent = T.progressActive(summary.noteCount, summary.capacity);
+        }
+
         return loadJarNotes(currentJarId, false).then(function (data) {
           var items = data.items || [];
-          lastLoadedNotes = items;
-          if (!jarQuickList.hidden) renderQuickList();
+          activeNotesList = items;
+          if (jarDrawerPanel && !jarDrawerPanel.hidden) renderDrawerNotes();
           if (window.__kavanozJar) {
-            var toDrop = items.slice(0, 12);
-            var dropped = 0;
-            var timer = setInterval(function () {
-              window.__kavanozJar.addNote(1, [toDrop[dropped]]);
-              dropped++;
-              if (dropped >= toDrop.length) clearInterval(timer);
-            }, 90);
+            window.__kavanozJar.setNotes(items);
           }
         });
       })
-      .catch(function () { progressText.textContent = T.loadError; });
+      .catch(function () {
+        if (wallSubtitle) wallSubtitle.textContent = T.loadError;
+      });
   }
 
   function viewArchivedJar(jarId, meta) {
     currentJarIsActive = false;
     currentJarId = jarId;
     lastNoteId = null;
-    progressText.innerHTML = '<a href="#" id="back-to-active" class="back-link">' + T.backToActive + "</a><br>" + T.progressArchived(meta.noteCount, formatDate(meta.archivedAt));
-    document.getElementById("back-to-active").addEventListener("click", function (e) {
-      e.preventDefault();
-      loadActiveJar();
-      jarSection.scrollIntoView({ behavior: "smooth" });
+
+    if (wallTitle) wallTitle.textContent = T.jarTitleArchived(jarId);
+    if (wallSubtitle) {
+      wallSubtitle.innerHTML =
+        '<a href="#" id="back-to-active-btn" style="display:inline-block; font-weight:700; color:var(--amber-deep); margin-bottom:4px;">' +
+        T.backToActive + '</a><br>' + T.progressArchived(meta.noteCount, formatDate(meta.archivedAt));
+
+      var backBtn = document.getElementById("back-to-active-btn");
+      if (backBtn) {
+        backBtn.addEventListener("click", function (e) {
+          e.preventDefault();
+          loadActiveJar();
+          if (wallSection) wallSection.scrollIntoView({ behavior: "smooth" });
+        });
+      }
+    }
+
+    loadJarNotes(jarId, false).then(function (data) {
+      var items = data.items || [];
+      activeNotesList = items;
+      if (jarDrawerPanel && !jarDrawerPanel.hidden) renderDrawerNotes();
+      if (window.__kavanozJar) {
+        window.__kavanozJar.setNotes(items);
+      }
     });
-    loadJarNotes(jarId, false);
-    jarSection.scrollIntoView({ behavior: "smooth" });
+
+    if (wallSection) wallSection.scrollIntoView({ behavior: "smooth" });
   }
 
-  if (loadMoreActiveBtn) loadMoreActiveBtn.addEventListener("click", function () { loadJarNotes(currentJarId, true); });
-
-  // ---------------- Raf ----------------
-  var shelfGrid = document.getElementById("shelf-grid");
-  var lastShelfId = null;
-
-  function jarIconSvg() {
-    return '<svg viewBox="0 0 40 46" aria-hidden="true"><rect x="12" y="6" width="16" height="8" rx="3" fill="#7C9660"/><rect x="6" y="14" width="28" height="28" rx="8" fill="#E2A33D" opacity="0.85"/></svg>';
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener("click", function () {
+      loadJarNotes(currentJarId, true);
+    });
   }
 
-  var SHELF_ROW_SIZES = [3, 2]; // üst raf 3, alt raf 2 kavanoz
-  var SHELF_VISIBLE = SHELF_ROW_SIZES.reduce(function (a, b) { return a + b; }, 0);
-  var shelfItems = [];
-  var shelfTotal = 0;
+  // ---------------- Raflar (Shelves - Mockup Görseline Uygun İki Raflı Düzen) ----------------
+  var shelf1El = document.getElementById("shelf-1-jars");
+  var shelf2El = document.getElementById("shelf-2-jars");
+  var shelfListModal = document.getElementById("shelf-list-modal");
+  var shelfListClose = document.getElementById("shelf-list-modal-close");
+  var shelfListItems = document.getElementById("shelf-list-items");
 
-  function renderPantry() {
-    shelfGrid.innerHTML = "";
-    if (shelfItems.length === 0) {
-      shelfGrid.innerHTML = '<p style="color:var(--ink-dim)">' + T.shelfEmpty + "</p>";
+  var BADGE_COLORS = ["badge-blue", "badge-pink", "badge-green", "badge-amber", "badge-purple"];
+
+  function shelfJarSvg() {
+    return (
+      '<svg class="shelf-jar-glass" viewBox="0 0 110 135" aria-hidden="true">' +
+      '<defs>' +
+      '<linearGradient id="lidGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8CA870"/><stop offset="100%" stop-color="#67804E"/></linearGradient>' +
+      '<linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,0.75)"/><stop offset="25%" stop-color="rgba(255,255,255,0.25)"/><stop offset="75%" stop-color="rgba(255,255,255,0.15)"/><stop offset="100%" stop-color="rgba(255,255,255,0.6)"/></linearGradient>' +
+      '</defs>' +
+      '<rect x="22" y="6" width="66" height="18" rx="5" fill="url(#lidGrad)" stroke="rgba(40,30,20,0.2)" stroke-width="1.5"/>' +
+      '<rect x="26" y="22" width="58" height="6" fill="#586E42"/>' +
+      '<rect x="8" y="26" width="94" height="102" rx="20" fill="url(#glassGrad)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>' +
+      '<rect x="11" y="29" width="88" height="96" rx="17" fill="rgba(255,253,248,0.3)" stroke="rgba(40,30,20,0.12)" stroke-width="1"/>' +
+      '<path d="M16 40 Q16 115 24 120" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="3" stroke-linecap="round"/>' +
+      '</svg>'
+    );
+  }
+
+  function createShelfJarCard(jar, index) {
+    var card = document.createElement("button");
+    card.type = "button";
+    card.className = "shelf-jar-card";
+    var badgeColor = BADGE_COLORS[(jar.id + index) % BADGE_COLORS.length];
+    card.innerHTML =
+      shelfJarSvg() +
+      '<div class="shelf-jar-label">' +
+      '<span class="shelf-label-badge ' + badgeColor + '">' + T.shelfJarBadge(jar.id) + '</span>' +
+      '<span class="shelf-label-date">' + T.archivedPrefix + escapeHtml(formatDate(jar.archivedAt)) + '</span>' +
+      '<span class="shelf-label-count">' + jar.noteCount + T.notesCountSuffix + '</span>' +
+      '</div>';
+
+    card.addEventListener("click", function () {
+      document.querySelectorAll(".shelf-jar-card").forEach(function (c) { c.classList.remove("active-view"); });
+      card.classList.add("active-view");
+      viewArchivedJar(jar.id, jar);
+    });
+    return card;
+  }
+
+  function renderShelves(items, total) {
+    if (!shelf1El || !shelf2El) return;
+    shelf1El.innerHTML = "";
+    shelf2El.innerHTML = "";
+
+    if (items.length === 0) {
+      shelf1El.innerHTML = '<p style="color:rgba(255,255,255,0.85); font-size:0.85rem; padding:10px;">' + T.shelfEmpty + '</p>';
       return;
     }
-    var visible = shelfItems.slice(0, SHELF_VISIBLE);
-    var remaining = shelfTotal - visible.length;
-    var cursor = 0;
-    SHELF_ROW_SIZES.forEach(function (size, rowIndex) {
-      if (cursor >= visible.length && remaining <= 0) return;
-      var rowItems = visible.slice(cursor, cursor + size);
-      cursor += size;
-      var isLastRow = rowIndex === SHELF_ROW_SIZES.length - 1;
-      var row = document.createElement("div");
-      row.className = "pantry-row";
-      var jarsWrap = document.createElement("div");
-      jarsWrap.className = "pantry-jars";
-      rowItems.forEach(function (jar) {
-        var card = document.createElement("button");
-        card.type = "button";
-        card.className = "shelf-jar";
-        card.innerHTML = jarIconSvg() + '<div class="count">' + jar.noteCount + "</div>" + '<div class="date">' + escapeHtml(formatDate(jar.archivedAt)) + "</div>";
-        card.addEventListener("click", function () { viewArchivedJar(jar.id, jar); });
-        jarsWrap.appendChild(card);
-      });
-      if (isLastRow && remaining > 0) {
-        var moreBtn = document.createElement("button");
-        moreBtn.type = "button";
-        moreBtn.className = "shelf-jar-more";
-        moreBtn.textContent = "+" + remaining;
-        moreBtn.title = LANG === "en" ? remaining + " more jars" : remaining + " kavanoz daha";
-        moreBtn.addEventListener("click", openShelfListModal);
-        jarsWrap.appendChild(moreBtn);
-      }
-      var plank = document.createElement("div");
-      plank.className = "pantry-plank";
-      row.appendChild(jarsWrap);
-      row.appendChild(plank);
-      shelfGrid.appendChild(row);
+
+    // 1. Raf: İlk 2 veya 3 kavanoz
+    var shelf1Items = items.slice(0, 2);
+    shelf1Items.forEach(function (jar, i) {
+      shelf1El.appendChild(createShelfJarCard(jar, i));
     });
+
+    // 2. Raf: Sonraki kavanozlar + Sağ altta "+X" butonu
+    var remainingVisibleSlots = 3; // 2 kavanoz + 1 more butonu veya 3 kavanoz
+    var shelf2Jars = items.slice(2, 2 + 2); // 2 kavanoz
+    var shownCount = shelf1Items.length + shelf2Jars.length;
+    var extraCount = total - shownCount;
+
+    shelf2Jars.forEach(function (jar, i) {
+      shelf2El.appendChild(createShelfJarCard(jar, 2 + i));
+    });
+
+    if (extraCount > 0) {
+      var moreCard = document.createElement("button");
+      moreCard.type = "button";
+      moreCard.className = "shelf-jar-more";
+      moreCard.innerHTML =
+        '<span class="shelf-more-num">+' + extraCount + '</span>' +
+        '<span class="shelf-more-label">' + T.moreJarsLabel + '</span>';
+      moreCard.addEventListener("click", openShelfListModal);
+      shelf2El.appendChild(moreCard);
+    } else if (items.length > 4) {
+      var fifthJar = items[4];
+      shelf2El.appendChild(createShelfJarCard(fifthJar, 4));
+    }
   }
 
   function loadShelf() {
-    fetch("/api/jars/shelf?limit=" + SHELF_VISIBLE)
+    fetch("/api/jars/shelf?limit=6")
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        shelfItems = data.items || [];
-        shelfTotal = data.total || shelfItems.length;
-        renderPantry();
+        var items = data.items || [];
+        var total = data.total || items.length;
+        renderShelves(items, total);
       })
-      .catch(function () { shelfGrid.innerHTML = '<p style="color:var(--ink-dim)">' + T.loadError + "</p>"; });
+      .catch(function () {
+        if (shelf1El) shelf1El.innerHTML = '<p style="color:white; font-size:0.8rem;">' + T.loadError + '</p>';
+      });
   }
 
-  var shelfListModal = document.getElementById("shelf-list-modal");
-  var shelfListItems = document.getElementById("shelf-list-items");
   function openShelfListModal() {
-    shelfListItems.innerHTML = "<li>" + (LANG === "en" ? "Loading…" : "Yükleniyor…") + "</li>";
+    if (!shelfListItems) return;
+    shelfListItems.innerHTML = '<li>' + (LANG === "en" ? "Loading archived jars…" : "Arşivdeki kavanozlar yükleniyor…") + '</li>';
     openModal("shelf-list-modal");
-    fetch("/api/jars/shelf?limit=200")
+
+    fetch("/api/jars/shelf?limit=150")
       .then(function (res) { return res.json(); })
       .then(function (data) {
         var items = data.items || [];
         shelfListItems.innerHTML = "";
+        if (items.length === 0) {
+          shelfListItems.innerHTML = '<li>' + T.shelfEmpty + '</li>';
+          return;
+        }
         items.forEach(function (jar) {
           var li = document.createElement("li");
-          var label = document.createElement("span");
-          label.textContent = (LANG === "en" ? "Jar" : "Kavanoz") + " #" + jar.id;
-          var meta = document.createElement("span");
-          meta.className = "shelf-list-meta";
-          meta.textContent = formatDate(jar.archivedAt) + " · " + jar.noteCount + (LANG === "en" ? " notes" : " not");
-          li.appendChild(label);
-          li.appendChild(meta);
+          li.innerHTML =
+            '<span class="jar-id-title">' + T.shelfJarBadge(jar.id) + '</span>' +
+            '<span class="shelf-list-meta">' + formatDate(jar.archivedAt) + ' · ' + jar.noteCount + T.notesCountSuffix + '</span>';
           li.addEventListener("click", function () {
             closeModal("shelf-list-modal");
             viewArchivedJar(jar.id, jar);
@@ -495,72 +658,81 @@
           shelfListItems.appendChild(li);
         });
       })
-      .catch(function () { shelfListItems.innerHTML = "<li>" + T.loadError + "</li>"; });
+      .catch(function () {
+        shelfListItems.innerHTML = '<li>' + T.loadError + '</li>';
+      });
   }
+
+  if (shelfListClose) shelfListClose.addEventListener("click", function () { closeModal("shelf-list-modal"); });
   if (shelfListModal) {
-    document.getElementById("shelf-list-modal-close").addEventListener("click", function () { closeModal("shelf-list-modal"); });
-    shelfListModal.addEventListener("click", function (e) { if (e.target === shelfListModal) closeModal("shelf-list-modal"); });
+    shelfListModal.addEventListener("click", function (e) {
+      if (e.target === shelfListModal) closeModal("shelf-list-modal");
+    });
   }
 
-  if (jarSection) {
-    loadActiveJar();
-    loadShelf();
-  }
-
-  // ---------------- Notunu yönet ----------------
+  // ---------------- Notunu Yönet İşlemleri ----------------
   var manageKeyInput = document.getElementById("manageKey");
   var manageFetchBtn = document.getElementById("manage-fetch-btn");
   var manageMsg = document.getElementById("manage-msg");
   var manageResult = document.getElementById("manage-result");
   var manageWantMail = document.getElementById("manageWantMail");
   var manageMailFields = document.getElementById("manage-mail-fields");
+  var manageSaveBtn = document.getElementById("manage-save-btn");
+  var manageDeleteBtn = document.getElementById("manage-delete-btn");
 
-  if (manageWantMail) {
+  if (manageWantMail && manageMailFields) {
     manageWantMail.addEventListener("change", function () {
       manageMailFields.style.display = manageWantMail.checked ? "grid" : "none";
     });
   }
 
   function manageRequest(action, extra) {
-    var body = Object.assign({ managementKey: manageKeyInput.value.trim(), action: action }, extra || {});
+    var key = manageKeyInput ? manageKeyInput.value.trim() : "";
+    var body = Object.assign({ managementKey: key, action: action }, extra || {});
     return fetch("/api/notes/manage", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
-    }).then(function (res) { return res.json().then(function (data) { return { ok: res.ok, data: data }; }); });
+    }).then(function (res) {
+      return res.json().then(function (data) { return { ok: res.ok, data: data }; });
+    });
   }
 
   if (manageFetchBtn) {
     manageFetchBtn.addEventListener("click", function () {
-      manageMsg.className = "form-msg";
-      manageMsg.textContent = "";
-      manageResult.hidden = true;
+      if (manageMsg) {
+        manageMsg.className = "form-msg";
+        manageMsg.textContent = "";
+      }
+      if (manageResult) manageResult.hidden = true;
+
       manageRequest("get").then(function (result) {
         if (!result.ok) {
-          manageMsg.className = "form-msg error";
-          manageMsg.textContent = T.manageNotFound;
+          if (manageMsg) {
+            manageMsg.className = "form-msg error";
+            manageMsg.textContent = T.manageNotFound;
+          }
           return;
         }
         var note = result.data.note;
         document.getElementById("manageMessage").value = note.message;
         document.getElementById("manageDisplayName").value = note.displayName || "";
-        manageWantMail.checked = !!note.email;
-        manageMailFields.style.display = note.email ? "grid" : "none";
+        if (manageWantMail) manageWantMail.checked = !!note.email;
+        if (manageMailFields) manageMailFields.style.display = note.email ? "grid" : "none";
         document.getElementById("manageEmail").value = note.email || "";
         document.getElementById("manageMailSendAt").value = note.mailSendAt ? note.mailSendAt.slice(0, 10) : "";
-        manageResult.hidden = false;
+        if (manageResult) manageResult.hidden = false;
       });
     });
   }
 
-  var manageSaveBtn = document.getElementById("manage-save-btn");
   if (manageSaveBtn) {
     manageSaveBtn.addEventListener("click", function () {
       var fields = {
         message: document.getElementById("manageMessage").value,
         displayName: document.getElementById("manageDisplayName").value,
       };
-      if (manageWantMail.checked) {
+      if (manageWantMail && manageWantMail.checked) {
         fields.email = document.getElementById("manageEmail").value;
         var d = document.getElementById("manageMailSendAt").value;
         fields.mailSendAt = d ? new Date(d + "T12:00:00").toISOString() : null;
@@ -568,26 +740,38 @@
         fields.email = null;
         fields.mailSendAt = null;
       }
-      manageRequest("update", fields).then(function (result) {
-        manageMsg.className = "form-msg " + (result.ok ? "success" : "error");
-        manageMsg.textContent = result.ok ? T.manageSaved : (ERROR_MAP[result.data.error] || T.errGeneric);
-      });
-    });
-  }
 
-  var manageDeleteBtn = document.getElementById("manage-delete-btn");
-  if (manageDeleteBtn) {
-    manageDeleteBtn.addEventListener("click", function () {
-      if (!confirm(T.confirmDelete)) return;
-      manageRequest("delete").then(function (result) {
-        manageMsg.className = "form-msg " + (result.ok ? "success" : "error");
-        manageMsg.textContent = result.ok ? T.manageDeleted : T.manageNotFound;
+      manageRequest("update", fields).then(function (result) {
+        if (manageMsg) {
+          manageMsg.className = "form-msg " + (result.ok ? "success" : "error");
+          manageMsg.textContent = result.ok ? T.manageSaved : (ERROR_MAP[result.data.error] || T.errGeneric);
+        }
         if (result.ok) {
-          manageResult.hidden = true;
-          manageKeyInput.value = "";
           loadActiveJar();
         }
       });
     });
   }
+
+  if (manageDeleteBtn) {
+    manageDeleteBtn.addEventListener("click", function () {
+      if (!confirm(T.confirmDelete)) return;
+      manageRequest("delete").then(function (result) {
+        if (manageMsg) {
+          manageMsg.className = "form-msg " + (result.ok ? "success" : "error");
+          manageMsg.textContent = result.ok ? T.manageDeleted : T.manageNotFound;
+        }
+        if (result.ok) {
+          if (manageResult) manageResult.hidden = true;
+          if (manageKeyInput) manageKeyInput.value = "";
+          loadActiveJar();
+          loadShelf();
+        }
+      });
+    });
+  }
+
+  // İlk Yükleme
+  loadActiveJar();
+  loadShelf();
 })();
