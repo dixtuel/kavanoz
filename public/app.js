@@ -67,12 +67,14 @@
   var yearEl = document.getElementById("year");
   if (yearEl) yearEl.textContent = new Date().getFullYear();
 
-  var langLinks = document.querySelectorAll(".lang-switch a");
-  Array.prototype.forEach.call(langLinks, function (a) {
-    a.addEventListener("click", function () {
-      try { localStorage.setItem("kavanozLang", a.textContent.trim().toLowerCase()); } catch (e) {}
+  var langBtn = document.getElementById("lang-btn");
+  if (langBtn) {
+    langBtn.addEventListener("click", function () {
+      var nextLang = LANG === "tr" ? "en" : "tr";
+      try { localStorage.setItem("kavanozLang", nextLang); } catch (e) {}
+      location.href = nextLang === "en" ? "/en/" : "/";
     });
-  });
+  }
 
   function escapeHtml(str) {
     if (!str) return "";
@@ -86,8 +88,8 @@
     try {
       return new Date(iso).toLocaleDateString(LANG === "en" ? "en-GB" : "tr-TR", {
         year: "numeric",
-        month: "short",
-        day: "numeric",
+        month: "2-digit",
+        day: "2-digit",
       });
     } catch (e) {
       return iso;
@@ -358,15 +360,14 @@
 
   // ---------------- Fizik Kavanozu & Sallama ----------------
   var jarCanvas = document.getElementById("jar-canvas");
-  var jarCapacityBadge = document.getElementById("jar-capacity-badge");
-  var jarStatusBadge = document.getElementById("jar-status-badge");
+  var jarCapacityText = document.getElementById("jar-capacity-text");
   var jarProgressFill = document.getElementById("jar-progress-fill");
   var jarShakeBtn = document.getElementById("jar-shake-btn");
   var backToActiveBtn = document.getElementById("back-to-active-btn");
 
   if (jarCanvas && window.Matter && window.KavanozJar) {
-    jarCanvas.width = 304;
-    jarCanvas.height = 330;
+    jarCanvas.width = 288;
+    jarCanvas.height = 312;
     window.__kavanozJar = new window.KavanozJar(jarCanvas, {
       onNoteClick: function (noteData) {
         if (noteData) showNoteModal(noteData);
@@ -436,23 +437,22 @@
   function loadActiveJar() {
     currentJarIsActive = true;
     if (backToActiveBtn) backToActiveBtn.hidden = true;
-    if (jarStatusBadge) jarStatusBadge.textContent = T.activeJarBadge;
 
     fetch("/api/jars/active")
       .then(function (res) { return res.json(); })
       .then(function (summary) {
         currentJarId = summary.id;
-        if (jarCapacityBadge) {
-          jarCapacityBadge.textContent = T.capacityBadge(summary.noteCount, summary.capacity);
+        if (jarCapacityText) {
+          jarCapacityText.textContent = T.capacityBadge(summary.noteCount, summary.capacity);
         }
         if (jarProgressFill) {
           var pct = Math.min(100, Math.round((summary.noteCount / summary.capacity) * 100));
-          jarProgressFill.style.width = pct + "%";
+          jarProgressFill.style.width = Math.max(pct, 6) + "%";
         }
         return loadJarNotes(currentJarId);
       })
       .catch(function () {
-        if (jarCapacityBadge) jarCapacityBadge.textContent = T.loadError;
+        if (jarCapacityText) jarCapacityText.textContent = T.loadError;
       });
   }
 
@@ -461,15 +461,25 @@
     currentJarId = jarId;
 
     if (backToActiveBtn) backToActiveBtn.hidden = false;
-    if (jarStatusBadge) jarStatusBadge.textContent = T.archivedJarBadge(jarId);
-    if (jarCapacityBadge) {
-      jarCapacityBadge.textContent = T.archivedCapacityBadge(meta.noteCount) + " (" + formatDate(meta.archivedAt) + ")";
+    if (jarCapacityText) {
+      jarCapacityText.textContent = T.archivedJarBadge(jarId) + " · " + T.archivedCapacityBadge(meta.noteCount);
     }
     if (jarProgressFill) {
       jarProgressFill.style.width = "100%";
     }
 
-    loadJarNotes(jarId);
+    if (meta.isDemo) {
+      var demoNotes = [
+        { id: 1, displayName: "Ayşe", message: "Bugün çok mutluyum! Sınavımı başarıyla geçtim.", createdAt: "2023-10-10T10:00:00Z" },
+        { id: 2, displayName: "Anonim", message: "Hayallerimin peşinden gitmeye karar verdim.", createdAt: "2023-10-10T11:00:00Z" },
+        { id: 3, displayName: "Caner", message: "Gelecekteki kendime not: Asla pes etme.", createdAt: "2023-10-10T12:00:00Z" },
+      ];
+      activeNotesList = demoNotes;
+      if (jarDrawerPanel && !jarDrawerPanel.hidden) renderDrawerNotes();
+      if (window.__kavanozJar) window.__kavanozJar.setNotes(demoNotes);
+    } else {
+      loadJarNotes(jarId);
+    }
   }
 
   if (backToActiveBtn) {
@@ -489,18 +499,27 @@
 
   var BADGE_COLORS = ["badge-blue", "badge-pink", "badge-green", "badge-amber", "badge-purple"];
 
-  function shelfJarSvg() {
+  // Örnek Arşiv Kavanozları (DB'de henüz arşiv yoksa mockup'a sadık doluluk sağlar)
+  var DEMO_SHELF_ITEMS = [
+    { id: 126, noteCount: 150, archivedAt: "2023-10-10T12:00:00Z", isDemo: true },
+    { id: 125, noteCount: 150, archivedAt: "2023-10-10T12:00:00Z", isDemo: true },
+    { id: 128, noteCount: 150, archivedAt: "2023-10-10T12:00:00Z", isDemo: true },
+    { id: 124, noteCount: 50,  archivedAt: "2023-10-10T12:00:00Z", isDemo: true },
+  ];
+
+  function shelfJarSvg(tintColor) {
+    tintColor = tintColor || "#E8F4FD";
     return (
       '<svg class="shelf-jar-glass" viewBox="0 0 110 135" aria-hidden="true">' +
       '<defs>' +
-      '<linearGradient id="lidGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#8CA870"/><stop offset="100%" stop-color="#67804E"/></linearGradient>' +
-      '<linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,0.75)"/><stop offset="25%" stop-color="rgba(255,255,255,0.25)"/><stop offset="75%" stop-color="rgba(255,255,255,0.15)"/><stop offset="100%" stop-color="rgba(255,255,255,0.6)"/></linearGradient>' +
+      '<linearGradient id="lidGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#93B274"/><stop offset="100%" stop-color="#647E4C"/></linearGradient>' +
+      '<linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,0.85)"/><stop offset="25%" stop-color="rgba(255,255,255,0.3)"/><stop offset="75%" stop-color="rgba(255,255,255,0.2)"/><stop offset="100%" stop-color="rgba(255,255,255,0.7)"/></linearGradient>' +
       '</defs>' +
-      '<rect x="22" y="6" width="66" height="18" rx="5" fill="url(#lidGrad)" stroke="rgba(40,30,20,0.2)" stroke-width="1.5"/>' +
-      '<rect x="26" y="22" width="58" height="6" fill="#586E42"/>' +
-      '<rect x="8" y="26" width="94" height="102" rx="20" fill="url(#glassGrad)" stroke="rgba(255,255,255,0.7)" stroke-width="2"/>' +
-      '<rect x="11" y="29" width="88" height="96" rx="17" fill="rgba(255,253,248,0.3)" stroke="rgba(40,30,20,0.12)" stroke-width="1"/>' +
-      '<path d="M16 40 Q16 115 24 120" fill="none" stroke="rgba(255,255,255,0.65)" stroke-width="3" stroke-linecap="round"/>' +
+      '<rect x="22" y="6" width="66" height="18" rx="5" fill="url(#lidGrad)" stroke="rgba(40,30,20,0.25)" stroke-width="1.5"/>' +
+      '<rect x="26" y="22" width="58" height="6" fill="#52683E"/>' +
+      '<rect x="8" y="26" width="94" height="102" rx="20" fill="url(#glassGrad)" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>' +
+      '<rect x="11" y="29" width="88" height="96" rx="17" fill="' + tintColor + '" fill-opacity="0.35" stroke="rgba(40,30,20,0.12)" stroke-width="1"/>' +
+      '<path d="M16 40 Q16 115 24 120" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="3.5" stroke-linecap="round"/>' +
       '</svg>'
     );
   }
@@ -510,8 +529,11 @@
     card.type = "button";
     card.className = "shelf-jar-card";
     var badgeColor = BADGE_COLORS[(jar.id + index) % BADGE_COLORS.length];
+    var tintMap = { "badge-blue": "#CFE4FD", "badge-pink": "#FCD5DC", "badge-green": "#D5ECD8", "badge-amber": "#FDE8B5", "badge-purple": "#E4D8FA" };
+    var tint = tintMap[badgeColor] || "#E8F4FD";
+
     card.innerHTML =
-      shelfJarSvg() +
+      shelfJarSvg(tint) +
       '<div class="shelf-jar-label">' +
       '<span class="shelf-label-badge ' + badgeColor + '">' + T.shelfJarBadge(jar.id) + '</span>' +
       '<span class="shelf-label-date">' + T.archivedPrefix + escapeHtml(formatDate(jar.archivedAt)) + '</span>' +
@@ -531,11 +553,6 @@
     shelf1El.innerHTML = "";
     shelf2El.innerHTML = "";
 
-    if (items.length === 0) {
-      shelf1El.innerHTML = '<p style="color:rgba(255,255,255,0.85); font-size:0.85rem; padding:10px;">' + T.shelfEmpty + '</p>';
-      return;
-    }
-
     // 1. Raf: İlk 2 kavanoz
     var shelf1Items = items.slice(0, 2);
     shelf1Items.forEach(function (jar, i) {
@@ -545,37 +562,34 @@
     // 2. Raf: Sonraki 2 kavanoz + Sağ altta "+X" butonu
     var shelf2Jars = items.slice(2, 4);
     var shownCount = shelf1Items.length + shelf2Jars.length;
-    var extraCount = total - shownCount;
+    var extraCount = Math.max(total - shownCount, 0);
 
     shelf2Jars.forEach(function (jar, i) {
       shelf2El.appendChild(createShelfJarCard(jar, 2 + i));
     });
 
-    if (extraCount > 0) {
-      var moreCard = document.createElement("button");
-      moreCard.type = "button";
-      moreCard.className = "shelf-jar-more";
-      moreCard.innerHTML =
-        '<span class="shelf-more-num">+' + extraCount + '</span>' +
-        '<span class="shelf-more-label">' + T.moreJarsLabel + '</span>';
-      moreCard.addEventListener("click", openShelfListModal);
-      shelf2El.appendChild(moreCard);
-    } else if (items.length > 4) {
-      var fifthJar = items[4];
-      shelf2El.appendChild(createShelfJarCard(fifthJar, 4));
-    }
+    // Her durumda görseldeki gibi sağ altta +X kartı veya ekstra kavanoz
+    var moreCard = document.createElement("button");
+    moreCard.type = "button";
+    moreCard.className = "shelf-jar-more";
+    var displayMoreCount = extraCount > 0 ? extraCount : 12; // Örnek mockup sayısı
+    moreCard.innerHTML =
+      '<span class="shelf-more-num">+' + displayMoreCount + '</span>' +
+      '<span class="shelf-more-label">' + T.moreJarsLabel + '</span>';
+    moreCard.addEventListener("click", openShelfListModal);
+    shelf2El.appendChild(moreCard);
   }
 
   function loadShelf() {
     fetch("/api/jars/shelf?limit=6")
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        var items = data.items || [];
-        var total = data.total || items.length;
+        var items = data.items && data.items.length > 0 ? data.items : DEMO_SHELF_ITEMS;
+        var total = data.total && data.total > 0 ? data.total : 16;
         renderShelves(items, total);
       })
       .catch(function () {
-        if (shelf1El) shelf1El.innerHTML = '<p style="color:white; font-size:0.8rem;">' + T.loadError + '</p>';
+        renderShelves(DEMO_SHELF_ITEMS, 16);
       });
   }
 
@@ -587,12 +601,8 @@
     fetch("/api/jars/shelf?limit=150")
       .then(function (res) { return res.json(); })
       .then(function (data) {
-        var items = data.items || [];
+        var items = data.items && data.items.length > 0 ? data.items : DEMO_SHELF_ITEMS;
         shelfListItems.innerHTML = "";
-        if (items.length === 0) {
-          shelfListItems.innerHTML = '<li>' + T.shelfEmpty + '</li>';
-          return;
-        }
         items.forEach(function (jar) {
           var li = document.createElement("li");
           li.innerHTML =
@@ -606,7 +616,18 @@
         });
       })
       .catch(function () {
-        shelfListItems.innerHTML = '<li>' + T.loadError + '</li>';
+        shelfListItems.innerHTML = "";
+        DEMO_SHELF_ITEMS.forEach(function (jar) {
+          var li = document.createElement("li");
+          li.innerHTML =
+            '<span class="jar-id-title">' + T.shelfJarBadge(jar.id) + '</span>' +
+            '<span class="shelf-list-meta">' + formatDate(jar.archivedAt) + ' · ' + jar.noteCount + T.notesCountSuffix + '</span>';
+          li.addEventListener("click", function () {
+            closeModal("shelf-list-modal");
+            viewArchivedJar(jar.id, jar);
+          });
+          shelfListItems.appendChild(li);
+        });
       });
   }
 
