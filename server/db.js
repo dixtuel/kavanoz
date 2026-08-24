@@ -249,7 +249,8 @@ async function claimNoteForMail(id) {
 }
 
 async function markMailSent(id) {
-  await client.execute({ sql: `UPDATE notes SET mail_status='sent' WHERE id=?`, args: [id] });
+  // Teslimat amacına ulaştı — gizlilik politikası gereği e-posta adresi hemen silinir.
+  await client.execute({ sql: `UPDATE notes SET mail_status='sent', email_enc=NULL WHERE id=?`, args: [id] });
 }
 
 const MAX_MAIL_ATTEMPTS = 6;
@@ -261,7 +262,7 @@ async function markMailFailed(id) {
   });
   const attempts = Number(result.rows[0].mail_attempts);
   if (attempts >= MAX_MAIL_ATTEMPTS) {
-    await client.execute({ sql: `UPDATE notes SET mail_status='failed' WHERE id=?`, args: [id] });
+    await client.execute({ sql: `UPDATE notes SET mail_status='failed', email_enc=NULL WHERE id=?`, args: [id] });
     return { gaveUp: true, attempts };
   }
   const backoffMinutes = Math.min(60 * Math.pow(2, attempts - 1), 24 * 60);

@@ -5,12 +5,15 @@ const FROM = process.env.MAIL_FROM || "Sanal Kavanoz <no-reply@dxtl.com.tr>";
 let transporter;
 function getTransporter() {
   if (!transporter) {
+    // Yerel Postfix'e doğrudan, kimlik doğrulamasız röle: mynetworks loopback/docker-bridge
+    // alt ağını zaten güvenilir kabul ediyor (mikoshi-ai'nin web_panel.py'deki aynı deseni,
+    // 127.0.0.1:25). Bir "no-reply" sistem/PAM kullanıcısı YOK — SMTP AUTH burada
+    // çalışmaz ve gerekmez. Container içinden host'a `host.docker.internal` ile ulaşılır.
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: process.env.SMTP_SECURE === "true",
-      requireTLS: process.env.SMTP_REQUIRE_TLS !== "false",
-      auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS } : undefined,
+      port: Number(process.env.SMTP_PORT || 25),
+      secure: false,
+      tls: { rejectUnauthorized: false },
     });
   }
   return transporter;
