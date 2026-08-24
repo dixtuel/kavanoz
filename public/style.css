@@ -1,15 +1,15 @@
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,600;0,700;0,800;1,600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600;700&family=Caveat:wght@600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,500&family=IBM+Plex+Mono:wght@500;600;700&family=Caveat:wght@600;700&display=swap');
 
 :root {
   --bg-cream: #FAF7F2;
-  --bg-cream-dark: #F5EFE6;
+  --bg-cream-dark: #F4EDE2;
   --bg-sage: #8EA893;
   --bg-sage-dark: #7A9680;
-  --ink: #34281D;
+  --ink: #3A2C1E;
   --ink-soft: #5C4F40;
-  --ink-dim: #887C6D;
-  --line: rgba(52, 40, 29, 0.12);
-  --line-strong: rgba(52, 40, 29, 0.22);
+  --ink-dim: #7B6E5F;
+  --line: rgba(58, 44, 30, 0.12);
+  --line-strong: rgba(58, 44, 30, 0.22);
   --card: #FFFDF9;
   --card-alt: #F9F5EC;
   --sage-btn: #7C9660;
@@ -24,8 +24,7 @@
   --radius-sm: 10px;
   --radius-md: 18px;
   --radius-lg: 24px;
-  --font-serif: "Lora", Georgia, serif;
-  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
+  --font-sans: "Plus Jakarta Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   --font-mono: "IBM Plex Mono", monospace;
   --font-hand: "Caveat", cursive;
 }
@@ -63,18 +62,18 @@ a:hover { text-decoration: underline; }
 
 .wrap {
   width: 100%;
-  max-width: 1360px;
+  max-width: 1380px;
   margin: 0 auto;
   padding: 0 36px;
 }
 
-/* ---------- Header ---------- */
+/* ---------- Header & Logo & Navigasyon ---------- */
 header.site {
   flex: 0 0 auto;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 20px 0 10px;
+  padding: 18px 0 10px;
 }
 
 .brand {
@@ -90,7 +89,7 @@ header.site {
   width: 52px;
   height: 52px;
   flex-shrink: 0;
-  filter: drop-shadow(0 6px 12px rgba(45, 35, 20, 0.18));
+  filter: drop-shadow(0 6px 14px rgba(45, 35, 20, 0.18));
 }
 
 .brand-icon-svg {
@@ -99,24 +98,25 @@ header.site {
 }
 
 .brand-text h1 {
-  font-family: var(--font-serif);
-  font-size: 1.95rem;
+  font-family: var(--font-sans);
+  font-size: 1.9rem;
   font-weight: 800;
   margin: 0;
   line-height: 1.1;
-  color: #34261A;
-  letter-spacing: -0.015em;
+  color: #382A1C;
+  letter-spacing: -0.03em;
 }
 
 .brand-text p {
-  font-size: 0.84rem;
+  font-family: var(--font-sans);
+  font-size: 0.82rem;
   color: var(--ink-dim);
   margin: 3px 0 0;
   font-weight: 500;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.005em;
 }
 
-/* Sağ Üstteki 4 Yuvarlak İkon Butonu (Hedef Görseldeki Gibi) */
+/* Sağ Üstteki 4 Yuvarlak İkon Butonu (Kullanıcı, E-posta, Bilgi, Dil/Ayar) */
 .header-actions {
   display: flex;
   align-items: center;
@@ -127,7 +127,7 @@ header.site {
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(8px);
   border: 1px solid rgba(255, 255, 255, 0.85);
   display: flex;
@@ -136,7 +136,7 @@ header.site {
   color: var(--ink);
   font-size: 1.25rem;
   cursor: pointer;
-  box-shadow: 0 4px 12px rgba(40, 32, 20, 0.12);
+  box-shadow: 0 4px 12px rgba(45, 35, 20, 0.1);
   transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
 }
@@ -144,7 +144,7 @@ header.site {
 .icon-circle-btn:hover {
   background: #ffffff;
   transform: translateY(-2px) scale(1.06);
-  box-shadow: 0 8px 18px rgba(40, 32, 20, 0.18);
+  box-shadow: 0 8px 18px rgba(45, 35, 20, 0.18);
   color: var(--amber-deep);
 }
 
@@ -157,18 +157,6 @@ header.site {
 .icon-circle-btn.primary:hover {
   background: var(--sage-btn-hover);
   color: #ffffff;
-}
-
-.icon-circle-btn .btn-badge {
-  position: absolute;
-  top: -2px;
-  right: -2px;
-  background: var(--coral);
-  color: #fff;
-  font-size: 0.6rem;
-  font-weight: 800;
-  border-radius: 999px;
-  padding: 1px 5px;
 }
 
 /* Tooltip */
@@ -203,8 +191,8 @@ main {
 
 .showcase-grid {
   display: grid;
-  grid-template-columns: 410px 1fr;
-  gap: 56px;
+  grid-template-columns: 390px 1fr;
+  gap: 52px;
   align-items: center;
   width: 100%;
 }
@@ -220,7 +208,7 @@ main {
 .jar-container {
   position: relative;
   width: 340px;
-  height: 385px;
+  height: 380px;
   margin: 0 auto;
 }
 
@@ -253,7 +241,7 @@ main {
   height: 100%;
   pointer-events: none;
   z-index: 10;
-  filter: drop-shadow(0 18px 32px rgba(45, 35, 20, 0.25));
+  filter: drop-shadow(0 18px 32px rgba(45, 35, 20, 0.24));
 }
 
 #jar-canvas {
@@ -270,7 +258,7 @@ main {
   cursor: grabbing;
 }
 
-/* 2b. Kapasite Göstergesi (Hedef Görseldeki Gibi Kalın, Dolgun ve Belirgin) */
+/* Kapasite Göstergesi */
 .jar-controls {
   width: 100%;
   max-width: 350px;
@@ -283,7 +271,7 @@ main {
 
 .jar-progress-card {
   width: 100%;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(12px);
   border: 1.5px solid rgba(255, 255, 255, 0.9);
   border-radius: 16px;
@@ -296,7 +284,7 @@ main {
 
 .jar-progress-bar {
   width: 100%;
-  height: 14px; /* Kalın, dolgun bar */
+  height: 14px;
   background: rgba(50, 42, 32, 0.09);
   border-radius: 999px;
   overflow: hidden;
@@ -319,10 +307,11 @@ main {
 }
 
 .jar-capacity-text {
-  font-family: var(--font-serif);
-  font-size: 1.05rem; /* Büyük ve okunaklı */
+  font-family: var(--font-sans);
+  font-size: 1.02rem;
   font-weight: 700;
-  color: #34261A;
+  color: #382A1C;
+  letter-spacing: -0.01em;
 }
 
 .back-to-active-link {
@@ -348,7 +337,7 @@ main {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: rgba(255, 255, 255, 0.92);
+  background: rgba(255, 255, 255, 0.94);
   backdrop-filter: blur(6px);
   border: 1px solid rgba(50, 42, 32, 0.12);
   border-radius: 14px;
@@ -382,11 +371,12 @@ main {
 }
 
 .jar-hint-text {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
   color: var(--ink-dim);
   margin: 0;
   text-align: center;
+  font-weight: 500;
 }
 
 /* Kavanozdaki Yazılar Açılır Çekmecesi */
@@ -411,8 +401,8 @@ main {
 }
 
 .jar-drawer-title {
-  font-family: var(--font-serif);
-  font-size: 0.98rem;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
   font-weight: 700;
   margin: 0 0 8px;
   padding-bottom: 6px;
@@ -420,6 +410,7 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  color: #382A1C;
 }
 
 .jar-drawer-items {
@@ -469,17 +460,29 @@ main {
   color: var(--ink-dim);
 }
 
-/* ---------- Sağ Sütun: Raflar (Shelves - Geniş Aralıklı 3D Ahşap Raflar) ---------- */
+/* ---------- Sağ Bölüm: Kademeli Raflar (Staggered Shelves) ---------- */
 .shelves-container {
   display: flex;
   flex-direction: column;
-  gap: 80px; /* 3D Raflar arası ferah boşluk */
+  gap: 80px; /* Raflar arası ferah boşluk */
   position: relative;
   padding: 10px 0;
   width: 100%;
 }
 
-.shelf-row {
+/* Üst Raf: Daha kısa ve sağa yaslı (width: 58%, margin-left: auto) */
+.shelf-row--upper {
+  width: 58%;
+  margin-left: auto;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+/* Alt Raf: Daha uzun ve sola doğru uzanır (width: 98%, margin-left: 0) */
+.shelf-row--lower {
+  width: 98%;
+  margin-left: 0;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -488,25 +491,25 @@ main {
 .shelf-jars-wrap {
   display: flex;
   align-items: flex-end;
-  gap: 32px;
-  padding: 0 28px 2px;
-  min-height: 130px;
+  gap: 28px;
+  padding: 0 24px 2px;
+  min-height: 135px;
   position: relative;
   z-index: 2;
 }
 
 /* Gerçekçi 3D Ahşap Raf Tahtası */
 .wooden-plank {
-  height: 24px;
+  height: 28px;
   width: 100%;
-  background: linear-gradient(180deg, #D8A76D 0%, #B88548 30%, #9B6A32 100%);
-  border-radius: 4px;
+  background: linear-gradient(180deg, #DEB175 0%, #BD894C 35%, #9C672E 100%);
+  border-radius: 5px;
   position: relative;
   box-shadow: 
-    0 18px 28px rgba(20, 16, 8, 0.42),
-    0 6px 10px rgba(0, 0, 0, 0.25),
-    inset 0 2px 2px rgba(255, 255, 255, 0.5),
-    inset 0 -2px 3px rgba(0, 0, 0, 0.3);
+    0 20px 30px rgba(22, 16, 8, 0.44),
+    0 6px 12px rgba(0, 0, 0, 0.28),
+    inset 0 2px 2px rgba(255, 255, 255, 0.55),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.35);
 }
 
 .wooden-plank::before {
@@ -515,16 +518,16 @@ main {
   top: 0;
   left: 0;
   right: 0;
-  height: 5px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.45) 0%, rgba(255, 255, 255, 0.1) 100%);
-  border-radius: 4px 4px 0 0;
+  height: 6px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5) 0%, rgba(255, 255, 255, 0.12) 100%);
+  border-radius: 5px 5px 0 0;
 }
 
-/* Raf Kavanoz Kartı (3D Cam & Renkli Kart) */
+/* Raf Kavanoz Kartı (Daha Uzun ve Dik Gövde, Oran ~1.30) */
 .shelf-jar-card {
   position: relative;
-  width: 114px;
-  height: 140px;
+  width: 106px;
+  height: 142px;
   background: none;
   border: none;
   padding: 0;
@@ -542,7 +545,7 @@ main {
 
 .shelf-jar-card.active-view {
   transform: translateY(-8px) scale(1.06);
-  filter: drop-shadow(0 12px 20px rgba(35, 25, 15, 0.4));
+  filter: drop-shadow(0 12px 22px rgba(35, 25, 15, 0.42));
 }
 
 .shelf-jar-glass {
@@ -553,18 +556,19 @@ main {
   pointer-events: none;
 }
 
+/* Geniş, Okunaklı Pastel Etiket */
 .shelf-jar-label {
   position: absolute;
   top: 36px;
-  left: 12px;
-  right: 12px;
+  left: 10px;
+  right: 10px;
   background: rgba(255, 255, 255, 0.96);
   backdrop-filter: blur(4px);
-  border-radius: 8px;
-  padding: 6px 4px 5px;
+  border-radius: 9px;
+  padding: 7px 4px 6px;
   text-align: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -574,12 +578,12 @@ main {
 .shelf-label-badge {
   display: inline-block;
   font-family: var(--font-sans);
-  font-weight: 700;
-  font-size: 0.68rem;
-  padding: 2px 7px;
+  font-weight: 800;
+  font-size: 0.7rem;
+  padding: 2px 8px;
   border-radius: 999px;
   color: var(--ink);
-  line-height: 1.1;
+  line-height: 1.15;
   letter-spacing: -0.01em;
 }
 
@@ -590,27 +594,28 @@ main {
 .shelf-label-badge.badge-purple { background: #E4D8FA; }
 
 .shelf-label-date {
-  font-family: var(--font-mono);
-  font-size: 0.58rem;
+  font-family: var(--font-sans);
+  font-size: 0.6rem;
+  font-weight: 600;
   color: var(--ink-soft);
   margin-top: 1px;
   white-space: nowrap;
 }
 
 .shelf-label-count {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 0.62rem;
+  font-size: 0.64rem;
   color: var(--ink);
 }
 
-/* 2. Raftaki "+X" (Daha Eski Kavanozlar) Kartı */
+/* 2. Raftaki "+N" (Daha Eski Kavanozlar) Kartı */
 .shelf-jar-more {
-  width: 108px;
-  height: 130px;
-  background: rgba(255, 255, 255, 0.88);
+  width: 102px;
+  height: 132px;
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(8px);
-  border: 2px dashed rgba(50, 42, 32, 0.32);
+  border: 2px dashed rgba(50, 42, 32, 0.35);
   border-radius: 20px;
   display: flex;
   flex-direction: column;
@@ -630,20 +635,33 @@ main {
 }
 
 .shelf-more-num {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-weight: 800;
-  font-size: 1.5rem;
+  font-size: 1.55rem;
   color: var(--ink);
   line-height: 1;
 }
 
 .shelf-more-label {
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
+  font-family: var(--font-sans);
+  font-size: 0.66rem;
   font-weight: 700;
   color: var(--ink-dim);
   text-align: center;
   padding: 0 6px;
+}
+
+/* Boş Raf İpucu */
+.shelf-empty-hint {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.85);
+  font-weight: 600;
+  padding: 8px 16px;
+  background: rgba(45, 35, 20, 0.2);
+  border-radius: 8px;
+  backdrop-filter: blur(4px);
+  margin: auto;
 }
 
 /* ---------- Modallar ---------- */
@@ -712,11 +730,12 @@ main {
 }
 
 .modal-box h3 {
-  font-family: var(--font-serif);
-  font-size: 1.55rem;
-  font-weight: 700;
+  font-family: var(--font-sans);
+  font-size: 1.5rem;
+  font-weight: 800;
   margin: 0 0 6px;
-  color: var(--ink);
+  color: #382A1C;
+  letter-spacing: -0.02em;
 }
 
 .modal-subtitle {
@@ -732,10 +751,10 @@ main {
 
 .field label {
   display: block;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
   text-transform: uppercase;
   color: var(--sage-btn);
   margin-bottom: 6px;
@@ -761,8 +780,6 @@ main {
   min-height: 105px;
   resize: vertical;
   line-height: 1.5;
-  font-family: var(--font-serif);
-  font-size: 1.08rem;
 }
 
 .field textarea:focus,
@@ -859,11 +876,12 @@ main {
 }
 
 .key-box-title {
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
+  font-family: var(--font-sans);
+  font-size: 0.74rem;
   text-transform: uppercase;
   color: var(--amber-deep);
   font-weight: 700;
+  letter-spacing: 0.03em;
   margin-bottom: 6px;
 }
 
@@ -964,9 +982,9 @@ main {
 }
 
 .note-view-content {
-  font-family: var(--font-serif);
-  font-size: 1.3rem;
-  line-height: 1.45;
+  font-family: var(--font-sans);
+  font-size: 1.15rem;
+  line-height: 1.55;
   color: var(--ink);
   white-space: pre-wrap;
   word-break: break-word;
@@ -1001,9 +1019,9 @@ main {
 }
 
 .shelf-list .jar-id-title {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-weight: 700;
-  font-size: 1.05rem;
+  font-size: 1rem;
   color: var(--ink);
 }
 
@@ -1063,6 +1081,11 @@ footer.site {
     order: 2;
     gap: 50px;
   }
+  .shelf-row--upper,
+  .shelf-row--lower {
+    width: 100%;
+    margin-left: 0;
+  }
   .shelf-jars-wrap {
     justify-content: center;
     flex-wrap: wrap;
@@ -1084,10 +1107,10 @@ footer.site {
     flex-wrap: wrap;
   }
   .brand-text h1 {
-    font-size: 1.6rem;
+    font-size: 1.55rem;
   }
   .brand-text p {
-    font-size: 0.76rem;
+    font-size: 0.75rem;
   }
   .jar-container {
     width: 290px;
@@ -1107,13 +1130,13 @@ footer.site {
     padding: 0 8px 2px;
   }
   .shelf-jar-card {
-    width: 88px;
-    height: 115px;
+    width: 86px;
+    height: 118px;
   }
   .shelf-jar-label {
     top: 30px;
-    left: 8px;
-    right: 8px;
+    left: 6px;
+    right: 6px;
   }
   .shelf-label-badge {
     font-size: 0.58rem;
@@ -1126,8 +1149,8 @@ footer.site {
     font-size: 0.55rem;
   }
   .shelf-jar-more {
-    width: 88px;
-    height: 110px;
+    width: 86px;
+    height: 112px;
   }
   .modal-box {
     padding: 22px 18px;
