@@ -82,6 +82,14 @@
     });
   }
 
+  document.querySelectorAll(".lang-switch a").forEach(function (el) {
+    el.addEventListener("click", function () {
+      var href = el.getAttribute("href") || "";
+      var isEn = href.indexOf("/en") !== -1;
+      try { localStorage.setItem("kavanozLang", isEn ? "en" : "tr"); } catch (e) {}
+    });
+  });
+
   function escapeHtml(str) {
     if (!str) return "";
     var div = document.createElement("div");

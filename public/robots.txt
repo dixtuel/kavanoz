@@ -2,5 +2,6 @@ User-agent: *
 Allow: /
 
 Disallow: /api/
+Disallow: /en/
 
 Sitemap: https://your-site.example/sitemap.xml

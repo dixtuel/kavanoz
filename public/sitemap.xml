@@ -1,45 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://your-site.example/</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://your-site.example/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://your-site.example/en/"/>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://your-site.example/en/</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://your-site.example/"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://your-site.example/en/"/>
-    <changefreq>daily</changefreq>
-    <priority>0.9</priority>
-  </url>
-  <url>
     <loc>https://your-site.example/terms.html</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://your-site.example/terms.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://your-site.example/en/terms.html"/>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://your-site.example/privacy.html</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://your-site.example/privacy.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://your-site.example/en/privacy.html"/>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://your-site.example/en/terms.html</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://your-site.example/terms.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://your-site.example/en/terms.html"/>
-    <changefreq>monthly</changefreq>
-    <priority>0.3</priority>
-  </url>
-  <url>
-    <loc>https://your-site.example/en/privacy.html</loc>
-    <xhtml:link rel="alternate" hreflang="tr" href="https://your-site.example/privacy.html"/>
-    <xhtml:link rel="alternate" hreflang="en" href="https://your-site.example/en/privacy.html"/>
     <changefreq>monthly</changefreq>
     <priority>0.3</priority>
   </url>

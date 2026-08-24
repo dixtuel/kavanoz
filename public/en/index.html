@@ -2,12 +2,19 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<script>
+(function () {
+  try {
+    var pref = localStorage.getItem("kavanozLang");
+    if (pref === "tr") { location.replace("/"); }
+  } catch (e) {}
+})();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, follow">
 <title>Virtual Jar — Shared Memory Board</title>
 <meta name="description" content="A communal jar where people leave their thoughts, wishes, memories and secrets. Open sealed envelopes, read notes, shake the jar or leave a note for the future.">
-<link rel="canonical" href="https://kavanoz.dxtl.com.tr/en/">
-<link rel="alternate" hreflang="tr" href="https://kavanoz.dxtl.com.tr/">
-<link rel="alternate" hreflang="en" href="https://kavanoz.dxtl.com.tr/en/">
+<link rel="canonical" href="https://your-site.example/">
 
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="alternate icon" type="image/png" href="/favicon.png">
