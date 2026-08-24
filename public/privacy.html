@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Gizlilik Politikası — Sanal Kavanoz</title>
+<link rel="stylesheet" href="/style.css?v=1">
+</head>
+<body>
+<header class="site wrap">
+  <a class="brand" href="/">Sanal Kavanoz</a>
+  <nav class="lang-switch"><a href="/privacy.html" class="active">TR</a><a href="/en/privacy.html">EN</a></nav>
+</header>
+<main class="legal">
+  <h1>Gizlilik Politikası</h1>
+  <p>Bu sayfa, Sanal Kavanoz'u kullanırken hangi kişisel verilerinin, ne amaçla ve ne kadar süreyle işlendiğini 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında açıklar.</p>
+
+  <h2>Veri sorumlusu</h2>
+  <p>Bu sitenin veri sorumlusu, siteyi işleten kişidir. Sorularınız için: your-email@example.com</p>
+
+  <h2>Hangi veriler işlenir</h2>
+  <ul>
+    <li><strong>Kavanoz metni:</strong> yazdığın not, sunucuda AES-256 ile şifreli olarak saklanır.</li>
+    <li><strong>E-posta adresin:</strong> yalnız kavanozu teslim etmek için toplanır, şifreli saklanır ve <strong>teslimat yapıldığı (ya da nihai olarak başarısız olduğu) anda kalıcı olarak silinir</strong>.</li>
+    <li><strong>Görünen isim:</strong> yalnız kendin belirtirsen saklanır, boş bırakırsan hiç toplanmaz.</li>
+    <li><strong>IP adresi:</strong> yalnız kötüye kullanım/oran sınırlama (rate-limit) amacıyla geçici olarak, sunucu loglarında kısa süreliğine tutulur.</li>
+  </ul>
+
+  <h2>İşleme amacı ve hukuki sebep</h2>
+  <p>Veriler, formu gönderirken verdiğin açık rızaya dayanarak (KVKK m.5/1) yalnız şu amaçlarla işlenir: (1) belirlediğin tarihte notu mail ile iletmek, (2) "herkese açık" seçtiysen notu, süresi dolduğunda kavanoz duvarında göstermek, (3) kötüye kullanımı (spam, taciz) önlemek.</p>
+
+  <h2>Saklama süresi</h2>
+  <p>Onaylanmamış kavanozlar (mail adresi doğrulanmamış) <strong>48 saat içinde</strong> otomatik olarak silinir. Teslim edilen (ya da 6 başarısız denemeden sonra teslim edilemeyen) kavanozların e-posta adresi <strong>anında silinir</strong>. "Özel" kavanozların metni teslimattan sonra artık amacına ulaştığı için saklanmaya devam etmez; "herkese açık" kavanozların metni, açıldıktan sonra kavanoz duvarında görünür kalır (sen görünürlüğü baştan böyle seçtiğin için).</p>
+
+  <h2>Üçüncü taraflar</h2>
+  <ul>
+    <li><strong>hCaptcha</strong> (Intuition Machines, Inc.) — bot/istismar koruması için form gönderiminde çalışır.</li>
+    <li><strong>NVIDIA NIM</strong> ve yerel kelime filtresi — gönderilen metnin yasa dışı/zararlı içerik içerip içermediğini kontrol eder; metin bu kontrol sırasında üçüncü tarafa (NVIDIA) iletilir.</li>
+    <li>Mail teslimatı kendi sunucumuzdan yapılır, üçüncü taraf bir e-posta pazarlama servisi kullanılmaz.</li>
+  </ul>
+
+  <h2>Haklarınız (KVKK m.11)</h2>
+  <p>Kişisel verinin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltme/silme isteme ve itiraz etme hakkına sahipsin. Onay mailindeki linkle veya sana gönderilen teslimat mailindeki linkle kavanozunu ve verilerini istediğin an kalıcı olarak silebilirsin. Diğer talepler için your-email@example.com adresinden bize ulaşabilirsin.</p>
+
+  <h2>Güvenlik</h2>
+  <p>Tüm bağlantı HTTPS ile şifrelenir. Kavanoz metni ve e-posta adresin veritabanında AES-256-GCM ile şifreli tutulur; şifreleme anahtarı veritabanından ayrı, yalnızca sunucu ortamında saklanır.</p>
+</main>
+</body>
+</html>

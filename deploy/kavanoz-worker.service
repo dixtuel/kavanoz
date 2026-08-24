@@ -1,0 +1,18 @@
+# /etc/systemd/system/kavanoz-worker.service
+# mikoshi-ai-retention.service deseniyle aynı: oneshot, düşük öncelik, sızma yok.
+[Unit]
+Description=Kavanoz — süresi dolan mektupları gönder ve panoyu güncelle
+After=docker.service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+WorkingDirectory=/srv/mikoshi-vds/containers/kavanoz
+EnvironmentFile=/srv/mikoshi-vds/containers/kavanoz/.env
+ExecStart=/usr/bin/docker compose -f /srv/mikoshi-vds/containers/docker-compose.yml run --rm kavanoz-worker
+Nice=10
+IOSchedulingClass=best-effort
+IOSchedulingPriority=7
+PrivateTmp=true
+NoNewPrivileges=true

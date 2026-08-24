@@ -1,0 +1,13 @@
+# /etc/systemd/system/kavanoz-worker.timer
+[Unit]
+Description=Kavanoz worker'ını 10 dakikada bir tetikle
+
+[Timer]
+OnCalendar=*:0/10
+Persistent=true
+AccuracySec=1min
+RandomizedDelaySec=30
+Unit=kavanoz-worker.service
+
+[Install]
+WantedBy=timers.target

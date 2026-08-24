@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual Jar — bury today, open it years from now</title>
+<meta name="description" content="Write a note today; when the date you choose arrives, we'll email it to you (or someone you pick). Anonymous or signed, public or completely private.">
+<link rel="canonical" href="https://kavanoz.dxtl.com.tr/en/">
+<link rel="alternate" hreflang="tr" href="https://kavanoz.dxtl.com.tr/">
+<link rel="alternate" hreflang="en" href="https://kavanoz.dxtl.com.tr/en/">
+<meta property="og:title" content="Virtual Jar">
+<meta property="og:description" content="Bury today, open it years from now.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="../style.css?v=1">
+</head>
+<body>
+<header class="site wrap">
+  <a class="brand" href="/en/">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="8" y="10" width="16" height="18" rx="4" fill="#D98E3B"/><rect x="10" y="6" width="12" height="6" rx="2" fill="#B5502D"/></svg>
+    Virtual Jar
+  </a>
+  <nav class="lang-switch">
+    <a href="/">TR</a>
+    <a href="/en/" class="active">EN</a>
+  </nav>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <p class="eyebrow">Notes left for later</p>
+      <h1>Bury today <em>in a jar</em>,<br>open it years from now.</h1>
+      <p class="lede">Write a note, pick a date. When that day comes, we'll send it — from our own mail server — to you, or to whoever you choose. Signed or anonymous; kept just for you, or shared on the public wall.</p>
+      <div class="cta-row">
+        <a href="#bury" class="btn btn-primary">Bury a jar</a>
+        <a href="#wall" class="btn btn-ghost">See the wall</a>
+      </div>
+    </div>
+    <div class="jar-stage">
+      <svg class="jar-hero" viewBox="0 0 220 260" aria-hidden="true">
+        <defs>
+          <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#dfe8de" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#dfe8de" stop-opacity="0.06"/>
+          </linearGradient>
+          <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#F0AE5C" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#B5502D" stop-opacity="0.45"/>
+          </linearGradient>
+          <linearGradient id="lidGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#8a7050"/>
+            <stop offset="100%" stop-color="#5c4a34"/>
+          </linearGradient>
+        </defs>
+        <g class="float-group">
+          <rect class="lid" x="70" y="24" width="80" height="26" rx="6"/>
+          <rect class="glass" x="50" y="50" width="120" height="180" rx="26"/>
+          <path class="liquid" d="M50 150 q60 -22 120 0 v54 a26 26 0 0 1 -26 26 h-68 a26 26 0 0 1 -26 -26 z"/>
+          <g transform="translate(78,96) rotate(-6)">
+            <rect class="scroll" x="0" y="0" width="64" height="42" rx="4"/>
+            <line class="scroll-line" x1="10" y1="12" x2="54" y2="12"/>
+            <line class="scroll-line" x1="10" y1="21" x2="54" y2="21"/>
+            <line class="scroll-line" x1="10" y1="30" x2="40" y2="30"/>
+          </g>
+          <ellipse class="shine" cx="76" cy="90" rx="10" ry="60"/>
+          <rect class="wax" x="102" y="18" width="16" height="16" rx="8"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <section id="bury" class="wrap">
+    <div class="section-head">
+      <h2>Bury your jar</h2>
+      <p>Your text is stored encrypted. No one can read it before the date arrives — and if the jar is "private," not even then, except by email.</p>
+    </div>
+    <form id="jar-form" class="panel" novalidate>
+      <div class="field">
+        <label for="message">Your note</label>
+        <textarea id="message" name="message" maxlength="2000" required placeholder="What do you want to tell your future self — or someone else?"></textarea>
+        <div class="char-count"><span id="char-count">0</span>/2000</div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label for="displayName">Display name (optional)</label>
+          <input type="text" id="displayName" name="displayName" maxlength="60" placeholder="Leave blank to appear as “Anonymous”">
+        </div>
+        <div class="field">
+          <label for="email">Email address</label>
+          <input type="email" id="email" name="email" required placeholder="you@example.com">
+          <div class="hint">If this jar isn't for you (a surprise for someone else), they'll get a confirmation email first.</div>
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>When should it open?</label>
+          <div class="choice-group" id="duration-group">
+            <button type="button" data-days="30">1 month</button>
+            <button type="button" data-days="180">6 months</button>
+            <button type="button" data-days="365" class="selected">1 year</button>
+            <button type="button" data-days="1825">5 years</button>
+            <button type="button" data-days="custom">Pick a date</button>
+          </div>
+          <input type="date" id="customDate" name="customDate" style="display:none; margin-top:12px;">
+        </div>
+        <div class="field">
+          <label>Visibility</label>
+          <div class="choice-group" id="visibility-group">
+            <button type="button" data-vis="public" class="selected">Public wall</button>
+            <button type="button" data-vis="private">Fully private</button>
+          </div>
+          <div class="hint">Public jars stay sealed on the wall until the date arrives, then open — signed or anonymous, as you chose.</div>
+        </div>
+      </div>
+
+      <label class="consent">
+        <input type="checkbox" id="consent" required>
+        <span>I've read the <a href="/en/privacy.html" target="_blank">Privacy Policy</a> and agree to my data being processed as described above.</span>
+      </label>
+
+      <div class="h-captcha" data-sitekey="REPLACE_WITH_KAVANOZ_HCAPTCHA_SITE_KEY" data-theme="dark"></div>
+
+      <div style="margin-top:22px;">
+        <button type="submit" class="btn btn-primary" id="submit-btn">Seal the jar</button>
+      </div>
+      <div class="form-msg" id="form-msg" role="status" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <section id="wall" class="wrap">
+    <div class="section-head">
+      <h2>The jar wall</h2>
+      <p>Sealed jars are waiting their turn. Once time's up, they open right here.</p>
+    </div>
+    <div class="wall-grid" id="wall-grid"></div>
+    <button class="btn btn-ghost load-more" id="load-more" hidden>Show more</button>
+  </section>
+</main>
+
+<footer class="site wrap">
+  <span>© <span id="year"></span> Virtual Jar — dixtuel</span>
+  <span><a href="/en/terms.html">Terms</a> · <a href="/en/privacy.html">Privacy</a></span>
+</footer>
+
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+<script src="../app.js?v=1"></script>
+</body>
+</html>

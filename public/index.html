@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<script>
+(function () {
+  try {
+    var pref = localStorage.getItem("kavanozLang");
+    if (pref === "en") { location.replace("/en/"); return; }
+    if (pref === "tr") return;
+    var lang = (navigator.language || "").toLowerCase();
+    if (lang.indexOf("tr") !== 0 && lang.indexOf("az") !== 0) {
+      location.replace("/en/");
+    }
+  } catch (e) {}
+})();
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sanal Kavanoz — bugünü kavanoza koy, yıllar sonra aç</title>
+<meta name="description" content="Bugün yazdığın bir notu kavanoza koy; belirlediğin gün geldiğinde sana (veya seçtiğin kişiye) mail olarak gönderelim. Anonim ya da kendi adınla, herkese açık ya da tamamen özel.">
+<link rel="canonical" href="https://kavanoz.dxtl.com.tr/">
+<link rel="alternate" hreflang="tr" href="https://kavanoz.dxtl.com.tr/">
+<link rel="alternate" hreflang="en" href="https://kavanoz.dxtl.com.tr/en/">
+<meta property="og:title" content="Sanal Kavanoz">
+<meta property="og:description" content="Bugünü kavanoza koy, yıllar sonra aç.">
+<meta property="og:type" content="website">
+<link rel="stylesheet" href="style.css?v=1">
+</head>
+<body>
+<header class="site wrap">
+  <a class="brand" href="/">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="8" y="10" width="16" height="18" rx="4" fill="#D98E3B"/><rect x="10" y="6" width="12" height="6" rx="2" fill="#B5502D"/></svg>
+    Sanal Kavanoz
+  </a>
+  <nav class="lang-switch">
+    <a href="/" class="active">TR</a>
+    <a href="/en/">EN</a>
+  </nav>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <p class="eyebrow">Zamana bırakılan notlar</p>
+      <h1>Bugünü <em>kavanoza</em> koy,<br>yıllar sonra aç.</h1>
+      <p class="lede">Bir not yaz, bir tarih seç. O gün geldiğinde notu sana — ya da seçtiğin kişiye — kendi mail sunucumuzdan gönderelim. İstersen adınla, istersen anonim; istersen sadece kendine, istersen kavanoz duvarında herkesle.</p>
+      <div class="cta-row">
+        <a href="#birak" class="btn btn-primary">Kavanoz bırak</a>
+        <a href="#duvar" class="btn btn-ghost">Kavanoz duvarına bak</a>
+      </div>
+    </div>
+    <div class="jar-stage">
+      <svg class="jar-hero" viewBox="0 0 220 260" aria-hidden="true">
+        <defs>
+          <linearGradient id="glassGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stop-color="#dfe8de" stop-opacity="0.22"/>
+            <stop offset="100%" stop-color="#dfe8de" stop-opacity="0.06"/>
+          </linearGradient>
+          <linearGradient id="liquidGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#F0AE5C" stop-opacity="0.55"/>
+            <stop offset="100%" stop-color="#B5502D" stop-opacity="0.45"/>
+          </linearGradient>
+          <linearGradient id="lidGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="#8a7050"/>
+            <stop offset="100%" stop-color="#5c4a34"/>
+          </linearGradient>
+        </defs>
+        <g class="float-group">
+          <rect class="lid" x="70" y="24" width="80" height="26" rx="6"/>
+          <rect class="glass" x="50" y="50" width="120" height="180" rx="26"/>
+          <path class="liquid" d="M50 150 q60 -22 120 0 v54 a26 26 0 0 1 -26 26 h-68 a26 26 0 0 1 -26 -26 z"/>
+          <g transform="translate(78,96) rotate(-6)">
+            <rect class="scroll" x="0" y="0" width="64" height="42" rx="4"/>
+            <line class="scroll-line" x1="10" y1="12" x2="54" y2="12"/>
+            <line class="scroll-line" x1="10" y1="21" x2="54" y2="21"/>
+            <line class="scroll-line" x1="10" y1="30" x2="40" y2="30"/>
+          </g>
+          <ellipse class="shine" cx="76" cy="90" rx="10" ry="60"/>
+          <rect class="wax" x="102" y="18" width="16" height="16" rx="8"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <section id="birak" class="wrap">
+    <div class="section-head">
+      <h2>Kavanozunu bırak</h2>
+      <p>Yazdığın metin şifreli saklanır. Süre dolmadan kimse okuyamaz — kavanoz "özel" ise süre dolduktan sonra da yalnız mail adresine gider.</p>
+    </div>
+    <form id="jar-form" class="panel" novalidate>
+      <div class="field">
+        <label for="message">Notun</label>
+        <textarea id="message" name="message" maxlength="2000" required placeholder="Gelecekteki kendine (ya da birine) ne söylemek istersin?"></textarea>
+        <div class="char-count"><span id="char-count">0</span>/2000</div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label for="displayName">Görünecek isim (opsiyonel)</label>
+          <input type="text" id="displayName" name="displayName" maxlength="60" placeholder="Boş bırakırsan “Anonim” görünür">
+        </div>
+        <div class="field">
+          <label for="email">Mail adresi</label>
+          <input type="email" id="email" name="email" required placeholder="ornek@eposta.com">
+          <div class="hint">Kavanoz senin değilse (birine sürpriz bırakıyorsan) o kişiye önce bir onay maili gider.</div>
+        </div>
+      </div>
+
+      <div class="row-2">
+        <div class="field">
+          <label>Ne zaman açılsın?</label>
+          <div class="choice-group" id="duration-group">
+            <button type="button" data-days="30">1 ay</button>
+            <button type="button" data-days="180">6 ay</button>
+            <button type="button" data-days="365" class="selected">1 yıl</button>
+            <button type="button" data-days="1825">5 yıl</button>
+            <button type="button" data-days="custom">Tarih seç</button>
+          </div>
+          <input type="date" id="customDate" name="customDate" style="display:none; margin-top:12px;">
+        </div>
+        <div class="field">
+          <label>Görünürlük</label>
+          <div class="choice-group" id="visibility-group">
+            <button type="button" data-vis="public" class="selected">Herkese açık duvar</button>
+            <button type="button" data-vis="private">Tamamen özel</button>
+          </div>
+          <div class="hint">Herkese açık kavanozlar süre dolana kadar mühürlü görünür; açıldığında notun (adınla ya da anonim) duvarda görünür olur.</div>
+        </div>
+      </div>
+
+      <label class="consent">
+        <input type="checkbox" id="consent" required>
+        <span><a href="/privacy.html" target="_blank">Gizlilik Politikası</a>'nı okudum, verimin yukarıda açıklanan şekilde işlenmesini kabul ediyorum.</span>
+      </label>
+
+      <div class="h-captcha" data-sitekey="REPLACE_WITH_KAVANOZ_HCAPTCHA_SITE_KEY" data-theme="dark"></div>
+
+      <div style="margin-top:22px;">
+        <button type="submit" class="btn btn-primary" id="submit-btn">Kavanozu mühürle</button>
+      </div>
+      <div class="form-msg" id="form-msg" role="status" aria-live="polite"></div>
+    </form>
+  </section>
+
+  <section id="duvar" class="wrap">
+    <div class="section-head">
+      <h2>Kavanoz duvarı</h2>
+      <p>Mühürlü kavanozlar süresini bekliyor. Süresi dolanlar burada açılır.</p>
+    </div>
+    <div class="wall-grid" id="wall-grid"></div>
+    <button class="btn btn-ghost load-more" id="load-more" hidden>Daha fazla göster</button>
+  </section>
+</main>
+
+<footer class="site wrap">
+  <span>© <span id="year"></span> Sanal Kavanoz — dixtuel</span>
+  <span><a href="/terms.html">Şartlar</a> · <a href="/privacy.html">Gizlilik</a></span>
+</footer>
+
+<script src="https://js.hcaptcha.com/1/api.js" async defer></script>
+<script src="app.js?v=1"></script>
+</body>
+</html>

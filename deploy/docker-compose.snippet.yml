@@ -1,0 +1,23 @@
+# /srv/mikoshi-vds/containers/docker-compose.yml içine eklenecek servisler (cobalt-web deseni).
+# Bu dosya doğrudan kullanılmaz — yalnız referans; asıl compose dosyasına elle taşınır.
+
+  kavanoz:
+    build:
+      context: ../../../opt/kavanoz   # prod dizinine kopyalandığında yol güncellenecek
+      dockerfile: deploy/Dockerfile
+    container_name: kavanoz
+    restart: unless-stopped
+    env_file:
+      - ./kavanoz/.env
+    ports:
+      - "127.0.0.1:3030:3030"
+
+  kavanoz-worker:
+    build:
+      context: ../../../opt/kavanoz
+      dockerfile: deploy/Dockerfile
+    container_name: kavanoz-worker
+    profiles: ["tools"]   # yalnız systemd timer `docker compose run` ile tetikler, kendiliğinden ayağa kalkmaz
+    env_file:
+      - ./kavanoz/.env
+    entrypoint: ["node", "worker/send-due.js"]
