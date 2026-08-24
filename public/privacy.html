@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Gizlilik Politikası — Sanal Kavanoz</title>
-<link rel="stylesheet" href="/style.css?v=1">
+<link rel="stylesheet" href="/style.css?v=2">
 </head>
 <body>
 <header class="site wrap">
@@ -15,22 +15,25 @@
   <h1>Gizlilik Politikası</h1>
   <p>Bu sayfa, Sanal Kavanoz'u kullanırken hangi kişisel verilerinin, ne amaçla ve ne kadar süreyle işlendiğini 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") kapsamında açıklar.</p>
 
+  <h2>Önce önemli bir uyarı</h2>
+  <p>Sanal Kavanoz <strong>ortak, herkese açık bir panodur</strong>. Kavanoza bıraktığın not (ve varsa görünen ismin) <strong>herkes tarafından okunabilir</strong> — hesap gerektirmez, tıklayan herkes görür. Paylaşmak istemediğin hiçbir bilgiyi kavanoza yazma.</p>
+
   <h2>Veri sorumlusu</h2>
   <p>Bu sitenin veri sorumlusu, siteyi işleten kişidir. Sorularınız için: your-email@example.com</p>
 
   <h2>Hangi veriler işlenir</h2>
   <ul>
-    <li><strong>Kavanoz metni:</strong> yazdığın not, sunucuda AES-256 ile şifreli olarak saklanır.</li>
-    <li><strong>E-posta adresin:</strong> yalnız kavanozu teslim etmek için toplanır, şifreli saklanır ve <strong>teslimat yapıldığı (ya da nihai olarak başarısız olduğu) anda kalıcı olarak silinir</strong>.</li>
-    <li><strong>Görünen isim:</strong> yalnız kendin belirtirsen saklanır, boş bırakırsan hiç toplanmaz.</li>
+    <li><strong>Not metni ve görünen isim:</strong> sunucuda şifreli saklanır, ancak amacı gereği <strong>herkese açık olarak gösterilir</strong>. Görünen ismi boş bırakırsan "Anonim" olarak görünürsün.</li>
+    <li><strong>E-posta adresin (tamamen opsiyonel):</strong> yalnız notunu ileride sana da mail olarak göndermemiz için istenir. Şifreli saklanır, kimseye gösterilmez, <strong>teslimat yapıldığı (ya da nihai olarak başarısız olduğu) anda kalıcı olarak silinir</strong>.</li>
+    <li><strong>Yönetim anahtarı:</strong> notu kaydettiğinde sana bir kez gösterilen, notunu silmen/düzenlemen için gereken tek erişim aracı. Sunucuda yalnız bunun tek yönlü özeti (hash'i) saklanır — kaybedersen biz de kurtaramayız, çünkü orijinal anahtarı biz de bilmiyoruz.</li>
     <li><strong>IP adresi:</strong> yalnız kötüye kullanım/oran sınırlama (rate-limit) amacıyla geçici olarak, sunucu loglarında kısa süreliğine tutulur.</li>
   </ul>
 
   <h2>İşleme amacı ve hukuki sebep</h2>
-  <p>Veriler, formu gönderirken verdiğin açık rızaya dayanarak (KVKK m.5/1) yalnız şu amaçlarla işlenir: (1) belirlediğin tarihte notu mail ile iletmek, (2) "herkese açık" seçtiysen notu, süresi dolduğunda kavanoz duvarında göstermek, (3) kötüye kullanımı (spam, taciz) önlemek.</p>
+  <p>Not ve görünen isminin herkese açık gösterilmesi, formu gönderirken verdiğin açık rızaya dayanır (KVKK m.5/1) — bu sitenin temel işlevi budur. E-posta adresin, yalnız verdiğin ayrı bir açık rıza ile, seçtiğin tarihte notu sana iletmek amacıyla işlenir.</p>
 
   <h2>Saklama süresi</h2>
-  <p>Onaylanmamış kavanozlar (mail adresi doğrulanmamış) <strong>48 saat içinde</strong> otomatik olarak silinir. Teslim edilen (ya da 6 başarısız denemeden sonra teslim edilemeyen) kavanozların e-posta adresi <strong>anında silinir</strong>. "Özel" kavanozların metni teslimattan sonra artık amacına ulaştığı için saklanmaya devam etmez; "herkese açık" kavanozların metni, açıldıktan sonra kavanoz duvarında görünür kalır (sen görünürlüğü baştan böyle seçtiğin için).</p>
+  <p>Notu bırakırken "site yöneticisine bırak" seçersen, not moderasyon kurallarına aykırı olmadığı sürece süresiz kalır (silme hakkını her zaman yönetim anahtarınla kullanabilirsin). "Tarih seç" dersen, seçtiğin tarihte otomatik ve kalıcı olarak silinir. E-posta adresin, teslimat yapıldığı ya da 6 başarısız denemeden sonra teslim edilemediği an kalıcı olarak silinir.</p>
 
   <h2>Üçüncü taraflar</h2>
   <ul>
@@ -40,10 +43,10 @@
   </ul>
 
   <h2>Haklarınız (KVKK m.11)</h2>
-  <p>Kişisel verinin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltme/silme isteme ve itiraz etme hakkına sahipsin. Onay mailindeki linkle veya sana gönderilen teslimat mailindeki linkle kavanozunu ve verilerini istediğin an kalıcı olarak silebilirsin. Diğer talepler için your-email@example.com adresinden bize ulaşabilirsin.</p>
+  <p>Kişisel verinin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltme/silme isteme ve itiraz etme hakkına sahipsin. Yönetim anahtarınla notunu ve varsa e-posta adresini istediğin an kalıcı olarak silebilir veya düzenleyebilirsin — "Notunu yönet" bölümünden. Anahtarını kaybettiysen, notun hangisi olduğunu doğrulayabildiğin sürece your-email@example.com üzerinden manuel silme talebinde bulunabilirsin.</p>
 
   <h2>Güvenlik</h2>
-  <p>Tüm bağlantı HTTPS ile şifrelenir. Kavanoz metni ve e-posta adresin veritabanında AES-256-GCM ile şifreli tutulur; şifreleme anahtarı veritabanından ayrı, yalnızca sunucu ortamında saklanır.</p>
+  <p>Tüm bağlantı HTTPS ile şifrelenir. Not metni ve e-posta adresin veritabanında AES-256-GCM ile şifreli tutulur; şifreleme anahtarı veritabanından ayrı, yalnızca sunucu ortamında saklanır. Yönetim anahtarın yalnız tek yönlü (hash'lenmiş) haliyle saklanır.</p>
 </main>
 </body>
 </html>

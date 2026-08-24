@@ -1,7 +1,6 @@
 const nodemailer = require("nodemailer");
 
-const BASE_URL = process.env.PUBLIC_BASE_URL || "https://kavanoz.dxtl.com.tr";
-const FROM = process.env.MAIL_FROM || '"Sanal Kavanoz" <no-reply@dxtl.com.tr>';
+const FROM = process.env.MAIL_FROM || "Sanal Kavanoz <no-reply@dxtl.com.tr>";
 
 let transporter;
 function getTransporter() {
@@ -19,52 +18,34 @@ function getTransporter() {
 
 const TEXT = {
   tr: {
-    confirmSubject: "Kavanozunu onayla",
-    confirmBody: (link) =>
-      `Bir kavanoz bırakıldı ve bu adrese, süresi dolduğunda gönderilmesi isteniyor.\n\n` +
-      `Bu kavanozu almayı kabul ediyorsan aşağıdaki linke tıkla:\n${link}\n\n` +
-      `Bu maili sen istemediysen hiçbir şey yapmana gerek yok; onaylanmayan kavanozlar 48 saat içinde otomatik silinir.`,
-    deliverySubject: "Kavanozun açıldı",
-    deliveryBody: (message, deleteLink) =>
-      `Bir süre önce bıraktığın kavanoz şimdi açıldı:\n\n"${message}"\n\n` +
-      `— Sanal Kavanoz\n\nVerilerinin nasıl işlendiğiyle ilgili: ${deleteLink}`,
+    subject: "Kavanozdan sana bir not geldi",
+    body: (message) =>
+      `Bir zaman önce Sanal Kavanoz'a bırakılan ve bu tarihte sana gönderilmesi istenen bir not var:\n\n` +
+      `"${message}"\n\n` +
+      `— Sanal Kavanoz (kavanoz.dxtl.com.tr)\n\n` +
+      `Bu maili neden aldığını merak ediyorsan: birisi (belki sen, belki bir tanıdığın) sitede bir not yazıp bu adrese, seçtiği bir tarihte gönderilmesini istedi. Hesap gerektirmeyen bir sistem olduğu için gönderenin kimliğini biz de bilmiyoruz.`,
   },
   en: {
-    confirmSubject: "Confirm your jar",
-    confirmBody: (link) =>
-      `Someone left a jar to be delivered to this address once its time is up.\n\n` +
-      `If you accept receiving it, click the link below:\n${link}\n\n` +
-      `If you didn't expect this, you can ignore it — unconfirmed jars are deleted automatically within 48 hours.`,
-    deliverySubject: "Your jar has opened",
-    deliveryBody: (message, deleteLink) =>
-      `A jar you left a while ago has just opened:\n\n"${message}"\n\n` +
-      `— Sanal Kavanoz\n\nAbout how your data is handled: ${deleteLink}`,
+    subject: "A note from the jar has arrived for you",
+    body: (message) =>
+      `A note left on Virtual Jar a while ago was set to be delivered to this address today:\n\n` +
+      `"${message}"\n\n` +
+      `— Virtual Jar (kavanoz.dxtl.com.tr)\n\n` +
+      `Wondering why you got this? Someone (maybe you, maybe someone who knows you) wrote a note on the site and asked for it to be sent to this address on a chosen date. Since the site doesn't use accounts, we don't know who the sender was either.`,
   },
 };
 
-async function sendConfirmationMail(email, token, lang) {
-  const t = TEXT[lang] || TEXT.tr;
-  const link = `${BASE_URL}${lang === "en" ? "/en" : ""}/api/confirm/${token}`;
-  await getTransporter().sendMail({
-    from: FROM,
-    to: email,
-    subject: t.confirmSubject,
-    text: t.confirmBody(link),
-  });
-}
-
 async function sendDeliveryMail(id, email, message, lang) {
   const t = TEXT[lang] || TEXT.tr;
-  const deleteLink = `${BASE_URL}${lang === "en" ? "/en" : ""}/privacy.html`;
   await getTransporter().sendMail({
     from: FROM,
     to: email,
-    subject: t.deliverySubject,
-    text: t.deliveryBody(message, deleteLink),
+    subject: t.subject,
+    text: t.body(message),
     // Deterministic Message-ID so an accidental double-trigger of the worker
     // is deduplicated by the receiving mail client instead of arriving twice.
-    messageId: `<letter-${id}@dxtl.com.tr>`,
+    messageId: `<note-${id}@dxtl.com.tr>`,
   });
 }
 
-module.exports = { sendConfirmationMail, sendDeliveryMail };
+module.exports = { sendDeliveryMail };

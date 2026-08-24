@@ -3,35 +3,26 @@ const db = require("../server/db");
 const { sendDeliveryMail } = require("../server/mailer");
 
 // systemd timer tarafından her 10 dakikada bir tetiklenen oneshot iş.
-// 7/24 dinleyen ayrı bir process yok — VDS boştayken sıfır kaynak tüketimi hedefi budur.
+// 7/24 çalışan ayrı bir process yok — VDS boştayken sıfır kaynak tüketimi hedefi budur.
 async function main() {
   await db.init();
 
   // Önceki çalıştırma reboot/crash ile yarım kaldıysa 'sending' kayıtlarını geri al.
   await db.recoverStuckMail();
 
-  // Süresi dolan public kavanozları panoda aç (mail gönderiminden bağımsız, saf zaman kontrolü).
-  await db.revealDuePublicLetters();
-
-  // Onaylanmadan 48 saat bekleyen kayıtların kişisel verisini temizle.
-  await db.purgeAbandoned();
+  // Gönderenin seçtiği saklama süresi dolan notları temizle (yönetici takdirine bırakılanlar hiç silinmez).
+  const purged = await db.purgeExpiredByRetention();
 
   const ids = await db.claimDueMailIds(25);
   let sent = 0;
   let failed = 0;
 
   for (const id of ids) {
-    const letter = await db.claimLetter(id);
-    if (!letter) continue; // başka bir eşzamanlı çalıştırma zaten aldı
-
-    if (!letter.ownerEmail) {
-      // Onaysız/temizlenmiş kayıt sızmış olabilir — gönderilecek bir şey yok.
-      await db.markMailSent(id);
-      continue;
-    }
+    const note = await db.claimNoteForMail(id);
+    if (!note) continue; // başka bir eşzamanlı çalıştırma zaten aldı
 
     try {
-      await sendDeliveryMail(letter.id, letter.ownerEmail, letter.message, letter.lang);
+      await sendDeliveryMail(note.id, note.email, note.message, note.lang);
       await db.markMailSent(id);
       sent++;
     } catch (err) {
@@ -41,7 +32,7 @@ async function main() {
     }
   }
 
-  console.log(`[kavanoz-worker] tamamlandı: ${sent} gönderildi, ${failed} başarısız, ${ids.length - sent - failed} atlandı`);
+  console.log(`[kavanoz-worker] tamamlandı: ${sent} gönderildi, ${failed} başarısız, ${purged} saklama süresi dolan not silindi`);
 }
 
 main()

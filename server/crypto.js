@@ -38,4 +38,15 @@ function randomToken() {
   return crypto.randomUUID();
 }
 
-module.exports = { encrypt, decrypt, randomToken };
+// Yönetim anahtarı: kullanıcıya bir kez gösterilir, sunucuda yalnız hash'i saklanır.
+// Zaten yüksek entropili rastgele bir değer olduğundan (parola gibi düşük entropili
+// değil), yavaş/salted hash (bcrypt) yerine düz SHA-256 yeterli ve tutarlıdır.
+function generateManagementKey() {
+  return crypto.randomBytes(15).toString("base64url"); // ~20 karakter, URL-safe
+}
+
+function hashManagementKey(key) {
+  return crypto.createHash("sha256").update(key, "utf8").digest("hex");
+}
+
+module.exports = { encrypt, decrypt, randomToken, generateManagementKey, hashManagementKey };

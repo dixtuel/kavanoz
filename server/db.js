@@ -7,6 +7,8 @@ const client = createClient({
   authToken: process.env.TURSO_AUTH_TOKEN,
 });
 
+const JAR_CAPACITY = Number(process.env.JAR_CAPACITY || 50);
+
 function compressText(raw) {
   if (!raw || typeof raw !== "string" || raw.length < 24) return raw;
   try {
@@ -28,102 +30,211 @@ function decompressText(stored) {
 
 async function init() {
   await client.execute(`
-    CREATE TABLE IF NOT EXISTS letters (
+    CREATE TABLE IF NOT EXISTS jars (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      message_enc TEXT NOT NULL,
-      display_name TEXT,
-      owner_email_enc TEXT,
-      visibility TEXT NOT NULL CHECK (visibility IN ('public','private')),
-      lang TEXT NOT NULL DEFAULT 'tr',
+      status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','archived')),
+      note_count INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
-      unlock_at TEXT NOT NULL,
-      confirm_status TEXT NOT NULL DEFAULT 'pending' CHECK (confirm_status IN ('pending','confirmed','cancelled')),
-      confirm_token TEXT NOT NULL UNIQUE,
-      confirm_token_used_at TEXT,
-      delete_token TEXT NOT NULL UNIQUE,
-      delete_token_used_at TEXT,
-      reveal_status TEXT NOT NULL DEFAULT 'sealed' CHECK (reveal_status IN ('sealed','revealed')),
-      mail_status TEXT NOT NULL DEFAULT 'pending' CHECK (mail_status IN ('pending','sending','sent','failed')),
-      mail_attempts INTEGER NOT NULL DEFAULT 0,
-      mail_next_attempt_at TEXT
+      archived_at TEXT
     );
   `);
-  await client.execute(`CREATE INDEX IF NOT EXISTS idx_letters_reveal ON letters(confirm_status, visibility, reveal_status, unlock_at);`);
-  await client.execute(`CREATE INDEX IF NOT EXISTS idx_letters_mail ON letters(mail_status, confirm_status, unlock_at, mail_next_attempt_at);`);
-  await client.execute(`CREATE INDEX IF NOT EXISTS idx_letters_pending_cleanup ON letters(confirm_status, created_at);`);
+  await client.execute(`
+    CREATE TABLE IF NOT EXISTS notes (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      jar_id INTEGER NOT NULL REFERENCES jars(id),
+      message_enc TEXT NOT NULL,
+      display_name TEXT,
+      lang TEXT NOT NULL DEFAULT 'tr',
+      created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
+      email_enc TEXT,
+      mail_send_at TEXT,
+      mail_status TEXT NOT NULL DEFAULT 'none' CHECK (mail_status IN ('none','pending','sending','sent','failed')),
+      mail_attempts INTEGER NOT NULL DEFAULT 0,
+      mail_next_attempt_at TEXT,
+      retention_mode TEXT NOT NULL DEFAULT 'admin' CHECK (retention_mode IN ('admin','until_date')),
+      retention_until TEXT,
+      management_key_hash TEXT NOT NULL
+    );
+  `);
+  await client.execute(`CREATE INDEX IF NOT EXISTS idx_notes_jar ON notes(jar_id, id);`);
+  await client.execute(`CREATE INDEX IF NOT EXISTS idx_notes_mail ON notes(mail_status, mail_send_at, mail_next_attempt_at);`);
+  await client.execute(`CREATE INDEX IF NOT EXISTS idx_notes_retention ON notes(retention_mode, retention_until);`);
+  await client.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_notes_key ON notes(management_key_hash);`);
+  await client.execute(`CREATE INDEX IF NOT EXISTS idx_jars_status ON jars(status, id);`);
 }
 
-async function createLetter({ message, displayName, ownerEmail, visibility, unlockAt, lang, confirmToken, deleteToken }) {
+async function getOrCreateActiveJar() {
+  const existing = await client.execute(`SELECT id, note_count FROM jars WHERE status='active' ORDER BY id DESC LIMIT 1`);
+  if (existing.rows[0]) {
+    return { id: Number(existing.rows[0].id), noteCount: Number(existing.rows[0].note_count) };
+  }
+  const created = await client.execute(`INSERT INTO jars DEFAULT VALUES RETURNING id`);
+  return { id: Number(created.rows[0].id), noteCount: 0 };
+}
+
+async function createNote({ message, displayName, email, mailSendAt, lang, retentionMode, retentionUntil, managementKeyHash }) {
+  const jar = await getOrCreateActiveJar();
+
   const result = await client.execute({
-    sql: `INSERT INTO letters (message_enc, display_name, owner_email_enc, visibility, lang, unlock_at, confirm_token, delete_token)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+    sql: `INSERT INTO notes (jar_id, message_enc, display_name, lang, email_enc, mail_send_at, mail_status, retention_mode, retention_until, management_key_hash)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
     args: [
+      jar.id,
       encrypt(compressText(message)),
       displayName || null,
-      encrypt(ownerEmail),
-      visibility,
       lang || "tr",
-      unlockAt,
-      confirmToken,
-      deleteToken,
+      email ? encrypt(email) : null,
+      mailSendAt || null,
+      email ? "pending" : "none",
+      retentionMode,
+      retentionUntil || null,
+      managementKeyHash,
     ],
   });
-  return Number(result.rows[0].id);
+
+  const newCount = jar.noteCount + 1;
+  await client.execute({ sql: `UPDATE jars SET note_count = note_count + 1 WHERE id=?`, args: [jar.id] });
+  if (newCount >= JAR_CAPACITY) {
+    // Kavanoz ağzına kadar doldu: rafa kaldır. Bir sonraki not otomatik olarak yeni (boş) kavanozu bulur/oluşturur.
+    await client.execute({
+      sql: `UPDATE jars SET status='archived', archived_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=? AND status='active'`,
+      args: [jar.id],
+    });
+  }
+
+  return { id: Number(result.rows[0].id), jarId: jar.id, jarFilled: newCount >= JAR_CAPACITY };
 }
 
-async function confirmByToken(token) {
+function noteRowToPublic(row) {
+  return {
+    id: Number(row.id),
+    jarId: Number(row.jar_id),
+    displayName: row.display_name || null,
+    message: decompressText(decrypt(row.message_enc)),
+    createdAt: row.created_at,
+  };
+}
+
+async function listJarNotes(jarId, beforeId, limit) {
   const result = await client.execute({
-    sql: `UPDATE letters SET confirm_status='confirmed', confirm_token_used_at=strftime('%Y-%m-%dT%H:%M:%fZ','now')
-          WHERE confirm_token=? AND confirm_status='pending' RETURNING id, lang`,
-    args: [token],
+    sql: `SELECT id, jar_id, display_name, message_enc, created_at FROM notes
+          WHERE jar_id=? AND (? IS NULL OR id < ?) ORDER BY id DESC LIMIT ?`,
+    args: [jarId, beforeId ?? null, beforeId ?? null, limit],
   });
-  return result.rows[0] ? { id: Number(result.rows[0].id), lang: result.rows[0].lang } : null;
+  return result.rows.map(noteRowToPublic);
 }
 
-async function cancelByDeleteToken(token) {
+async function getNote(id) {
+  const result = await client.execute({ sql: `SELECT id, jar_id, display_name, message_enc, created_at FROM notes WHERE id=?`, args: [id] });
+  return result.rows[0] ? noteRowToPublic(result.rows[0]) : null;
+}
+
+async function getActiveJarSummary() {
+  const jar = await getOrCreateActiveJar();
+  return { id: jar.id, noteCount: jar.noteCount, capacity: JAR_CAPACITY };
+}
+
+async function listShelf(beforeId, limit) {
   const result = await client.execute({
-    sql: `UPDATE letters SET confirm_status='cancelled', delete_token_used_at=strftime('%Y-%m-%dT%H:%M:%fZ','now'),
-          message_enc='', display_name=NULL, owner_email_enc=NULL
-          WHERE delete_token=? AND confirm_status IN ('pending','confirmed') AND delete_token_used_at IS NULL
-          RETURNING id, lang`,
-    args: [token],
+    sql: `SELECT id, note_count, created_at, archived_at FROM jars
+          WHERE status='archived' AND (? IS NULL OR id < ?) ORDER BY id DESC LIMIT ?`,
+    args: [beforeId ?? null, beforeId ?? null, limit],
   });
-  return result.rows[0] ? { id: Number(result.rows[0].id), lang: result.rows[0].lang } : null;
+  return result.rows.map((row) => ({
+    id: Number(row.id),
+    noteCount: Number(row.note_count),
+    createdAt: row.created_at,
+    archivedAt: row.archived_at,
+  }));
 }
 
-// Data minimization: submissions never confirmed within 48h are purged of PII.
-async function purgeAbandoned() {
-  await client.execute(`
-    UPDATE letters SET confirm_status='cancelled', message_enc='', display_name=NULL, owner_email_enc=NULL
-    WHERE confirm_status='pending' AND created_at < strftime('%Y-%m-%dT%H:%M:%fZ','now','-48 hours');
-  `);
+async function getJarMeta(id) {
+  const result = await client.execute({ sql: `SELECT id, status, note_count, created_at, archived_at FROM jars WHERE id=?`, args: [id] });
+  if (!result.rows[0]) return null;
+  const row = result.rows[0];
+  return { id: Number(row.id), status: row.status, noteCount: Number(row.note_count), createdAt: row.created_at, archivedAt: row.archived_at };
 }
 
-async function revealDuePublicLetters() {
-  await client.execute(`
-    UPDATE letters SET reveal_status='revealed'
-    WHERE confirm_status='confirmed' AND visibility='public' AND reveal_status='sealed' AND unlock_at<=strftime('%Y-%m-%dT%H:%M:%fZ','now');
-  `);
+async function findNoteByManagementKeyHash(hash) {
+  const result = await client.execute({
+    sql: `SELECT id, jar_id, message_enc, display_name, lang, email_enc, mail_send_at, mail_status, retention_mode, retention_until, created_at
+          FROM notes WHERE management_key_hash=?`,
+    args: [hash],
+  });
+  if (!result.rows[0]) return null;
+  const row = result.rows[0];
+  return {
+    id: Number(row.id),
+    jarId: Number(row.jar_id),
+    message: decompressText(decrypt(row.message_enc)),
+    displayName: row.display_name,
+    lang: row.lang,
+    email: row.email_enc ? decrypt(row.email_enc) : null,
+    mailSendAt: row.mail_send_at,
+    mailStatus: row.mail_status,
+    retentionMode: row.retention_mode,
+    retentionUntil: row.retention_until,
+    createdAt: row.created_at,
+  };
 }
+
+async function deleteNoteById(id, jarId) {
+  await client.execute({ sql: `DELETE FROM notes WHERE id=?`, args: [id] });
+  await client.execute({ sql: `UPDATE jars SET note_count = MAX(note_count - 1, 0) WHERE id=?`, args: [jarId] });
+}
+
+async function updateNoteById(id, fields) {
+  const sets = [];
+  const args = [];
+  if (fields.message !== undefined) {
+    sets.push("message_enc=?");
+    args.push(encrypt(compressText(fields.message)));
+  }
+  if (fields.displayName !== undefined) {
+    sets.push("display_name=?");
+    args.push(fields.displayName || null);
+  }
+  if (fields.email !== undefined) {
+    sets.push("email_enc=?", "mail_status=?");
+    args.push(fields.email ? encrypt(fields.email) : null, fields.email ? "pending" : "none");
+  }
+  if (fields.mailSendAt !== undefined) {
+    sets.push("mail_send_at=?", "mail_attempts=0", "mail_next_attempt_at=NULL");
+    args.push(fields.mailSendAt || null);
+  }
+  if (fields.retentionMode !== undefined) {
+    sets.push("retention_mode=?");
+    args.push(fields.retentionMode);
+  }
+  if (fields.retentionUntil !== undefined) {
+    sets.push("retention_until=?");
+    args.push(fields.retentionUntil || null);
+  }
+  if (sets.length === 0) return;
+  args.push(id);
+  await client.execute({ sql: `UPDATE notes SET ${sets.join(", ")} WHERE id=?`, args });
+}
+
+// ---- Worker helpers ----
 
 async function recoverStuckMail() {
-  await client.execute(`UPDATE letters SET mail_status='pending' WHERE mail_status='sending';`);
+  await client.execute(`UPDATE notes SET mail_status='pending' WHERE mail_status='sending';`);
 }
 
 async function claimDueMailIds(limit = 25) {
   const result = await client.execute({
-    sql: `SELECT id FROM letters
-          WHERE mail_status='pending' AND confirm_status='confirmed' AND unlock_at<=strftime('%Y-%m-%dT%H:%M:%fZ','now')
+    sql: `SELECT id FROM notes
+          WHERE mail_status='pending' AND mail_send_at IS NOT NULL AND mail_send_at<=strftime('%Y-%m-%dT%H:%M:%fZ','now')
             AND (mail_next_attempt_at IS NULL OR mail_next_attempt_at<=strftime('%Y-%m-%dT%H:%M:%fZ','now'))
-          ORDER BY unlock_at ASC LIMIT ?`,
+          ORDER BY mail_send_at ASC LIMIT ?`,
     args: [limit],
   });
   return result.rows.map((r) => Number(r.id));
 }
 
-async function claimLetter(id) {
+async function claimNoteForMail(id) {
   const result = await client.execute({
-    sql: `UPDATE letters SET mail_status='sending' WHERE id=? AND mail_status='pending' RETURNING id, message_enc, owner_email_enc, display_name, visibility, lang`,
+    sql: `UPDATE notes SET mail_status='sending' WHERE id=? AND mail_status='pending' RETURNING id, message_enc, email_enc, display_name, lang`,
     args: [id],
   });
   if (!result.rows[0]) return null;
@@ -131,77 +242,63 @@ async function claimLetter(id) {
   return {
     id: Number(row.id),
     message: decompressText(decrypt(row.message_enc)),
-    ownerEmail: decrypt(row.owner_email_enc),
+    email: decrypt(row.email_enc),
     displayName: row.display_name,
-    visibility: row.visibility,
     lang: row.lang,
   };
 }
 
 async function markMailSent(id) {
-  await client.execute({
-    sql: `UPDATE letters SET mail_status='sent', owner_email_enc=NULL WHERE id=?`,
-    args: [id],
-  });
+  await client.execute({ sql: `UPDATE notes SET mail_status='sent' WHERE id=?`, args: [id] });
 }
 
 const MAX_MAIL_ATTEMPTS = 6;
 
 async function markMailFailed(id) {
   const result = await client.execute({
-    sql: `UPDATE letters SET mail_attempts = mail_attempts + 1 WHERE id=? RETURNING mail_attempts`,
+    sql: `UPDATE notes SET mail_attempts = mail_attempts + 1 WHERE id=? RETURNING mail_attempts`,
     args: [id],
   });
   const attempts = Number(result.rows[0].mail_attempts);
   if (attempts >= MAX_MAIL_ATTEMPTS) {
-    await client.execute({ sql: `UPDATE letters SET mail_status='failed', owner_email_enc=NULL WHERE id=?`, args: [id] });
+    await client.execute({ sql: `UPDATE notes SET mail_status='failed' WHERE id=?`, args: [id] });
     return { gaveUp: true, attempts };
   }
   const backoffMinutes = Math.min(60 * Math.pow(2, attempts - 1), 24 * 60);
   await client.execute({
-    sql: `UPDATE letters SET mail_status='pending', mail_next_attempt_at=datetime('now', '+' || ? || ' minutes') WHERE id=?`,
+    sql: `UPDATE notes SET mail_status='pending', mail_next_attempt_at=datetime('now', '+' || ? || ' minutes') WHERE id=?`,
     args: [backoffMinutes, id],
   });
   return { gaveUp: false, attempts, backoffMinutes };
 }
 
-async function listWall(beforeId, limit) {
-  const result = await client.execute({
-    sql: `SELECT id, display_name, visibility, reveal_status, created_at, unlock_at, message_enc
-          FROM letters
-          WHERE confirm_status='confirmed' AND visibility='public' AND (? IS NULL OR id < ?)
-          ORDER BY id DESC LIMIT ?`,
-    args: [beforeId ?? null, beforeId ?? null, limit],
+// Gönderenin seçtiği saklama süresi dolan notları temizler (site yöneticisi takdirine bırakılanlar hiç silinmez).
+async function purgeExpiredByRetention() {
+  const dueJars = await client.execute({
+    sql: `SELECT id, jar_id FROM notes WHERE retention_mode='until_date' AND retention_until<=strftime('%Y-%m-%dT%H:%M:%fZ','now')`,
   });
-  return result.rows.map((row) => ({
-    id: Number(row.id),
-    displayName: row.display_name || null,
-    revealed: row.reveal_status === "revealed",
-    createdAt: row.created_at,
-    unlockAt: row.unlock_at,
-    message: row.reveal_status === "revealed" ? decompressText(decrypt(row.message_enc)) : null,
-  }));
-}
-
-async function countPending(email) {
-  const result = await client.execute({
-    sql: `SELECT COUNT(*) AS total FROM letters WHERE created_at > strftime('%Y-%m-%dT%H:%M:%fZ','now','-1 hours')`,
-  });
-  return Number(result.rows[0].total);
+  for (const row of dueJars.rows) {
+    await deleteNoteById(Number(row.id), Number(row.jar_id));
+  }
+  return dueJars.rows.length;
 }
 
 module.exports = {
   init,
-  createLetter,
-  confirmByToken,
-  cancelByDeleteToken,
-  purgeAbandoned,
-  revealDuePublicLetters,
+  createNote,
+  listJarNotes,
+  getNote,
+  getActiveJarSummary,
+  listShelf,
+  getJarMeta,
+  findNoteByManagementKeyHash,
+  deleteNoteById,
+  updateNoteById,
   recoverStuckMail,
   claimDueMailIds,
-  claimLetter,
+  claimNoteForMail,
   markMailSent,
   markMailFailed,
-  listWall,
-  countPending,
+  purgeExpiredByRetention,
+  JAR_CAPACITY,
 };

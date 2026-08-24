@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Privacy Policy — Virtual Jar</title>
-<link rel="stylesheet" href="/style.css?v=1">
+<link rel="stylesheet" href="/style.css?v=2">
 </head>
 <body>
 <header class="site wrap">
@@ -15,22 +15,25 @@
   <h1>Privacy Policy</h1>
   <p>This page explains what personal data Virtual Jar processes, why, and for how long, in line with Turkey's Personal Data Protection Law (KVKK) and general good practice.</p>
 
+  <h2>An important note first</h2>
+  <p>Virtual Jar is a <strong>shared, public board</strong>. Any note you drop in the jar (and your display name, if you give one) is <strong>readable by anyone</strong> — no account needed, anyone who clicks can see it. Don't write anything in the jar you wouldn't want shared.</p>
+
   <h2>Data controller</h2>
   <p>The data controller for this site is its operator. Questions: your-email@example.com</p>
 
   <h2>What we collect</h2>
   <ul>
-    <li><strong>Jar text:</strong> your note, stored encrypted (AES-256) on the server.</li>
-    <li><strong>Your email address:</strong> collected only to deliver the jar, stored encrypted, and <strong>permanently deleted the moment delivery succeeds (or finally fails)</strong>.</li>
-    <li><strong>Display name:</strong> stored only if you provide one; nothing is collected if you leave it blank.</li>
+    <li><strong>Note text and display name:</strong> stored encrypted on the server, but shown publicly by design — that's the point of the site. Leave the name blank and you appear as "Anonymous."</li>
+    <li><strong>Your email address (fully optional):</strong> collected only if you want the note also emailed to you later. Stored encrypted, never shown to anyone, and <strong>permanently deleted the moment delivery succeeds (or finally fails)</strong>.</li>
+    <li><strong>Management key:</strong> shown to you once when you save a note — your only way to edit or delete it later. Only a one-way hash of it is stored on the server; if you lose it, we can't recover it either, since we never know the original key.</li>
     <li><strong>IP address:</strong> kept briefly in server logs solely for abuse prevention / rate limiting.</li>
   </ul>
 
   <h2>Purpose and legal basis</h2>
-  <p>Based on the explicit consent you give when submitting the form, data is processed only to: (1) deliver your note by email on the date you chose, (2) show it on the public wall once opened, if you chose "public," (3) prevent abuse (spam, harassment).</p>
+  <p>Publicly showing your note and display name is based on the explicit consent you give when submitting the form (KVKK Art. 5/1) — it's the core function of this site. Your email address, given through a separate explicit consent, is processed only to deliver the note to you on the date you chose.</p>
 
   <h2>Retention</h2>
-  <p>Unconfirmed jars (unverified email) are automatically deleted within <strong>48 hours</strong>. The email address of a delivered jar (or one that failed after 6 attempts) is <strong>deleted immediately</strong>. Text of "private" jars is not retained once its purpose is fulfilled; text of "public" jars remains visible on the wall after opening, since that's the visibility you chose upfront.</p>
+  <p>If you choose "leave it to the site owner" when dropping a note, it stays up indefinitely as long as it doesn't violate moderation rules (you can always delete it yourself with your management key). If you pick a date, it's automatically and permanently deleted then. Your email address is deleted immediately once delivery succeeds, or finally fails after 6 attempts.</p>
 
   <h2>Third parties</h2>
   <ul>
@@ -40,10 +43,10 @@
   </ul>
 
   <h2>Your rights</h2>
-  <p>You can find out whether your data is processed, request information, correction or deletion, and object to processing. You can permanently delete your jar and its data at any time via the link in your confirmation or delivery email. For anything else, contact your-email@example.com.</p>
+  <p>You can find out whether your data is processed, request information, correction or deletion, and object to processing. Using your management key, you can permanently delete or edit your note (and its email address, if any) any time via "Manage your note." If you've lost your key, you can request manual deletion at your-email@example.com if you can verify which note is yours.</p>
 
   <h2>Security</h2>
-  <p>All traffic is encrypted with HTTPS. Your jar text and email address are stored encrypted (AES-256-GCM) in the database; the encryption key is kept separately from the database, only in the server environment.</p>
+  <p>All traffic is encrypted with HTTPS. Note text and email addresses are stored encrypted (AES-256-GCM) in the database; the encryption key is kept separately from the database, only in the server environment. Your management key is stored only as a one-way hash.</p>
 </main>
 </body>
 </html>

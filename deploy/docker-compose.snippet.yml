@@ -1,23 +1,31 @@
-# /srv/mikoshi-vds/containers/docker-compose.yml içine eklenecek servisler (cobalt-web deseni).
-# Bu dosya doğrudan kullanılmaz — yalnız referans; asıl compose dosyasına elle taşınır.
+# /srv/mikoshi-vds/containers/docker-compose.yml içine eklenen servisler (cobalt-web'in
+# "bind-mount + node:20-alpine" deseni — ayrı bir Dockerfile/build adımı yok).
+# Bu dosya yalnız referans; asıl compose dosyası zaten güncellendi (canlıda).
 
   kavanoz:
-    build:
-      context: ../../../opt/kavanoz   # prod dizinine kopyalandığında yol güncellenecek
-      dockerfile: deploy/Dockerfile
+    image: node:20-alpine
     container_name: kavanoz
     restart: unless-stopped
-    env_file:
-      - ./kavanoz/.env
+    working_dir: /app
+    mem_limit: 96m
+    memswap_limit: 192m
     ports:
       - "127.0.0.1:3030:3030"
+    env_file:
+      - /srv/mikoshi-vds/containers/kavanoz/.env
+    volumes:
+      - /srv/mikoshi-vds/containers/kavanoz:/app
+    command: node server/server.js
 
   kavanoz-worker:
-    build:
-      context: ../../../opt/kavanoz
-      dockerfile: deploy/Dockerfile
+    image: node:20-alpine
     container_name: kavanoz-worker
-    profiles: ["tools"]   # yalnız systemd timer `docker compose run` ile tetikler, kendiliğinden ayağa kalkmaz
+    working_dir: /app
+    mem_limit: 96m
+    memswap_limit: 192m
+    profiles: ["tools"]   # kendiliğinden ayağa kalkmaz, yalnız systemd timer `docker compose run --rm` ile tetikler
     env_file:
-      - ./kavanoz/.env
-    entrypoint: ["node", "worker/send-due.js"]
+      - /srv/mikoshi-vds/containers/kavanoz/.env
+    volumes:
+      - /srv/mikoshi-vds/containers/kavanoz:/app
+    command: node worker/send-due.js
