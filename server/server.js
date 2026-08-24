@@ -11,6 +11,9 @@ const { generateManagementKey, hashManagementKey } = require("./crypto");
 
 const app = express();
 app.disable("x-powered-by");
+// Cloudflare Tunnel (cloudflared) her isteği tek bir hop olarak proxy'ler — X-Forwarded-For
+// bu yüzden güvenilir, gerçek istemci IP'sini yansıtır (rate-limit doğruluğu için gerekli).
+app.set("trust proxy", 1);
 app.use(express.json({ limit: "8kb" }));
 
 const PORT = process.env.PORT || 3030;
