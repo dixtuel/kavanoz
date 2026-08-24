@@ -525,19 +525,21 @@ main.showcase-main {
   width: 100%;
 }
 
-/* Üst Raf: 2 Kavanozluk, Sağa Yaslı Kısa Raf */
+/* Üst Raf: 2 Kavanozluk, Sağa Yaslı Kısa Raf (Sağ kenarı alttaki rafla birebir hizalı) */
 .shelf-row--upper {
-  width: 58%;
+  width: 56%;
   margin-left: auto;
+  margin-right: 0;
   display: flex;
   flex-direction: column;
   position: relative;
 }
 
-/* Alt Raf: 3 Kavanozluk (2 Eski + 1 Arşiv Menüsü), Sola Uzanan Uzun Raf */
+/* Alt Raf: 3 Kavanozluk, Sola Uzanan Uzun Raf (Sağ kenarı üstteki rafla birebir hizalı) */
 .shelf-row--lower {
-  width: 98%;
+  width: 100%;
   margin-left: 0;
+  margin-right: 0;
   display: flex;
   flex-direction: column;
   position: relative;
