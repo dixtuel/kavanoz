@@ -56,34 +56,18 @@ header.site {
 .brand svg { width: 26px; height: 26px; }
 
 .header-actions { display: flex; align-items: center; gap: 10px; }
-.compose-anchor { position: relative; }
-.header-add-btn {
-  background: var(--ink);
-  color: var(--paper);
-  border: none;
+.icon-text-btn {
+  background: var(--card);
+  color: var(--ink);
+  border: 1px solid var(--line);
   border-radius: 999px;
-  padding: 10px 18px;
+  padding: 9px 16px;
   font-family: var(--sans);
   font-weight: 600;
-  font-size: 0.86rem;
+  font-size: 0.84rem;
   cursor: pointer;
 }
-.header-add-btn:hover { background: var(--amber-deep); }
-.header-add-btn.active { background: var(--amber-deep); }
-
-.compose-popover {
-  position: absolute;
-  top: calc(100% + 10px);
-  right: 0;
-  width: 360px;
-  max-width: calc(100vw - 32px);
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  padding: 22px;
-  box-shadow: var(--shadow-lg);
-  z-index: 50;
-}
+.icon-text-btn:hover { border-color: var(--amber); color: var(--amber-deep); }
 
 .lang-switch {
   display: flex;
@@ -99,14 +83,8 @@ header.site {
 .lang-switch a { padding: 5px 11px; border-radius: 999px; color: var(--ink-dim); text-decoration: none; }
 .lang-switch a.active { background: var(--ink); color: var(--paper); }
 
-/* ---------- Hero ---------- */
-.hero {
-  display: grid;
-  grid-template-columns: 1fr 400px;
-  gap: 40px;
-  align-items: center;
-  padding: 30px 0 46px;
-}
+/* ---------- Hero (tam genişlik metin bloğu) ---------- */
+.hero-intro { padding: 26px 0 20px; max-width: 720px; }
 .eyebrow {
   font-family: var(--mono);
   font-size: 0.7rem;
@@ -115,18 +93,30 @@ header.site {
   color: var(--sage);
   margin: 0 0 8px;
 }
-.hero h1 {
+.hero-intro h1 {
   font-family: var(--display);
   font-weight: 700;
-  font-size: clamp(2.6rem, 5.4vw, 4rem);
+  font-size: clamp(2.4rem, 5vw, 3.6rem);
   line-height: 1;
   margin: 0 0 14px;
 }
-.hero h1 .accent { color: var(--coral); }
-.hero p.lede { font-size: 1.02rem; line-height: 1.55; color: var(--ink-dim); max-width: 44ch; margin: 0 0 22px; }
+.hero-intro h1 .accent { color: var(--coral); }
+.hero-intro p.lede { font-size: 1.02rem; line-height: 1.55; color: var(--ink-dim); max-width: 60ch; margin: 0; }
+
+/* ---------- Kavanoz (sol) + Raf (sağ) iki sütunlu sıra ---------- */
+.jar-shelf-row {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 36px;
+  align-items: start;
+  padding: 10px 0 30px;
+}
+.jar-column { display: flex; justify-content: center; }
+.shelf-column .section-head { margin-bottom: 18px; }
 
 /* ---------- Jar canvas ---------- */
 .jar-canvas-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
+.add-note-btn { margin-top: 16px; width: 100%; justify-content: center; }
 .jar-canvas-glass {
   position: relative;
   width: 370px;
@@ -466,8 +456,8 @@ footer.site a:hover { color: var(--amber-deep); }
 
 /* ---------- Responsive ---------- */
 @media (max-width: 860px) {
-  .hero { grid-template-columns: 1fr; padding-top: 20px; }
-  .jar-canvas-wrap { order: -1; margin-bottom: 6px; }
+  .jar-shelf-row { grid-template-columns: 1fr; padding-top: 10px; }
+  .jar-column { order: -1; margin-bottom: 10px; }
   .jar-canvas-glass { width: 300px; height: 340px; }
   .row-2 { grid-template-columns: 1fr; }
   .panel { padding: 20px; }
@@ -476,18 +466,7 @@ footer.site a:hover { color: var(--amber-deep); }
 }
 @media (max-width: 480px) {
   .note-masonry { columns: 1; }
-  .header-add-btn { padding: 11px 14px; font-size: 0.8rem; }
-  .compose-popover {
-    position: fixed;
-    left: 10px;
-    right: 10px;
-    top: 10px;
-    bottom: 10px;
-    width: auto;
-    max-width: none;
-    max-height: none;
-    overflow-y: auto;
-  }
+  .icon-text-btn { padding: 9px 12px; font-size: 0.76rem; }
   .brand { font-size: 1.25rem; }
   .jar-list-toggle { padding: 10px 4px; font-size: 0.86rem; }
   .modal-box { max-width: none; width: calc(100vw - 20px); max-height: 90vh; padding: 22px 18px; }

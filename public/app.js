@@ -74,37 +74,31 @@
     }
   }
 
-  // ---------------- Sağ üstte açılır/kapanır "not ekle" paneli ----------------
-  var dropSection = document.getElementById("birak");
-  var headerAddBtn = document.getElementById("header-add-btn");
-  var cancelDropBtn = document.getElementById("cancel-drop-btn");
+  // ---------------- Kavanozun altındaki "Not ekle" butonu -> pop-up ----------------
+  var addNoteBtn = document.getElementById("add-note-btn");
   var messageEl = document.getElementById("message");
 
   function openDropForm() {
-    dropSection.hidden = false;
-    headerAddBtn.classList.add("active");
-    headerAddBtn.setAttribute("aria-expanded", "true");
+    openModal("add-note-modal");
     setTimeout(function () { messageEl.focus(); }, 80);
   }
-  function closeDropForm() {
-    dropSection.hidden = true;
-    headerAddBtn.classList.remove("active");
-    headerAddBtn.setAttribute("aria-expanded", "false");
+  function closeDropForm() { closeModal("add-note-modal"); }
+
+  if (addNoteBtn) addNoteBtn.addEventListener("click", openDropForm);
+  var addNoteModalEl = document.getElementById("add-note-modal");
+  if (addNoteModalEl) {
+    document.getElementById("add-note-modal-close").addEventListener("click", closeDropForm);
+    addNoteModalEl.addEventListener("click", function (e) { if (e.target === addNoteModalEl) closeDropForm(); });
   }
 
-  if (headerAddBtn) {
-    headerAddBtn.addEventListener("click", function (e) {
-      e.stopPropagation();
-      if (dropSection.hidden) openDropForm(); else closeDropForm();
-    });
+  // ---------------- Header'daki "Notunu yönet" butonu -> pop-up ----------------
+  var manageOpenBtn = document.getElementById("manage-open-btn");
+  var manageModalEl = document.getElementById("manage-modal");
+  if (manageOpenBtn) manageOpenBtn.addEventListener("click", function () { openModal("manage-modal"); });
+  if (manageModalEl) {
+    document.getElementById("manage-modal-close").addEventListener("click", function () { closeModal("manage-modal"); });
+    manageModalEl.addEventListener("click", function (e) { if (e.target === manageModalEl) closeModal("manage-modal"); });
   }
-  if (cancelDropBtn) cancelDropBtn.addEventListener("click", closeDropForm);
-  document.addEventListener("click", function (e) {
-    if (!dropSection.hidden && !dropSection.contains(e.target) && e.target !== headerAddBtn) closeDropForm();
-  });
-  document.addEventListener("keydown", function (e) {
-    if (e.key === "Escape" && !dropSection.hidden) closeDropForm();
-  });
 
   var moreToggle = document.getElementById("more-options-toggle");
   var moreOptions = document.getElementById("more-options");
@@ -416,8 +410,8 @@
     return '<svg viewBox="0 0 40 46" aria-hidden="true"><rect x="12" y="6" width="16" height="8" rx="3" fill="#7C9660"/><rect x="6" y="14" width="28" height="28" rx="8" fill="#E2A33D" opacity="0.85"/></svg>';
   }
 
-  var ROW_SIZE = 5;
-  var SHELF_VISIBLE = ROW_SIZE * 2; // rafta iki sıra gösterilir, gerisi "+N" ile
+  var SHELF_ROW_SIZES = [3, 2]; // üst raf 3, alt raf 2 kavanoz
+  var SHELF_VISIBLE = SHELF_ROW_SIZES.reduce(function (a, b) { return a + b; }, 0);
   var shelfItems = [];
   var shelfTotal = 0;
 
@@ -429,9 +423,12 @@
     }
     var visible = shelfItems.slice(0, SHELF_VISIBLE);
     var remaining = shelfTotal - visible.length;
-    for (var i = 0; i < visible.length; i += ROW_SIZE) {
-      var rowItems = visible.slice(i, i + ROW_SIZE);
-      var isLastRow = i + ROW_SIZE >= visible.length;
+    var cursor = 0;
+    SHELF_ROW_SIZES.forEach(function (size, rowIndex) {
+      if (cursor >= visible.length && remaining <= 0) return;
+      var rowItems = visible.slice(cursor, cursor + size);
+      cursor += size;
+      var isLastRow = rowIndex === SHELF_ROW_SIZES.length - 1;
       var row = document.createElement("div");
       row.className = "pantry-row";
       var jarsWrap = document.createElement("div");
@@ -458,7 +455,7 @@
       row.appendChild(jarsWrap);
       row.appendChild(plank);
       shelfGrid.appendChild(row);
-    }
+    });
   }
 
   function loadShelf() {
