@@ -35,6 +35,9 @@
       shelfJarBadge: function (id) { return "Kavanoz #" + id; },
       notesCountSuffix: " Not",
       archivedPrefix: "Arşivlendi: ",
+      sealedTitle: "🔒 Bu not gizli",
+      sealedBody: "Bu notun içeriğini yalnızca sahibi, yönetim anahtarıyla görebilir.",
+      sealedSnippet: "🔒 Gizli not",
     },
     en: {
       anon: "Anonymous",
@@ -67,6 +70,9 @@
       shelfJarBadge: function (id) { return "Jar #" + id; },
       notesCountSuffix: " Notes",
       archivedPrefix: "Archived: ",
+      sealedTitle: "🔒 This note is private",
+      sealedBody: "Only the owner can see this note's content, with their management key.",
+      sealedSnippet: "🔒 Private note",
     },
   }[LANG];
 
@@ -227,9 +233,16 @@
 
   function showNoteModal(note) {
     if (!note) return;
+    var messageEl = document.getElementById("note-modal-message");
     document.getElementById("note-modal-name").textContent = note.displayName || T.anon;
     document.getElementById("note-modal-date").textContent = formatDate(note.createdAt);
-    document.getElementById("note-modal-message").textContent = note.message;
+    if (note.sealed) {
+      messageEl.classList.add("note-view-sealed");
+      messageEl.textContent = T.sealedTitle + "\n" + T.sealedBody;
+    } else {
+      messageEl.classList.remove("note-view-sealed");
+      messageEl.textContent = note.message;
+    }
     openModal("note-modal");
   }
 
@@ -294,12 +307,14 @@
         return;
       }
 
+      var isPrivateCheckbox = document.getElementById("isPrivate");
       var payload = {
         message: messageEl.value,
         displayName: document.getElementById("displayName").value,
         lang: LANG,
         retentionMode: selectedRetention,
         hcaptchaToken: hcaptchaToken,
+        visibility: isPrivateCheckbox && isPrivateCheckbox.checked ? "private" : "public",
       };
       if (wantMailCheckbox && wantMailCheckbox.checked) {
         payload.email = document.getElementById("email").value;
@@ -327,7 +342,8 @@
             var justAdded = {
               id: result.body.id,
               displayName: document.getElementById("displayName").value.trim() || null,
-              message: messageEl.value,
+              sealed: payload.visibility === "private",
+              message: payload.visibility === "private" ? null : messageEl.value,
               createdAt: new Date().toISOString(),
             };
             formMsg.className = "form-msg success";
@@ -413,9 +429,10 @@
     activeNotesList.forEach(function (note) {
       var item = document.createElement("div");
       item.className = "drawer-note-item";
+      var snippet = note.sealed ? T.sealedSnippet : note.message;
       item.innerHTML =
         '<div class="drawer-note-name">' + escapeHtml(note.displayName || T.anon) + '</div>' +
-        '<div class="drawer-note-snippet">' + escapeHtml(note.message) + '</div>' +
+        '<div class="drawer-note-snippet' + (note.sealed ? ' is-sealed' : '') + '">' + escapeHtml(snippet) + '</div>' +
         '<div class="drawer-note-date">' + escapeHtml(formatDate(note.createdAt)) + '</div>';
       item.addEventListener("click", function () { showNoteModal(note); });
       jarDrawerItems.appendChild(item);
@@ -650,6 +667,7 @@
   var manageMsg = document.getElementById("manage-msg");
   var manageResult = document.getElementById("manage-result");
   var manageWantMail = document.getElementById("manageWantMail");
+  var manageIsPrivate = document.getElementById("manageIsPrivate");
   var manageMailFields = document.getElementById("manage-mail-fields");
   var manageSaveBtn = document.getElementById("manage-save-btn");
   var manageDeleteBtn = document.getElementById("manage-delete-btn");
@@ -691,6 +709,7 @@
         var note = result.data.note;
         document.getElementById("manageMessage").value = note.message;
         document.getElementById("manageDisplayName").value = note.displayName || "";
+        if (manageIsPrivate) manageIsPrivate.checked = note.visibility === "private";
         if (manageWantMail) manageWantMail.checked = !!note.email;
         if (manageMailFields) manageMailFields.style.display = note.email ? "grid" : "none";
         document.getElementById("manageEmail").value = note.email || "";
@@ -705,6 +724,7 @@
       var fields = {
         message: document.getElementById("manageMessage").value,
         displayName: document.getElementById("manageDisplayName").value,
+        visibility: manageIsPrivate && manageIsPrivate.checked ? "private" : "public",
       };
       if (manageWantMail && manageWantMail.checked) {
         fields.email = document.getElementById("manageEmail").value;

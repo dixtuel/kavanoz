@@ -62,7 +62,7 @@ function validateFutureDate(value) {
 
 app.post("/api/notes", createLimiter, async (req, res) => {
   try {
-    const { message, displayName, email, mailSendAt, lang, retentionMode, retentionUntil, hcaptchaToken } = req.body || {};
+    const { message, displayName, email, mailSendAt, lang, retentionMode, retentionUntil, hcaptchaToken, visibility } = req.body || {};
 
     if (typeof message !== "string" || message.trim().length === 0 || message.length > MESSAGE_MAX) {
       return res.status(400).json({ error: "invalid_message" });
@@ -99,6 +99,8 @@ app.post("/api/notes", createLimiter, async (req, res) => {
     const moderation = await moderateMessage(message);
     if (!moderation.safe) return res.status(422).json({ error: "content_rejected" });
 
+    const normalizedVisibility = visibility === "private" ? "private" : "public";
+
     const managementKey = generateManagementKey();
     const created = await db.createNote({
       message,
@@ -109,6 +111,7 @@ app.post("/api/notes", createLimiter, async (req, res) => {
       retentionMode: normalizedRetentionMode,
       retentionUntil: normalizedRetentionUntil,
       managementKeyHash: hashManagementKey(managementKey),
+      visibility: normalizedVisibility,
     });
 
     res.status(201).json({ id: created.id, jarId: created.jarId, jarFilled: created.jarFilled, managementKey });
@@ -172,6 +175,7 @@ app.post("/api/notes/manage", manageLimiter, async (req, res) => {
           retentionMode: note.retentionMode,
           retentionUntil: note.retentionUntil,
           createdAt: note.createdAt,
+          visibility: note.visibility,
         },
       });
     }
@@ -183,7 +187,7 @@ app.post("/api/notes/manage", manageLimiter, async (req, res) => {
 
     if (action === "update") {
       const fields = {};
-      const { message, displayName, email, mailSendAt, retentionMode, retentionUntil } = req.body || {};
+      const { message, displayName, email, mailSendAt, retentionMode, retentionUntil, visibility } = req.body || {};
 
       if (message !== undefined) {
         if (typeof message !== "string" || message.trim().length === 0 || message.length > MESSAGE_MAX) {
@@ -224,6 +228,10 @@ app.post("/api/notes/manage", manageLimiter, async (req, res) => {
         } else {
           fields.retentionUntil = null;
         }
+      }
+
+      if (visibility !== undefined) {
+        fields.visibility = visibility === "private" ? "private" : "public";
       }
 
       if ((fields.message && fields.message !== note.message) || fields.displayName !== undefined) {

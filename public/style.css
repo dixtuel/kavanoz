@@ -91,8 +91,9 @@ a:hover { text-decoration: underline; }
 header.site {
   flex: 0 0 auto;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 12px;
   padding: 22px 0 12px;
   position: relative;
   z-index: 20;
@@ -138,15 +139,19 @@ header.site {
   letter-spacing: -0.01em;
 }
 
-/* Sağ Üstte Yalnızca Erişim Key'i ile Yönetim + Not Ekle + Dil Butonları */
-.header-actions {
+/* Sağ Üst: Yukarıda Dil, Altında Bilgi + Notunu Yönet Butonları */
+.header-actions-stack {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 10px;
+  margin-left: auto;
+}
+
+.header-actions-row {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.header-info-group {
-  display: contents;
 }
 
 .header-action-btn {
@@ -509,6 +514,11 @@ main.showcase-main {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.drawer-note-snippet.is-sealed {
+  color: var(--ink-dim);
+  font-style: italic;
 }
 
 .drawer-note-date {
@@ -1145,6 +1155,11 @@ main.showcase-main {
   word-break: break-word;
 }
 
+.note-view-content.note-view-sealed {
+  color: var(--ink-dim);
+  font-style: italic;
+}
+
 /* Rafa Kaldırılmış Kavanozlar Listesi */
 .shelf-list {
   list-style: none;
@@ -1286,21 +1301,8 @@ footer.site-footer-full {
   .wrap {
     padding: 0 16px;
   }
-  header.site {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-  .header-actions {
-    width: 100%;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    row-gap: 10px;
-  }
-  .header-info-group {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  .header-icon-btn {
+    display: none;
   }
   .brand-text h1 {
     font-size: 1.65rem;

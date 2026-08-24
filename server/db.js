@@ -53,9 +53,11 @@ async function init() {
       mail_next_attempt_at TEXT,
       retention_mode TEXT NOT NULL DEFAULT 'admin' CHECK (retention_mode IN ('admin','until_date')),
       retention_until TEXT,
-      management_key_hash TEXT NOT NULL
+      management_key_hash TEXT NOT NULL,
+      visibility TEXT NOT NULL DEFAULT 'public' CHECK (visibility IN ('public','private'))
     );
   `);
+  await client.execute(`ALTER TABLE notes ADD COLUMN visibility TEXT NOT NULL DEFAULT 'public' CHECK (visibility IN ('public','private'));`).catch(() => {});
   await client.execute(`CREATE INDEX IF NOT EXISTS idx_notes_jar ON notes(jar_id, id);`);
   await client.execute(`CREATE INDEX IF NOT EXISTS idx_notes_mail ON notes(mail_status, mail_send_at, mail_next_attempt_at);`);
   await client.execute(`CREATE INDEX IF NOT EXISTS idx_notes_retention ON notes(retention_mode, retention_until);`);
@@ -72,12 +74,12 @@ async function getOrCreateActiveJar() {
   return { id: Number(created.rows[0].id), noteCount: 0 };
 }
 
-async function createNote({ message, displayName, email, mailSendAt, lang, retentionMode, retentionUntil, managementKeyHash }) {
+async function createNote({ message, displayName, email, mailSendAt, lang, retentionMode, retentionUntil, managementKeyHash, visibility }) {
   const jar = await getOrCreateActiveJar();
 
   const result = await client.execute({
-    sql: `INSERT INTO notes (jar_id, message_enc, display_name, lang, email_enc, mail_send_at, mail_status, retention_mode, retention_until, management_key_hash)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+    sql: `INSERT INTO notes (jar_id, message_enc, display_name, lang, email_enc, mail_send_at, mail_status, retention_mode, retention_until, management_key_hash, visibility)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
     args: [
       jar.id,
       encrypt(compressText(message)),
@@ -89,6 +91,7 @@ async function createNote({ message, displayName, email, mailSendAt, lang, reten
       retentionMode,
       retentionUntil || null,
       managementKeyHash,
+      visibility === "private" ? "private" : "public",
     ],
   });
 
@@ -106,18 +109,20 @@ async function createNote({ message, displayName, email, mailSendAt, lang, reten
 }
 
 function noteRowToPublic(row) {
+  const sealed = row.visibility === "private";
   return {
     id: Number(row.id),
     jarId: Number(row.jar_id),
     displayName: row.display_name || null,
-    message: decompressText(decrypt(row.message_enc)),
+    sealed,
+    message: sealed ? null : decompressText(decrypt(row.message_enc)),
     createdAt: row.created_at,
   };
 }
 
 async function listJarNotes(jarId, beforeId, limit) {
   const result = await client.execute({
-    sql: `SELECT id, jar_id, display_name, message_enc, created_at FROM notes
+    sql: `SELECT id, jar_id, display_name, message_enc, created_at, visibility FROM notes
           WHERE jar_id=? AND (? IS NULL OR id < ?) ORDER BY id DESC LIMIT ?`,
     args: [jarId, beforeId ?? null, beforeId ?? null, limit],
   });
@@ -125,7 +130,7 @@ async function listJarNotes(jarId, beforeId, limit) {
 }
 
 async function getNote(id) {
-  const result = await client.execute({ sql: `SELECT id, jar_id, display_name, message_enc, created_at FROM notes WHERE id=?`, args: [id] });
+  const result = await client.execute({ sql: `SELECT id, jar_id, display_name, message_enc, created_at, visibility FROM notes WHERE id=?`, args: [id] });
   return result.rows[0] ? noteRowToPublic(result.rows[0]) : null;
 }
 
@@ -162,7 +167,7 @@ async function getJarMeta(id) {
 
 async function findNoteByManagementKeyHash(hash) {
   const result = await client.execute({
-    sql: `SELECT id, jar_id, message_enc, display_name, lang, email_enc, mail_send_at, mail_status, retention_mode, retention_until, created_at
+    sql: `SELECT id, jar_id, message_enc, display_name, lang, email_enc, mail_send_at, mail_status, retention_mode, retention_until, created_at, visibility
           FROM notes WHERE management_key_hash=?`,
     args: [hash],
   });
@@ -180,6 +185,7 @@ async function findNoteByManagementKeyHash(hash) {
     retentionMode: row.retention_mode,
     retentionUntil: row.retention_until,
     createdAt: row.created_at,
+    visibility: row.visibility,
   };
 }
 
@@ -214,6 +220,10 @@ async function updateNoteById(id, fields) {
   if (fields.retentionUntil !== undefined) {
     sets.push("retention_until=?");
     args.push(fields.retentionUntil || null);
+  }
+  if (fields.visibility !== undefined) {
+    sets.push("visibility=?");
+    args.push(fields.visibility === "private" ? "private" : "public");
   }
   if (sets.length === 0) return;
   args.push(id);

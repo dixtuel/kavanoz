@@ -36,7 +36,7 @@
 <meta name="twitter:description" content="A communal jar where people leave their thoughts, wishes, memories and secrets. Open sealed envelopes, read notes, shake the jar or leave a note for the future.">
 <meta name="twitter:image" content="https://kavanoz.dxtl.com.tr/og-image.png">
 
-<link rel="stylesheet" href="/style.css?v=15">
+<link rel="stylesheet" href="/style.css?v=16">
 </head>
 <body>
 <div class="site-wrapper">
@@ -78,15 +78,15 @@
       </div>
     </a>
 
-    <!-- Right Header Actions: Manage Note + Info + Lang -->
-    <div class="header-actions">
-      <button type="button" class="header-action-btn" id="manage-open-btn">🔑 Manage Note</button>
-      <div class="header-info-group">
+    <!-- Right Header: Lang on Top, Info + Manage Note Below -->
+    <div class="header-actions-stack">
+      <nav class="lang-switch">
+        <a href="/">TR</a>
+        <a href="/en/" class="active">EN</a>
+      </nav>
+      <div class="header-actions-row">
         <button type="button" class="header-icon-btn" id="how-it-works-btn" title="How It Works">ℹ️</button>
-        <nav class="lang-switch">
-          <a href="/">TR</a>
-          <a href="/en/" class="active">EN</a>
-        </nav>
+        <button type="button" class="header-action-btn" id="manage-open-btn">🔑 Manage Note</button>
       </div>
     </div>
   </header>
@@ -229,6 +229,13 @@
         <input type="text" id="displayName" name="displayName" maxlength="60" placeholder="Leave blank to appear as “Anonymous”">
       </div>
 
+      <div class="field">
+        <label class="consent">
+          <input type="checkbox" id="isPrivate">
+          <span>🔒 Keep this note private (content hidden in the jar, readable only with your management key)</span>
+        </label>
+      </div>
+
       <button type="button" class="more-options-toggle" id="more-options-toggle">+ email / retention options</button>
 
       <div id="more-options" hidden>
@@ -313,6 +320,12 @@
       <div class="field">
         <label for="manageDisplayName">Display Name</label>
         <input type="text" id="manageDisplayName" maxlength="60">
+      </div>
+      <div class="field">
+        <label class="consent">
+          <input type="checkbox" id="manageIsPrivate">
+          <span>🔒 Keep this note private (content hidden in the jar)</span>
+        </label>
       </div>
       <div class="field">
         <label class="consent">
