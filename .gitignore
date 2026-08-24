@@ -6,3 +6,8 @@ node_modules/
 CLAUDE.md
 AGENTS.md
 GEMINI.md
+
+# Search Engine Site Verification (yalnız prod'da tutulur)
+google*.html
+yandex_*.html
+BingSiteAuth.xml
