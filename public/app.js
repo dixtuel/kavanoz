@@ -74,23 +74,37 @@
     }
   }
 
-  // ---------------- Kompakt "not bırak" tetikleyicisi ----------------
+  // ---------------- Sağ üstte açılır/kapanır "not ekle" paneli ----------------
   var dropSection = document.getElementById("birak");
-  var quickTrigger = document.getElementById("quick-drop-trigger");
-  var quickBtn = document.getElementById("quick-drop-btn");
+  var headerAddBtn = document.getElementById("header-add-btn");
   var cancelDropBtn = document.getElementById("cancel-drop-btn");
   var messageEl = document.getElementById("message");
 
   function openDropForm() {
     dropSection.hidden = false;
-    dropSection.scrollIntoView({ behavior: "smooth", block: "start" });
-    setTimeout(function () { messageEl.focus(); }, 300);
+    headerAddBtn.classList.add("active");
+    headerAddBtn.setAttribute("aria-expanded", "true");
+    setTimeout(function () { messageEl.focus(); }, 80);
   }
-  function closeDropForm() { dropSection.hidden = true; }
+  function closeDropForm() {
+    dropSection.hidden = true;
+    headerAddBtn.classList.remove("active");
+    headerAddBtn.setAttribute("aria-expanded", "false");
+  }
 
-  if (quickTrigger) quickTrigger.addEventListener("click", openDropForm);
-  if (quickBtn) quickBtn.addEventListener("click", function (e) { e.stopPropagation(); openDropForm(); });
+  if (headerAddBtn) {
+    headerAddBtn.addEventListener("click", function (e) {
+      e.stopPropagation();
+      if (dropSection.hidden) openDropForm(); else closeDropForm();
+    });
+  }
   if (cancelDropBtn) cancelDropBtn.addEventListener("click", closeDropForm);
+  document.addEventListener("click", function (e) {
+    if (!dropSection.hidden && !dropSection.contains(e.target) && e.target !== headerAddBtn) closeDropForm();
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && !dropSection.hidden) closeDropForm();
+  });
 
   var moreToggle = document.getElementById("more-options-toggle");
   var moreOptions = document.getElementById("more-options");
@@ -187,6 +201,12 @@
         .then(function (res) { return res.json().then(function (body) { return { ok: res.ok, body: body }; }); })
         .then(function (result) {
           if (result.ok) {
+            var justAdded = {
+              id: result.body.id,
+              displayName: document.getElementById("displayName").value.trim() || null,
+              message: messageEl.value,
+              createdAt: new Date().toISOString(),
+            };
             formMsg.className = "form-msg success";
             formMsg.textContent = T.success;
             showKeyModal(result.body.managementKey);
@@ -201,7 +221,7 @@
             if (window.hcaptcha) window.hcaptcha.reset();
             charCountEl.textContent = "0";
             closeDropForm();
-            if (window.__kavanozJar) window.__kavanozJar.addNote(1);
+            if (window.__kavanozJar) window.__kavanozJar.addNote(1, [justAdded]);
             loadActiveJar();
           } else {
             formMsg.className = "form-msg error";
@@ -253,13 +273,46 @@
   // ---------------- Fizik kavanozu ----------------
   var jarCanvas = document.getElementById("jar-canvas");
   var jarCountBadge = document.getElementById("jar-count-badge");
+  var jarFillBarInner = document.getElementById("jar-fill-bar-inner");
   if (jarCanvas && window.Matter && window.KavanozJar) {
     var glassEl = jarCanvas.closest(".jar-canvas-glass");
     jarCanvas.width = glassEl.clientWidth * 0.84;
     jarCanvas.height = glassEl.clientHeight * 0.82;
     jarCanvas.style.width = jarCanvas.width + "px";
     jarCanvas.style.height = jarCanvas.height + "px";
-    window.__kavanozJar = new window.KavanozJar(jarCanvas, {});
+    window.__kavanozJar = new window.KavanozJar(jarCanvas, {
+      onNoteClick: function (noteData) { if (noteData) showNoteModal(noteData); },
+    });
+  }
+
+  // ---------------- Kavanozdaki yazılar (açılır/kapanır kısa liste) ----------------
+  var jarListToggle = document.getElementById("jar-list-toggle");
+  var jarQuickList = document.getElementById("jar-quick-list");
+  var lastLoadedNotes = [];
+
+  function renderQuickList() {
+    if (lastLoadedNotes.length === 0) {
+      jarQuickList.innerHTML = '<div style="padding:14px; color:var(--ink-dim); font-size:0.85rem;">' + T.empty + "</div>";
+      return;
+    }
+    jarQuickList.innerHTML = "";
+    lastLoadedNotes.forEach(function (note) {
+      var item = document.createElement("button");
+      item.type = "button";
+      item.className = "jar-quick-list-item";
+      item.innerHTML =
+        '<span class="name">' + escapeHtml(note.displayName || T.anon) + "</span><br>" +
+        '<span class="snippet">' + escapeHtml(note.message) + "</span>";
+      item.addEventListener("click", function () { showNoteModal(note); });
+      jarQuickList.appendChild(item);
+    });
+  }
+
+  if (jarListToggle) {
+    jarListToggle.addEventListener("click", function () {
+      jarQuickList.hidden = !jarQuickList.hidden;
+      if (!jarQuickList.hidden) renderQuickList();
+    });
   }
 
   // ---------------- Not kartları (masonry) ----------------
@@ -319,15 +372,19 @@
       .then(function (summary) {
         currentJarId = summary.id;
         if (jarCountBadge) jarCountBadge.textContent = T.jarBadge(summary.noteCount, summary.capacity);
+        if (jarFillBarInner) jarFillBarInner.style.width = Math.min(100, Math.round((summary.noteCount / summary.capacity) * 100)) + "%";
         progressText.textContent = T.progress(summary.noteCount, summary.capacity);
         return loadJarNotes(currentJarId, false).then(function (data) {
+          var items = data.items || [];
+          lastLoadedNotes = items;
+          if (!jarQuickList.hidden) renderQuickList();
           if (window.__kavanozJar) {
-            var n = Math.min((data.items || []).length, 12);
+            var toDrop = items.slice(0, 12);
             var dropped = 0;
             var timer = setInterval(function () {
-              window.__kavanozJar.addNote(1);
+              window.__kavanozJar.addNote(1, [toDrop[dropped]]);
               dropped++;
-              if (dropped >= n) clearInterval(timer);
+              if (dropped >= toDrop.length) clearInterval(timer);
             }, 90);
           }
         });
@@ -353,7 +410,6 @@
 
   // ---------------- Raf ----------------
   var shelfGrid = document.getElementById("shelf-grid");
-  var loadMoreShelfBtn = document.getElementById("load-more-shelf");
   var lastShelfId = null;
 
   function jarIconSvg() {
@@ -361,7 +417,9 @@
   }
 
   var ROW_SIZE = 5;
+  var SHELF_VISIBLE = ROW_SIZE * 2; // rafta iki sıra gösterilir, gerisi "+N" ile
   var shelfItems = [];
+  var shelfTotal = 0;
 
   function renderPantry() {
     shelfGrid.innerHTML = "";
@@ -369,8 +427,11 @@
       shelfGrid.innerHTML = '<p style="color:var(--ink-dim)">' + T.shelfEmpty + "</p>";
       return;
     }
-    for (var i = 0; i < shelfItems.length; i += ROW_SIZE) {
-      var rowItems = shelfItems.slice(i, i + ROW_SIZE);
+    var visible = shelfItems.slice(0, SHELF_VISIBLE);
+    var remaining = shelfTotal - visible.length;
+    for (var i = 0; i < visible.length; i += ROW_SIZE) {
+      var rowItems = visible.slice(i, i + ROW_SIZE);
+      var isLastRow = i + ROW_SIZE >= visible.length;
       var row = document.createElement("div");
       row.className = "pantry-row";
       var jarsWrap = document.createElement("div");
@@ -383,6 +444,15 @@
         card.addEventListener("click", function () { viewArchivedJar(jar.id, jar); });
         jarsWrap.appendChild(card);
       });
+      if (isLastRow && remaining > 0) {
+        var moreBtn = document.createElement("button");
+        moreBtn.type = "button";
+        moreBtn.className = "shelf-jar-more";
+        moreBtn.textContent = "+" + remaining;
+        moreBtn.title = LANG === "en" ? remaining + " more jars" : remaining + " kavanoz daha";
+        moreBtn.addEventListener("click", openShelfListModal);
+        jarsWrap.appendChild(moreBtn);
+      }
       var plank = document.createElement("div");
       plank.className = "pantry-plank";
       row.appendChild(jarsWrap);
@@ -391,25 +461,53 @@
     }
   }
 
-  function loadShelf(append) {
-    var url = "/api/jars/shelf?limit=18" + (append && lastShelfId ? "&before=" + lastShelfId : "");
-    fetch(url)
+  function loadShelf() {
+    fetch("/api/jars/shelf?limit=" + SHELF_VISIBLE)
+      .then(function (res) { return res.json(); })
+      .then(function (data) {
+        shelfItems = data.items || [];
+        shelfTotal = data.total || shelfItems.length;
+        renderPantry();
+      })
+      .catch(function () { shelfGrid.innerHTML = '<p style="color:var(--ink-dim)">' + T.loadError + "</p>"; });
+  }
+
+  var shelfListModal = document.getElementById("shelf-list-modal");
+  var shelfListItems = document.getElementById("shelf-list-items");
+  function openShelfListModal() {
+    shelfListItems.innerHTML = "<li>" + (LANG === "en" ? "Loading…" : "Yükleniyor…") + "</li>";
+    openModal("shelf-list-modal");
+    fetch("/api/jars/shelf?limit=200")
       .then(function (res) { return res.json(); })
       .then(function (data) {
         var items = data.items || [];
-        if (!append) shelfItems = [];
-        shelfItems = shelfItems.concat(items);
-        renderPantry();
-        if (items.length > 0) lastShelfId = items[items.length - 1].id;
-        loadMoreShelfBtn.hidden = items.length < 18;
+        shelfListItems.innerHTML = "";
+        items.forEach(function (jar) {
+          var li = document.createElement("li");
+          var label = document.createElement("span");
+          label.textContent = (LANG === "en" ? "Jar" : "Kavanoz") + " #" + jar.id;
+          var meta = document.createElement("span");
+          meta.className = "shelf-list-meta";
+          meta.textContent = formatDate(jar.archivedAt) + " · " + jar.noteCount + (LANG === "en" ? " notes" : " not");
+          li.appendChild(label);
+          li.appendChild(meta);
+          li.addEventListener("click", function () {
+            closeModal("shelf-list-modal");
+            viewArchivedJar(jar.id, jar);
+          });
+          shelfListItems.appendChild(li);
+        });
       })
-      .catch(function () { if (!append) shelfGrid.innerHTML = '<p style="color:var(--ink-dim)">' + T.loadError + "</p>"; });
+      .catch(function () { shelfListItems.innerHTML = "<li>" + T.loadError + "</li>"; });
   }
-  if (loadMoreShelfBtn) loadMoreShelfBtn.addEventListener("click", function () { loadShelf(true); });
+  if (shelfListModal) {
+    document.getElementById("shelf-list-modal-close").addEventListener("click", function () { closeModal("shelf-list-modal"); });
+    shelfListModal.addEventListener("click", function (e) { if (e.target === shelfListModal) closeModal("shelf-list-modal"); });
+  }
 
   if (jarSection) {
     loadActiveJar();
-    loadShelf(false);
+    loadShelf();
   }
 
   // ---------------- Notunu yönet ----------------

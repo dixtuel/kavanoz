@@ -82,13 +82,52 @@
       Body.setAngularVelocity(e.body, (Math.random() - 0.5) * 0.3);
     });
 
+    // Bir zarfa TIKLANDIYSA (sürüklenmediyse) ilişkili notu göster.
+    var self = this;
+    var pressStart = null;
+    Events.on(mouseConstraint, "mousedown", function (e) {
+      pressStart = { x: e.mouse.position.x, y: e.mouse.position.y, body: mouseConstraint.body };
+    });
+    Events.on(mouseConstraint, "mouseup", function (e) {
+      if (!pressStart) return;
+      var dx = e.mouse.position.x - pressStart.x, dy = e.mouse.position.y - pressStart.y;
+      var dist = Math.sqrt(dx * dx + dy * dy);
+      if (pressStart.body && dist < 6 && self.opts.onNoteClick) {
+        self.opts.onNoteClick(pressStart.body.plugin && pressStart.body.plugin.noteData);
+      }
+      pressStart = null;
+    });
+
+    // Boş bir noktadan yatay sürükleme = kavanozu "salla". Bir zarf tutuluyorsa
+    // (mouseConstraint.body dolu) bu devreye girmez, MouseConstraint kendi işini yapar.
+    var shaking = false, lastX = 0, lastT = 0;
+    this.canvas.addEventListener("pointerdown", function (e) {
+      shaking = true;
+      lastX = e.clientX;
+      lastT = Date.now();
+    });
+    window.addEventListener("pointermove", function (e) {
+      if (!shaking || mouseConstraint.body) return;
+      var now = Date.now();
+      var dt = now - lastT;
+      if (dt > 12) {
+        var vx = (e.clientX - lastX) / dt;
+        if (Math.abs(vx) > 0.05) self.shake(Math.min(Math.abs(vx) * 30, 8));
+        lastX = e.clientX;
+        lastT = now;
+      }
+    });
+    window.addEventListener("pointerup", function () { shaking = false; });
+
     Engine.run(engine);
     Render.run(render);
 
     this._dropZoneX = [w * 0.2, w * 0.8];
   };
 
-  KavanozJar.prototype.addNote = function (count) {
+  // notesData (opsiyonel): count ile aynı uzunlukta, her zarfa gerçek not verisini
+  // (id, message, displayName, createdAt) bağlar — tıklanınca doğru not gösterilsin diye.
+  KavanozJar.prototype.addNote = function (count, notesData) {
     var Matter = global.Matter;
     var Bodies = Matter.Bodies, World = Matter.World;
     count = count || 1;
@@ -111,6 +150,7 @@
           sprite: { texture: envelopeTexture(color), xScale: w / 52, yScale: h / 34 },
         },
       });
+      body.plugin = { noteData: notesData ? notesData[i] : null };
       World.add(this.engine.world, body);
       this.notes.push(body);
     }

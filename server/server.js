@@ -125,10 +125,10 @@ app.get("/api/jars/active", async (req, res) => {
 
 app.get("/api/jars/shelf", async (req, res) => {
   const before = req.query.before ? Number(req.query.before) : null;
-  const limit = Math.min(Number(req.query.limit) || 20, 40);
+  const limit = Math.min(Number(req.query.limit) || 20, 200);
   if (before !== null && !Number.isInteger(before)) return res.status(400).json({ error: "invalid_before" });
-  const items = await db.listShelf(before, limit);
-  res.json({ items });
+  const [items, total] = await Promise.all([db.listShelf(before, limit), db.countShelf()]);
+  res.json({ items, total });
 });
 
 app.get("/api/jars/:id/notes", async (req, res) => {

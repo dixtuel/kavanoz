@@ -19,10 +19,67 @@
     <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="8" y="10" width="16" height="18" rx="4" fill="#E2A33D"/><rect x="10" y="6" width="12" height="6" rx="2" fill="#7C9660"/></svg>
     virtual jar
   </a>
-  <nav class="lang-switch">
-    <a href="/">TR</a>
-    <a href="/en/" class="active">EN</a>
-  </nav>
+  <div class="header-actions">
+    <div class="compose-anchor">
+      <button type="button" class="header-add-btn" id="header-add-btn" aria-expanded="false">✚ Add a note</button>
+      <div class="compose-popover" id="birak" hidden>
+        <form id="note-form" novalidate>
+          <div class="field">
+            <label for="message">Your note</label>
+            <textarea id="message" name="message" maxlength="2000" required placeholder="What do you want to leave here?"></textarea>
+            <div class="char-count"><span id="char-count">0</span>/2000</div>
+          </div>
+
+          <div class="field">
+            <label for="displayName">Display name (optional)</label>
+            <input type="text" id="displayName" name="displayName" maxlength="60" placeholder="Leave blank to appear as “Anonymous”">
+          </div>
+
+          <button type="button" class="more-options-toggle" id="more-options-toggle">+ email / retention options</button>
+
+          <div id="more-options" hidden>
+            <div class="field">
+              <label class="consent" style="margin:0 0 6px;">
+                <input type="checkbox" id="wantMail">
+                <span>I'd also like this note emailed to me later</span>
+              </label>
+            </div>
+            <div id="mail-fields" class="row-2" style="display:none;">
+              <div class="field">
+                <label for="email">Email address</label>
+                <input type="email" id="email" name="email" placeholder="you@example.com">
+              </div>
+              <div class="field">
+                <label for="mailSendAt">When? (at most 5 years)</label>
+                <input type="date" id="mailSendAt" name="mailSendAt">
+              </div>
+            </div>
+
+            <div class="field">
+              <label>How long should the note stay in the jar?</label>
+              <div class="choice-group" id="retention-group">
+                <button type="button" data-retention="admin" class="selected">Leave it to the owner</button>
+                <button type="button" data-retention="until_date">Pick a date</button>
+              </div>
+              <input type="date" id="retentionUntil" name="retentionUntil" style="display:none; margin-top:12px;">
+            </div>
+          </div>
+
+          <div class="h-captcha" data-sitekey="0f66ee14-2e0a-477a-a32a-4998af14680e" data-theme="light"></div>
+
+          <div style="margin-top:16px; display:flex; gap:10px;">
+            <button type="submit" class="btn btn-primary" id="submit-btn">Drop it in the jar</button>
+            <button type="button" class="btn btn-ghost" id="cancel-drop-btn">Cancel</button>
+          </div>
+          <div class="form-msg" id="form-msg" role="status" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+    <nav class="lang-switch">
+      <a href="/">TR</a>
+      <a href="/en/" class="active">EN</a>
+    </nav>
+  </div>
 </header>
 
 <main>
@@ -31,13 +88,6 @@
       <p class="eyebrow">One shared jar</p>
       <h1>Write something,<br><span class="accent">drop</span> it in.</h1>
       <p class="lede">Everyone's writing into the same jar — add yours. Signed or anonymous. Drag it around, give it a shake. When it fills up it moves to the shelf and a new one starts.</p>
-
-      <div class="quick-drop">
-        <div class="quick-drop-trigger" id="quick-drop-trigger">
-          <span>What do you want to leave today?</span>
-          <button type="button" id="quick-drop-btn">Write</button>
-        </div>
-      </div>
     </div>
 
     <div class="jar-canvas-wrap">
@@ -49,63 +99,13 @@
         </svg>
         <canvas id="jar-canvas"></canvas>
       </div>
+      <div class="jar-fill-bar"><div class="jar-fill-bar-inner" id="jar-fill-bar-inner"></div></div>
       <div class="jar-count-badge" id="jar-count-badge">…</div>
       <p class="jar-hint">drag the notes, shake the jar 🫙</p>
+      <button type="button" class="jar-list-toggle" id="jar-list-toggle">📋 notes in this jar</button>
+      <div class="jar-quick-list" id="jar-quick-list" hidden></div>
     </div>
   </div>
-
-  <section id="birak" class="wrap" hidden>
-    <form id="note-form" class="panel" novalidate>
-      <div class="field">
-        <label for="message">Your note</label>
-        <textarea id="message" name="message" maxlength="2000" required placeholder="What do you want to leave here?"></textarea>
-        <div class="char-count"><span id="char-count">0</span>/2000</div>
-      </div>
-
-      <div class="field">
-        <label for="displayName">Display name (optional)</label>
-        <input type="text" id="displayName" name="displayName" maxlength="60" placeholder="Leave blank to appear as “Anonymous”">
-      </div>
-
-      <button type="button" class="more-options-toggle" id="more-options-toggle">+ email / retention options</button>
-
-      <div id="more-options" hidden>
-        <div class="field">
-          <label class="consent" style="margin:0 0 6px;">
-            <input type="checkbox" id="wantMail">
-            <span>I'd also like this note emailed to me later</span>
-          </label>
-        </div>
-        <div id="mail-fields" class="row-2" style="display:none;">
-          <div class="field">
-            <label for="email">Email address</label>
-            <input type="email" id="email" name="email" placeholder="you@example.com">
-          </div>
-          <div class="field">
-            <label for="mailSendAt">When? (at most 5 years)</label>
-            <input type="date" id="mailSendAt" name="mailSendAt">
-          </div>
-        </div>
-
-        <div class="field">
-          <label>How long should the note stay in the jar?</label>
-          <div class="choice-group" id="retention-group">
-            <button type="button" data-retention="admin" class="selected">Leave it to the site owner</button>
-            <button type="button" data-retention="until_date">Pick a date</button>
-          </div>
-          <input type="date" id="retentionUntil" name="retentionUntil" style="display:none; margin-top:12px;">
-        </div>
-      </div>
-
-      <div class="h-captcha" data-sitekey="0f66ee14-2e0a-477a-a32a-4998af14680e" data-theme="light"></div>
-
-      <div style="margin-top:18px; display:flex; gap:10px;">
-        <button type="submit" class="btn btn-primary" id="submit-btn">Drop it in the jar</button>
-        <button type="button" class="btn btn-ghost" id="cancel-drop-btn">Cancel</button>
-      </div>
-      <div class="form-msg" id="form-msg" role="status" aria-live="polite"></div>
-    </form>
-  </section>
 
   <section id="kavanoz" class="wrap">
     <div class="section-head">
@@ -122,7 +122,6 @@
       <p>Jars that filled up end up here. Click one to read what's inside.</p>
     </div>
     <div class="pantry" id="shelf-grid"></div>
-    <button class="btn btn-ghost load-more" id="load-more-shelf" hidden>Show more</button>
   </section>
 
   <section id="yonet" class="wrap">
@@ -176,6 +175,14 @@
     <h3 id="note-modal-name"></h3>
     <div class="modal-meta" id="note-modal-date"></div>
     <div class="modal-message" id="note-modal-message"></div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="shelf-list-modal" hidden>
+  <div class="modal-box">
+    <button class="modal-close" id="shelf-list-modal-close" aria-label="Close">×</button>
+    <h3>Shelved jars</h3>
+    <ul class="shelf-list" id="shelf-list-items"></ul>
   </div>
 </div>
 

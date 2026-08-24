@@ -55,6 +55,36 @@ header.site {
 }
 .brand svg { width: 26px; height: 26px; }
 
+.header-actions { display: flex; align-items: center; gap: 10px; }
+.compose-anchor { position: relative; }
+.header-add-btn {
+  background: var(--ink);
+  color: var(--paper);
+  border: none;
+  border-radius: 999px;
+  padding: 10px 18px;
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.86rem;
+  cursor: pointer;
+}
+.header-add-btn:hover { background: var(--amber-deep); }
+.header-add-btn.active { background: var(--amber-deep); }
+
+.compose-popover {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 360px;
+  max-width: calc(100vw - 32px);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 22px;
+  box-shadow: var(--shadow-lg);
+  z-index: 50;
+}
+
 .lang-switch {
   display: flex;
   gap: 2px;
@@ -95,33 +125,6 @@ header.site {
 .hero h1 .accent { color: var(--coral); }
 .hero p.lede { font-size: 1.02rem; line-height: 1.55; color: var(--ink-dim); max-width: 44ch; margin: 0 0 22px; }
 
-/* Kompakt "not bırak" tetikleyici: hero içinde açılıp kapanan tek satır */
-.quick-drop { max-width: 460px; }
-.quick-drop-trigger {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 999px;
-  padding: 6px 6px 6px 20px;
-  box-shadow: var(--shadow);
-  cursor: text;
-}
-.quick-drop-trigger span { color: var(--ink-dim); font-size: 0.95rem; flex: 1; }
-.quick-drop-trigger button {
-  background: var(--ink);
-  color: var(--paper);
-  border: none;
-  border-radius: 999px;
-  padding: 11px 20px;
-  font-family: var(--sans);
-  font-weight: 600;
-  font-size: 0.88rem;
-  cursor: pointer;
-}
-.quick-drop-trigger button:hover { background: var(--amber-deep); }
-
 /* ---------- Jar canvas ---------- */
 .jar-canvas-wrap { position: relative; display: flex; flex-direction: column; align-items: center; }
 .jar-canvas-glass {
@@ -147,6 +150,21 @@ header.site {
   margin-top: 10px;
   text-align: center;
 }
+.jar-fill-bar {
+  width: 84%;
+  height: 8px;
+  background: rgba(46,42,34,0.10);
+  border-radius: 999px;
+  margin-top: 12px;
+  overflow: hidden;
+}
+.jar-fill-bar-inner {
+  height: 100%;
+  width: 0%;
+  background: linear-gradient(90deg, var(--sage), var(--amber));
+  border-radius: 999px;
+  transition: width 0.5s ease;
+}
 .jar-count-badge {
   font-family: var(--mono);
   font-size: 0.72rem;
@@ -157,6 +175,45 @@ header.site {
   display: inline-block;
   margin-top: 6px;
 }
+
+.jar-list-toggle {
+  background: none;
+  border: none;
+  color: var(--amber-deep);
+  font-family: var(--sans);
+  font-weight: 600;
+  font-size: 0.82rem;
+  cursor: pointer;
+  margin-top: 8px;
+  padding: 4px 0;
+}
+.jar-quick-list {
+  width: 100%;
+  max-width: 320px;
+  max-height: 260px;
+  overflow-y: auto;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  margin-top: 8px;
+  box-shadow: var(--shadow);
+}
+.jar-quick-list-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--line);
+  padding: 10px 14px;
+  cursor: pointer;
+  font-family: var(--sans);
+  color: var(--ink);
+}
+.jar-quick-list-item:last-child { border-bottom: none; }
+.jar-quick-list-item:hover { background: var(--paper-2); }
+.jar-quick-list-item .name { font-family: var(--display); font-size: 1rem; }
+.jar-quick-list-item .snippet { font-size: 0.8rem; color: var(--ink-dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---------- Panel (form container, used sparingly now) ---------- */
 .panel {
@@ -328,6 +385,35 @@ section { padding: 44px 0; }
 .shelf-jar svg { width: 58px; height: 58px; filter: drop-shadow(0 5px 5px rgba(46,42,34,0.22)); }
 .shelf-jar .count { font-family: var(--display); font-weight: 700; font-size: 1.05rem; margin-top: 2px; }
 .shelf-jar .date { font-family: var(--mono); font-size: 0.6rem; color: var(--ink-dim); }
+.shelf-jar-more {
+  background: var(--paper);
+  border: 2px dashed var(--line);
+  border-radius: 999px;
+  width: 58px;
+  height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--ink-dim);
+}
+.shelf-jar-more:hover { border-color: var(--amber); color: var(--amber-deep); }
+
+.shelf-list { list-style: none; margin: 0; padding: 0; }
+.shelf-list li {
+  padding: 12px 4px;
+  border-bottom: 1px solid var(--line);
+  font-size: 0.9rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  cursor: pointer;
+}
+.shelf-list li:hover { color: var(--amber-deep); }
+.shelf-list li:last-child { border-bottom: none; }
+.shelf-list .shelf-list-meta { font-family: var(--mono); font-size: 0.72rem; color: var(--ink-dim); white-space: nowrap; }
 .back-link { display: inline-block; margin-bottom: 14px; color: var(--amber-deep); text-decoration: none; font-size: 0.88rem; font-weight: 600; }
 .back-link:hover { text-decoration: underline; }
 
@@ -386,7 +472,11 @@ footer.site a:hover { color: var(--amber-deep); }
   .row-2 { grid-template-columns: 1fr; }
   .panel { padding: 20px; }
   .note-masonry { columns: 2 160px; }
+  header.site { flex-wrap: wrap; row-gap: 10px; }
 }
 @media (max-width: 480px) {
   .note-masonry { columns: 1; }
+  .header-add-btn { padding: 9px 13px; font-size: 0.8rem; }
+  .compose-popover { position: fixed; left: 12px; right: 12px; top: 76px; width: auto; max-width: none; }
+  .brand { font-size: 1.25rem; }
 }

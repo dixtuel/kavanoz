@@ -148,6 +148,11 @@ async function listShelf(beforeId, limit) {
   }));
 }
 
+async function countShelf() {
+  const result = await client.execute(`SELECT COUNT(*) AS total FROM jars WHERE status='archived'`);
+  return Number(result.rows[0].total);
+}
+
 async function getJarMeta(id) {
   const result = await client.execute({ sql: `SELECT id, status, note_count, created_at, archived_at FROM jars WHERE id=?`, args: [id] });
   if (!result.rows[0]) return null;
@@ -291,6 +296,7 @@ module.exports = {
   getNote,
   getActiveJarSummary,
   listShelf,
+  countShelf,
   getJarMeta,
   findNoteByManagementKeyHash,
   deleteNoteById,
