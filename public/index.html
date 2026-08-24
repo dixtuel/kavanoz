@@ -24,14 +24,14 @@
 <meta property="og:title" content="Sanal Kavanoz">
 <meta property="og:description" content="Ortak kavanoza bir hatıra veya not bırak.">
 <meta property="og:type" content="website">
-<link rel="stylesheet" href="/style.css?v=8">
+<link rel="stylesheet" href="/style.css?v=9">
 </head>
 <body>
 <div class="site-wrapper">
   <!-- Üst Başlık (Header) -->
   <header class="site wrap">
     <a class="brand" href="/">
-      <div class="brand-icon-wrap">
+      <div class="brand-mark">
         <!-- Kapak Kısmında Nota Simgesi Bulunan Sanatsal ve Canlı Kavanoz Logosu -->
         <svg class="brand-icon-svg" viewBox="0 0 60 60" aria-hidden="true">
           <defs>
@@ -67,19 +67,22 @@
       </div>
     </a>
 
-    <!-- 4 Adet Modern Dairesel Simge (Kullanıcı, E-posta, Bildirim/Bilgi, Dil/Ayar) -->
+    <!-- Sağ Üst: Not Ekle + Erişim Key'i ile Yönet + Bilgi + Dil -->
     <div class="header-actions">
-      <button type="button" class="icon-circle-btn primary open-add-note-btn" data-title="Not Ekle (✚)" aria-label="Not Ekle">✉️</button>
-      <button type="button" class="icon-circle-btn" id="manage-open-btn" data-title="Notunu Yönet" aria-label="Notunu Yönet">👤</button>
-      <button type="button" class="icon-circle-btn" id="how-it-works-btn" data-title="Nasıl Çalışır?" aria-label="Nasıl Çalışır?">ℹ️</button>
-      <button type="button" class="icon-circle-btn" id="lang-btn" data-title="Dili Değiştir (EN)" aria-label="Language">🌐</button>
+      <button type="button" class="header-action-btn primary open-add-note-btn">✚ Not Ekle</button>
+      <button type="button" class="header-action-btn" id="manage-open-btn">🔑 Notunu Yönet</button>
+      <button type="button" class="header-icon-btn" id="how-it-works-btn" title="Nasıl Çalışır?">ℹ️</button>
+      <nav class="lang-switch">
+        <a href="/" class="active">TR</a>
+        <a href="/en/">EN</a>
+      </nav>
     </div>
   </header>
 
   <main>
     <!-- Ana Görsel / Vitrin Alanı: Sol Büyük Kavanoz, Sağ Kademeli Ahşap Raflar -->
     <div class="wrap showcase-grid">
-      <!-- Sol Bölüm: Büyük Aktif Sanal Kavanoz ve Kapasite -->
+      <!-- Sol Bölüm: Büyük Aktif Sanal Kavanoz ve Kapasite (Mektup Zarfları Fiziği ile) -->
       <div class="jar-stage">
         <div class="jar-container">
           <div class="jar-canvas-glass">
@@ -158,13 +161,13 @@
         <!-- 1. Raf (Üst Raf - Daha Kısa ve Sağa Yaslı) -->
         <div class="shelf-row shelf-row--upper">
           <div class="shelf-jars-wrap" id="shelf-1-jars"></div>
-          <div class="wooden-plank"></div>
+          <div class="shelf-board"></div>
         </div>
 
         <!-- 2. Raf (Alt Raf - Daha Uzun ve Sola Uzanır) -->
         <div class="shelf-row shelf-row--lower">
           <div class="shelf-jars-wrap" id="shelf-2-jars"></div>
-          <div class="wooden-plank"></div>
+          <div class="shelf-board"></div>
         </div>
       </div>
     </div>
@@ -347,7 +350,7 @@
 
 <script src="https://js.hcaptcha.com/1/api.js" async defer></script>
 <script src="/vendor/matter.min.js?v=1"></script>
-<script src="/jar-physics.js?v=8"></script>
-<script src="/app.js?v=8"></script>
+<script src="/jar-physics.js?v=9"></script>
+<script src="/app.js?v=9"></script>
 </body>
 </html>

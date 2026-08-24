@@ -358,7 +358,7 @@
     });
   }
 
-  // ---------------- Fizik Kavanozu & Sallama ----------------
+  // ---------------- Fizik Kavanozu & Sallama (Mektup Zarfları Fiziği) ----------------
   var jarCanvas = document.getElementById("jar-canvas");
   var jarCapacityText = document.getElementById("jar-capacity-text");
   var jarProgressFill = document.getElementById("jar-progress-fill");
@@ -474,60 +474,56 @@
   if (backToActiveBtn) {
     backToActiveBtn.addEventListener("click", function (e) {
       e.preventDefault();
-      document.querySelectorAll(".shelf-jar-card").forEach(function (c) { c.classList.remove("active-view"); });
+      document.querySelectorAll(".small-jar-button").forEach(function (c) { c.classList.remove("is-active"); });
       loadActiveJar();
     });
   }
 
-  // ---------------- Kademeli Raflar (Staggered Shelves - Yalnızca Gerçek Veri) ----------------
+  // ---------------- Kademeli Raflar & 3D CSS Kavanozlar (Yalnızca Gerçek Veri) ----------------
   var shelf1El = document.getElementById("shelf-1-jars");
   var shelf2El = document.getElementById("shelf-2-jars");
   var shelfListModal = document.getElementById("shelf-list-modal");
   var shelfListClose = document.getElementById("shelf-list-modal-close");
   var shelfListItems = document.getElementById("shelf-list-items");
 
-  var BADGE_COLORS = ["badge-blue", "badge-pink", "badge-green", "badge-amber", "badge-purple"];
+  var TINT_PALETTE = ["sky", "rose", "mint", "peach", "lilac"];
   var allArchivedJars = [];
 
-  function shelfJarSvg(tintColor) {
-    tintColor = tintColor || "#E8F4FD";
-    return (
-      '<svg class="shelf-jar-glass" viewBox="0 0 110 144" aria-hidden="true">' +
-      '<defs>' +
-      '<linearGradient id="lidGrad_' + tintColor.replace('#','') + '" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#93B274"/><stop offset="100%" stop-color="#647E4C"/></linearGradient>' +
-      '<linearGradient id="glassGrad_' + tintColor.replace('#','') + '" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="rgba(255,255,255,0.85)"/><stop offset="25%" stop-color="rgba(255,255,255,0.3)"/><stop offset="75%" stop-color="rgba(255,255,255,0.2)"/><stop offset="100%" stop-color="rgba(255,255,255,0.7)"/></linearGradient>' +
-      '</defs>' +
-      '<rect x="22" y="6" width="66" height="18" rx="5" fill="url(#lidGrad_' + tintColor.replace('#','') + ')" stroke="rgba(40,30,20,0.25)" stroke-width="1.5"/>' +
-      '<rect x="26" y="22" width="58" height="6" fill="#52683E"/>' +
-      '<rect x="8" y="26" width="94" height="112" rx="20" fill="url(#glassGrad_' + tintColor.replace('#','') + ')" stroke="rgba(255,255,255,0.85)" stroke-width="2"/>' +
-      '<rect x="11" y="29" width="88" height="106" rx="17" fill="' + tintColor + '" fill-opacity="0.35" stroke="rgba(40,30,20,0.12)" stroke-width="1"/>' +
-      '<path d="M16 40 Q16 122 24 130" fill="none" stroke="rgba(255,255,255,0.75)" stroke-width="3.5" stroke-linecap="round"/>' +
-      '</svg>'
-    );
+  function getJarTint(id) {
+    var num = typeof id === "number" ? id : parseInt(id, 10) || 0;
+    return TINT_PALETTE[Math.abs(num) % TINT_PALETTE.length];
   }
 
-  function createShelfJarCard(jar, index) {
-    var card = document.createElement("button");
-    card.type = "button";
-    card.className = "shelf-jar-card";
-    var badgeColor = BADGE_COLORS[(jar.id + index) % BADGE_COLORS.length];
-    var tintMap = { "badge-blue": "#CFE4FD", "badge-pink": "#FCD5DC", "badge-green": "#D5ECD8", "badge-amber": "#FDE8B5", "badge-purple": "#E4D8FA" };
-    var tint = tintMap[badgeColor] || "#E8F4FD";
+  function createShelfJarCard(jar, active) {
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "small-jar-button" + (active ? " is-active" : "");
+    btn.setAttribute("aria-label", T.shelfJarBadge(jar.id) + " kavanozunu aç");
 
-    card.innerHTML =
-      shelfJarSvg(tint) +
-      '<div class="shelf-jar-label">' +
-      '<span class="shelf-label-badge ' + badgeColor + '">' + T.shelfJarBadge(jar.id) + '</span>' +
-      '<span class="shelf-label-date">' + T.archivedPrefix + escapeHtml(formatDate(jar.archivedAt || jar.createdAt)) + '</span>' +
-      '<span class="shelf-label-count">' + jar.noteCount + T.notesCountSuffix + '</span>' +
-      '</div>';
+    var tint = getJarTint(jar.id);
+    var dateStr = formatDate(jar.archivedAt || jar.createdAt);
 
-    card.addEventListener("click", function () {
-      document.querySelectorAll(".shelf-jar-card").forEach(function (c) { c.classList.remove("active-view"); });
-      card.classList.add("active-view");
+    btn.innerHTML =
+      '<span class="small-jar">' +
+        '<span class="small-jar__lid"><i /><i /><i /></span>' +
+        '<span class="small-jar__neck"></span>' +
+        '<span class="small-jar__body">' +
+          '<span class="small-jar__shine"></span>' +
+          '<span class="jar-label jar-label--' + tint + '">' +
+            '<strong>' + escapeHtml(T.shelfJarBadge(jar.id)) + '</strong>' +
+            '<small>' + escapeHtml(T.archivedPrefix + dateStr) + '</small>' +
+            '<em>' + jar.noteCount + T.notesCountSuffix + '</em>' +
+          '</span>' +
+        '</span>' +
+        '<span class="jar-contact-shadow"></span>' +
+      '</span>';
+
+    btn.addEventListener("click", function () {
+      document.querySelectorAll(".small-jar-button").forEach(function (c) { c.classList.remove("is-active"); });
+      btn.classList.add("is-active");
       viewArchivedJar(jar.id, jar);
     });
-    return card;
+    return btn;
   }
 
   function renderShelves(items, total) {
@@ -548,14 +544,14 @@
     var lowerCapacity = 3;
 
     var upperJars = items.slice(0, upperCapacity);
-    upperJars.forEach(function (jar, i) {
-      shelf1El.appendChild(createShelfJarCard(jar, i));
+    upperJars.forEach(function (jar) {
+      shelf1El.appendChild(createShelfJarCard(jar, !currentJarIsActive && currentJarId === jar.id));
     });
 
     // 2. Alt Raf: En fazla 3 gerçek kavanoz
     var lowerJars = items.slice(upperCapacity, upperCapacity + lowerCapacity);
-    lowerJars.forEach(function (jar, i) {
-      shelf2El.appendChild(createShelfJarCard(jar, upperCapacity + i));
+    lowerJars.forEach(function (jar) {
+      shelf2El.appendChild(createShelfJarCard(jar, !currentJarIsActive && currentJarId === jar.id));
     });
 
     // Kalan gerçek arşiv kavanoz sayısı
