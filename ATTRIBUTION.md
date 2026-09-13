@@ -60,7 +60,17 @@ Bu belge, **Sanal Kavanoz** projesinde doğrudan veya dolaylı olarak kullanıla
 
 ---
 
-## 3. Tipografi ve Yazı Tipleri (Google Fonts)
+## 3. Veri Setleri ve Moderasyon Sözlükleri
+
+### [ooguz/turkce-kufur-karaliste](https://github.com/ooguz/turkce-kufur-karaliste)
+- **Kullanım:** İki katmanlı içerik moderasyonunda hızlı, yerel ve ücretsiz ilk eleme katmanı (`server/wordlist.js`, `functions/_lib/moderation.js`). İkinci katman NVIDIA NIM `llama-3.1-nemotron-safety-guard-8b-v3` ile anlamsal sınıflandırma yapar.
+- **Lisans:** Creative Commons Attribution-ShareAlike 4.0 International (CC BY-SA 4.0)
+- **Telif Hakkı:** Copyright (c) Oğuz (ooguz)
+- **Web Sitesi:** https://github.com/ooguz/turkce-kufur-karaliste
+
+---
+
+## 4. Tipografi ve Yazı Tipleri (Google Fonts)
 
 ### [Lora](https://fonts.google.com/specimen/Lora)
 - **Kullanım:** Gövde ve editoryal başlık tipografisi.
@@ -84,7 +94,7 @@ Bu belge, **Sanal Kavanoz** projesinde doğrudan veya dolaylı olarak kullanıla
 
 ---
 
-## 4. Mimari ve Algoritmik İlham
+## 5. Mimari ve Algoritmik İlham
 
 ### [TardigradeMail](https://github.com/TardigradeMail)
 - **Kullanım:** `worker/send-due.js` içindeki atomik `UPDATE ... WHERE mail_status='pending'` claim deseni, exponential backoff ve kilit açma durum makinesi mekanizması için esin kaynağı olmuştur.
@@ -92,6 +102,6 @@ Bu belge, **Sanal Kavanoz** projesinde doğrudan veya dolaylı olarak kullanıla
 
 ---
 
-## 5. Lisans Bildirimi
+## 6. Lisans Bildirimi
 
 Yukarıda listelenen bileşenlerin kendi lisans koşulları saklı kalmak kaydıyla, Sanal Kavanoz kaynak kodunun tamamı **[MIT Lisansı](LICENSE)** ile lisanslanmıştır.
