@@ -316,6 +316,8 @@
       glass.classList.add("shaking");
       setTimeout(function () { glass.classList.remove("shaking"); }, 350);
     }
+  };
+
   KavanozJar.prototype.applyPerfState = function (state) {
     if (!state) return;
     this.isLowMode = state.isLowMode;
