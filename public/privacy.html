@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, follow">
-<title>Gizlilik — Sanal Kavanoz</title>
+<meta name="robots" content="index, follow">
+<title>Gizlilik Politikası &amp; KVKK — Sanal Kavanoz</title>
+<meta name="description" content="Sanal Kavanoz KVKK ve GDPR uyumlu gizlilik politikası, AES-256-GCM şifreleme ve veri imha prensipleri.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="alternate icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
-<link rel="stylesheet" href="/style.css?v=16">
-  <script src="/identity-guard.js" defer></script>
+<link rel="stylesheet" href="/style.css?v=20260920.01">
+<script src="/identity-guard.js" defer></script>
 </head>
 <body>
 <div class="site-wrapper">
@@ -30,41 +31,65 @@
   </header>
 
   <main class="legal wrap">
+    <span class="legal-badge">KVKK &amp; GDPR Aydınlatma Metni</span>
     <h1>Gizlilik Politikası ve Aydınlatma Metni</h1>
-    <p>Bu sayfa, Sanal Kavanoz'un hangi kişisel verileri, hangi amaçla ve ne kadar süreyle işlediğini 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") ve genel iyi uygulamalar çerçevesinde açıklar.</p>
+    <p>Bu metin, 6698 sayılı Kişisel Verilerin Korunması Kanunu ("KVKK") m. 10 ve Avrupa Birliği Genel Veri Koruma Tüzüğü ("GDPR") gereğince, Sanal Kavanoz platformunda kişisel verilerin nasıl işlendiğini, nasıl korunduğunu ve hangi güvenlik ilkelerine tabi olduğunu şeffaf bir dille açıklamak amacıyla hazırlanmıştır.</p>
 
-    <h2>Önce önemli bir not</h2>
-    <p>Sanal Kavanoz, <strong>ortak ve herkese açık bir panodur</strong>. Kavanoza bıraktığın her not (ve varsa görünen ismin), siteyi ziyaret eden <strong>herkes tarafından okunabilir</strong> — üyelik gerekmez, tıklayan herkes görür. Paylaşılmasını istemediğin hiçbir şeyi kavanoza yazma.</p>
+    <h2>1. Veri Sorumlusu ve Kapsam</h2>
+    <p>Sanal Kavanoz projesinde veri sorumlusu <span class="protected-name" data-locale="tr">Site İşleticisi</span>'dir. Gizlilik ve veri talepleriniz için iletişim: <span class="protected-contact" data-domain="dixtuel" data-locale="tr">[e-posta korumalı]</span></p>
 
-    <h2>Veri sorumlusu</h2>
-    <p>Bu sitenin veri sorumlusu <span class="protected-name" data-locale="tr">Site İşleticisi</span>'dir. Sorularınız için: <span class="protected-contact" data-domain="dixtuel" data-locale="tr">[e-posta korumalı]</span></p>
+    <h2>2. Herkese Açık Pano Uyarısı</h2>
+    <p>Sanal Kavanoz'un aktif kavanozları <strong>ortak ve halka açık panolardır</strong>. Kavanoza bıraktığınız not metni ve takma adınız, siteye giren tüm ziyaretçiler tarafından görülebilir. Lütfen duvara asılmasını istemediğiniz sırlarınızı, T.C. kimlik numaranızı veya özel kişisel verilerinizi ortak kavanozlara yazmayınız.</p>
 
-    <h2>Hangi verileri topluyoruz?</h2>
+    <h2>3. Hangi Verileri İşliyoruz ve Nasıl Koruyoruz?</h2>
+    <p>Sistemimizde veri minimizasyonu esastır; yalnızca hizmetin sunumu için zorunlu olan asgari veri işlenir:</p>
     <ul>
-      <li><strong>Not metni ve görünen isim:</strong> Sunucuda şifreli saklanır, ancak tasarım gereği sitede herkese açık gösterilir — sitenin amacı budur. İsim alanını boş bırakırsan "Anonim" olarak görünürsün.</li>
-      <li><strong>E-posta adresin (tamamen isteğe bağlı):</strong> Yalnızca notun ileriki bir tarihte sana da iletilmesini istersen alınır. Şifreli saklanır, kimseye gösterilmez ve <strong>not teslim edildiği (ya da teslimat kesin olarak başarısız olduğu) an kalıcı olarak silinir</strong>.</li>
-      <li><strong>Yönetim anahtarı:</strong> Notunu kaydettiğinde sana bir kez gösterilir — daha sonra düzenlemenin veya silmenin tek yoludur. Sunucuda yalnız tek yönlü özeti (hash) tutulur; kaybedersen biz de kurtaramayız.</li>
-      <li><strong>IP adresi:</strong> Yalnızca kötüye kullanımı önleme ve hız sınırı (rate limit) amacıyla sunucu loglarında kısa süre tutulur.</li>
+      <li><strong>Not Metni ve Takma Ad:</strong> Notlarınız veritabanında askeri standartta <strong>AES-256-GCM</strong> şifreleme ile şifrelenmiş olarak saklanır. Şifreleme anahtarı veritabanından tamamen yalıtılmış olarak bağımsız sunucu çalışma ortamında muhafaza edilir.</li>
+      <li><strong>E-posta Adresi (İsteğe Bağlı):</strong> Yalnızca ileri tarihli e-posta teslimatı talep ettiğinizde alınır. Veritabanında yine <strong>AES-256-GCM</strong> ile şifreli olarak saklanır ve kimseyle paylaşılmaz.</li>
+      <li><strong>Yönetim Anahtarı (Zero-Knowledge):</strong> Notunuzu yönetebilmeniz için size gösterilen anahtarın yalnızca tek yönlü kriptografik özeti (SHA-256 hash) saklanır; açık anahtar sistem yöneticileri dahil hiç kimse tarafından bilinemez.</li>
+      <li><strong>IP Adresi:</strong> Güvenlik ve spam engelleme (rate limit) amacıyla geçici süreyle güvenlik katmanında incelenir, notlarınızla eşleştirilmez veya kalıcı olarak kaydedilmez.</li>
     </ul>
 
-    <h2>İşleme amacı ve hukuki sebep</h2>
-    <p>Notunun ve görünen isminin herkese açık gösterilmesi, formu gönderirken verdiğin açık rızaya (KVKK m.5/1) dayanır — bu sitenin temel işlevidir. E-posta adresin ise, yine ayrıca verdiğin açık rızaya dayanarak, yalnızca seçtiğin tarihte notunu sana iletmek amacıyla işlenir.</p>
-
-    <h2>Saklama süresi</h2>
-    <p>Notu bırakırken "site yöneticisine bırak" seçersen, not moderasyon kurallarına aykırı olmadığı sürece süresiz kalır (silme hakkını her zaman yönetim anahtarınla kullanabilirsin). "Tarih seç" dersen, seçtiğin tarihte otomatik ve kalıcı olarak silinir. E-posta adresin, teslimat yapıldığı ya da 6 başarısız denemeden sonra teslim edilemediği an kalıcı olarak silinir.</p>
-
-    <h2>Üçüncü taraflar</h2>
+    <h2>4. Kendini İmha Eden Veri Politikası (Self-Destructing Retention)</h2>
+    <p>Kişisel verilerinizin sistemde gereksiz yere tutulmaması için otomatik imha mekanizmaları devrededir:</p>
     <ul>
-      <li><strong>hCaptcha</strong> (Intuition Machines, Inc.) — bot/istismar koruması için form gönderiminde çalışır.</li>
-      <li><strong>NVIDIA NIM</strong> ve yerel kelime filtresi — gönderilen metnin yasa dışı/zararlı içerik içerip içermediğini kontrol eder; metin bu kontrol sırasında üçüncü tarafa (NVIDIA) iletilir.</li>
-      <li>Mail teslimatı kendi sunucumuzdan yapılır, üçüncü taraf bir e-posta pazarlama servisi kullanılmaz.</li>
+      <li><strong>E-posta İmhası:</strong> Girdiğiniz e-posta adresi, seçtiğiniz tarihte not başarıyla iletildiği an (veya 6 başarısız denemeden sonra iletilemediğinde) <strong>veritabanından kalıcı olarak ve tamamen silinir</strong>.</li>
+      <li><strong>Süreli Notlar:</strong> Süresi dolduğunda silinmesi seçilen notlar, vade tarihinde arka plan görevleri tarafından veritabanından kalıcı olarak temizlenir.</li>
+      <li><strong>Pazarlama Yasağı:</strong> E-posta adresiniz hiçbir şekilde pazarlama, bülten veya üçüncü taraf reklam amacıyla kullanılmaz ve devredilmez.</li>
     </ul>
 
-    <h2>Haklarınız (KVKK m.11)</h2>
-    <p>Kişisel verinin işlenip işlenmediğini öğrenme, işlenmişse buna ilişkin bilgi talep etme, düzeltme/silme isteme ve itiraz etme hakkına sahipsin. Yönetim anahtarınla notunu ve varsa e-posta adresini istediğin an kalıcı olarak silebilir veya düzenleyebilirsin — "Notunu yönet" bölümünden. Anahtarını kaybettiysen, notun hangisi olduğunu doğrulayabildiğin sürece <span class="protected-contact" data-domain="dixtuel" data-locale="tr">[e-posta korumalı]</span> üzerinden manuel silme talebinde bulunabilirsin.</p>
+    <h2>5. Doğrudan ve Takipsiz E-posta İletişimi</h2>
+    <p>E-posta gönderimlerimiz kendi bağımsız posta sunucumuz (yerel Postfix/SMTP) aracılığıyla gerçekleştirilir. Hiçbir üçüncü taraf toplu mail pazarlama aracı kullanılmaz. Gönderilen e-postalara açılma takip pikselleri (tracking pixel) veya tık izleyicileri eklenmez.</p>
 
-    <h2>Güvenlik</h2>
-    <p>Tüm bağlantı HTTPS ile şifrelenir. Not metni ve e-posta adresin veritabanında AES-256-GCM ile şifreli tutulur; şifreleme anahtarı veritabanından ayrı, yalnızca sunucu ortamında saklanır. Yönetim anahtarın yalnız tek yönlü (hash'lenmiş) haliyle saklanır.</p>
+    <h2>6. Üçüncü Taraf Altyapı Sağlayıcıları</h2>
+    <p>Sistemin güvenli ve kesintisiz çalışması için aşağıdaki güvenilir sağlayıcılardan yararlanılmaktadır:</p>
+    <ul>
+      <li><strong>Turso (ChiselStrike libSQL):</strong> Şifreli veritabanı altyapısı.</li>
+      <li><strong>hCaptcha (Intuition Machines, Inc.):</strong> Form alanlarını otomatik bot saldırılarına karşı korur.</li>
+      <li><strong>NVIDIA NIM Güvenlik Modeli:</strong> Gönderilen metinler, nefret söylemi ve zararlı içerik tespiti için güvenli TLS bağlantısı üzerinden anlık olarak doğrulanır; yapay zekâ eğitimi için kaydedilmez.</li>
+      <li><strong>Cloudflare Pages &amp; Edge:</strong> Güvenli içerik dağıtımı ve DDoS saldırı engelleme.</li>
+    </ul>
+
+    <h2>7. Çerezler ve İstemci Performansı</h2>
+    <p>Sitemizde kullanıcıları fişleyen izleme çerezleri bulunmaz:</p>
+    <ul>
+      <li><strong>Dil Tercihi:</strong> Seçtiğiniz dil yalnızca tarayıcınızın <code>localStorage</code> alanında tutulur.</li>
+      <li><strong>Onay Tercihi:</strong> Onay durumunuz <code>kavanoz_pref</code> isimli şifreli ve minimal bir çerez ile hatırlanır.</li>
+      <li><strong>Düşük Güç ve Veri Tasarrufu:</strong> Tarayıcınızın pil ve bağlantı hızı durumları tamamen cihazınızda yerel olarak değerlendirilir; donanım durumunuz sunucuya raporlanmaz.</li>
+    </ul>
+
+    <h2>8. Haklarınız (KVKK m. 11 &amp; GDPR)</h2>
+    <p>6698 sayılı KVKK'nın 11. maddesi ve GDPR hükümleri uyarınca her kullanıcı:</p>
+    <ul>
+      <li>Kişisel verisinin işlenip işlenmediğini öğrenme,</li>
+      <li>İşlenmişse buna ilişkin bilgi talep etme,</li>
+      <li>Verilerin amacına uygun kullanılıp kullanılmadığını öğrenme,</li>
+      <li>Verilerinin düzeltilmesini veya kalıcı olarak silinmesini isteme haklarına sahiptir.</li>
+    </ul>
+    <p><strong>Doğrudan Kontrol:</strong> Size verilen <em>Yönetim Anahtarı</em> ile "Notumu Yönet" ekranından notunuzu ve e-posta bilginizi dilediğiniz an tek tıkla silebilirsiniz. Anahtarınızı kaybettiyseniz, notun size ait olduğunu doğrulayabilmeniz kaydıyla <span class="protected-contact" data-domain="dixtuel" data-locale="tr">[e-posta korumalı]</span> adresine başvurabilirsiniz.</p>
+
+    <h2>9. Veri Güvenliği</h2>
+    <p>Tüm veri trafiği yüksek güvenlikli SSL/TLS şifrelemesi ile korunmaktadır. Veritabanındaki hassas alanlar AES-256-GCM ile kriptolanmakta, anahtarlar ayrık tutulmaktadır.</p>
   </main>
 
   <footer class="site wrap">
@@ -72,7 +97,7 @@
       <span>© <span id="year">2026</span> Sanal Kavanoz</span>
       <div class="footer-links">
         <a href="/">Ana Sayfa</a>
-        <a href="/terms.html">Şartlar</a>
+        <a href="/terms.html">Kullanım Şartları</a>
         <a href="/accessibility.html">Erişilebilirlik</a>
         <a href="https://your-site.example" id="credit-link">dixtuel + kıyıcı</a>
       </div>

@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, follow">
-<title>Terms — Virtual Jar</title>
-<link rel="canonical" href="https://your-site.example/terms.html">
+<meta name="robots" content="index, follow">
+<title>Terms of Use — Virtual Jar</title>
+<meta name="description" content="Virtual Jar community guidelines, terms of use, and zero-knowledge management key architecture.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="alternate icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
-<link rel="stylesheet" href="/style.css?v=16">
-  <script src="/identity-guard.js" defer></script>
+<link rel="stylesheet" href="/style.css?v=20260920.01">
+<script src="/identity-guard.js" defer></script>
 </head>
 <body>
 <div class="site-wrapper">
@@ -31,26 +31,49 @@
   </header>
 
   <main class="legal wrap">
+    <span class="legal-badge">Community Standards &amp; Terms</span>
     <h1>Terms of Use</h1>
-    <p>By using Virtual Jar, you agree to the following.</p>
+    <p>Virtual Jar is a free, account-free digital time capsule and shared board for memories, letters, and wishes. By using this service, you agree to the following terms.</p>
 
-    <h2>What this is</h2>
-    <p>Virtual Jar is a free, account-free, <strong>shared and public</strong> board. Whatever you drop in (and your display name, if given) is readable by anyone. Once the jar reaches a certain number of notes, it moves to the "shelf" and a new jar opens; shelved jars stay public too.</p>
+    <h2>1. Nature of the Service</h2>
+    <p>Virtual Jar is designed with two core modes of interaction:</p>
+    <ul>
+      <li><strong>Public Jars (Shared Wall):</strong> When you drop a note into the active jar, your message and chosen display name are displayed publicly on the wall for everyone to read. Once a jar reaches full capacity, it is moved to the "shelf" and a new jar opens. Archived shelf jars remain permanently public.</li>
+      <li><strong>Letters to the Future (Time-Locked Delivery):</strong> When you specify a future date, your note remains sealed until that date arrives, at which point it is automatically and securely delivered to your optional recipient email address.</li>
+    </ul>
 
-    <h2>Management key — lost means gone</h2>
-    <p>When you drop a note, you're shown a management key once. It's the <strong>only</strong> way to edit or delete that note. Only a one-way hash of it is kept on the server — if you lose the key, no one, including us, can recover access to that note on your behalf. Keep it somewhere safe.</p>
+    <h2>2. Zero-Knowledge Management Key</h2>
+    <p>When you create a note, our system generates a unique <strong>Management Key</strong> displayed to you only once:</p>
+    <ul>
+      <li>This key is the <strong>exclusive and authoritative way</strong> to edit or permanently delete your note at any time.</li>
+      <li>Our servers never store your plaintext key; only a salted one-way cryptographic hash (SHA-256) is kept.</li>
+      <li><strong>Important Notice:</strong> Because this architecture is strictly zero-knowledge, if you lose your key, nobody—including site operators—can access, edit, or recover the note on your behalf. Please store your key safely.</li>
+    </ul>
 
-    <h2>Optional email delivery</h2>
-    <p>You don't have to provide an email address. If you do, your note is sent to that address on the date you choose (up to 5 years out). <strong>No confirmation email is sent to that address beforehand</strong> — delivery simply happens on the date you (or whoever left the note on your behalf) set. Delivery isn't guaranteed; issues on the recipient's mail server or an address becoming invalid can prevent it.</p>
+    <h2>3. Optional Email Delivery</h2>
+    <p>Providing an email address is entirely optional:</p>
+    <ul>
+      <li>If provided, your note will be dispatched directly to that email on your designated target date (up to 5 years into the future).</li>
+      <li>No advance confirmation or promotional emails will ever be sent to this address; transmission triggers strictly on the target date.</li>
+      <li>Your email address is <strong>permanently purged from the database</strong> the moment delivery succeeds (or after 6 failed retry attempts).</li>
+    </ul>
 
-    <h2>Prohibited content</h2>
-    <p>Notes containing violence, sexual abuse, hate speech, harassment, incitement to illegal activity, or unauthorized sharing of someone else's personal data are not accepted and are rejected by automated moderation. The site owner may also remove a note that violates these rules, even without the management key.</p>
+    <h2>4. Acceptable Content &amp; Moderation</h2>
+    <p>Virtual Jar is dedicated to warm, thoughtful, and constructive sharing. The following content is strictly prohibited:</p>
+    <ul>
+      <li>Violence, threats, harassment, hate speech, or discrimination,</li>
+      <li>Sexually explicit, pornographic, or abusive material,</li>
+      <li>Promotion of illegal substances, crime, or fraud,</li>
+      <li>Unauthorized sharing or doxxing of another individual's personal information (national IDs, phone numbers, private addresses, etc.).</li>
+    </ul>
+    <p>Every note is screened upon submission by local word filters and the <strong>NVIDIA NIM AI safety model</strong>. Notes violating community standards are rejected immediately. The operator reserves the right to remove any content violating applicable laws or safety guidelines.</p>
 
-    <h2>Limitation of liability</h2>
-    <p>The service is provided "as is." We are not liable for the accuracy of published content, loss of access due to a lost management key, delays in delivery timing, or outages of third-party services (mail server, hCaptcha, content moderation API).</p>
+    <h2>5. Limitation of Liability</h2>
+    <p>Virtual Jar is an open-source, non-commercial community project provided "AS-IS" without warranty of any kind. We cannot be held liable for third-party user content, loss of access resulting from misplaced management keys, or delays caused by third-party mail providers or edge network outages.</p>
 
-    <h2>Contact</h2>
-    <p>Questions: <span class="protected-contact" data-domain="dixtuel" data-locale="en">[email protected]</span></p>
+    <h2>6. Contact</h2>
+    <p>For questions, DMCA notifications, or reports regarding improper content, you may reach the operator at:</p>
+    <p><span class="protected-contact" data-domain="dixtuel" data-locale="en">[email protected]</span></p>
   </main>
 
   <footer class="site wrap">
@@ -58,7 +81,7 @@
       <span>© <span id="year">2026</span> Virtual Jar</span>
       <div class="footer-links">
         <a href="/en/">Home</a>
-        <a href="/en/privacy.html">Privacy Policy</a>
+        <a href="/en/privacy.html">Privacy &amp; KVKK</a>
         <a href="/en/accessibility.html">Accessibility</a>
         <a href="https://your-site.example" id="credit-link">dixtuel + kıyıcı</a>
       </div>

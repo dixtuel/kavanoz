@@ -1234,6 +1234,43 @@ main.legal p {
   margin: 0 0 14px;
 }
 
+main.legal ul {
+  margin: 0 0 18px 24px;
+  padding: 0;
+  list-style-type: disc;
+}
+
+main.legal li {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  line-height: 1.65;
+  margin-bottom: 8px;
+}
+
+main.legal strong {
+  color: #382A1C;
+  font-weight: 700;
+}
+
+main.legal a {
+  color: #B25D34;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+main.legal .legal-badge {
+  display: inline-block;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  color: #B25D34;
+  background: rgba(178, 93, 52, 0.08);
+  border: 1px solid rgba(178, 93, 52, 0.22);
+  padding: 3px 10px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
 /* ---------- Footer (Uçtan Uca Sağa-Sola Tam Yayılan Altbilgi) ---------- */
 footer.site-footer-full {
   flex: 0 0 auto;

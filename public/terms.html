@@ -3,13 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, follow">
-<title>Şartlar — Sanal Kavanoz</title>
+<meta name="robots" content="index, follow">
+<title>Kullanım Şartları — Sanal Kavanoz</title>
+<meta name="description" content="Sanal Kavanoz kullanım şartları, topluluk kuralları ve yönetim anahtarı güvencesi.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="alternate icon" type="image/png" href="/favicon.png">
 <link rel="apple-touch-icon" href="/favicon.png">
-<link rel="stylesheet" href="/style.css?v=16">
-  <script src="/identity-guard.js" defer></script>
+<link rel="stylesheet" href="/style.css?v=20260920.01">
+<script src="/identity-guard.js" defer></script>
 </head>
 <body>
 <div class="site-wrapper">
@@ -30,26 +31,49 @@
   </header>
 
   <main class="legal wrap">
+    <span class="legal-badge">Topluluk İlkeleri &amp; Şartlar</span>
     <h1>Kullanım Şartları</h1>
-    <p>Sanal Kavanoz'u kullanarak aşağıdaki şartları kabul etmiş olursun.</p>
+    <p>Sanal Kavanoz; üyelik zorunluluğu olmayan, anıların, mektupların ve dileklerin biriktirildiği dijital bir zaman kapsülü ve ortak kavanoz panosudur. Bu platformu kullanarak aşağıdaki şartları kabul etmiş sayılırsınız.</p>
 
-    <h2>Hizmetin niteliği</h2>
-    <p>Sanal Kavanoz, hesap gerektirmeyen, ücretsiz, <strong>ortak ve herkese açık</strong> bir panodur. Bıraktığın not (ve varsa görünen isim) herkes tarafından okunabilir. Kavanoz belirli bir not sayısına ulaştığında "rafa" kaldırılır ve yeni bir kavanoz açılır; raftaki kavanozlar da herkese açık kalır.</p>
+    <h2>1. Hizmetin Niteliği ve Çalışma Şekli</h2>
+    <p>Sanal Kavanoz iki farklı kullanım amacıyla tasarlanmıştır:</p>
+    <ul>
+      <li><strong>Herkese Açık Kavanozlar (Ortak Pano):</strong> Notunuzu aktif kavanoza bıraktığınızda, not metniniz ve belirttiğiniz takma adınız duvarda herkese açık olarak sergilenir. Kavanoz belirli bir kapasiteye ulaştığında "rafa" kaldırılır ve yeni bir kavanoz açılır. Raftaki eski kavanozlar da halka açık arşiv niteliğinde korunur.</li>
+      <li><strong>Geleceğe Mektup (Zaman Ayarlı Teslimat):</strong> İleri bir tarih belirlediğinizde, notunuz o tarihe kadar kilitli kalır ve belirlediğiniz tarihte isteğe bağlı olarak girdiğiniz e-posta adresine güvenle iletilir.</li>
+    </ul>
 
-    <h2>Yönetim anahtarı — kaybedilirse geri getirilemez</h2>
-    <p>Notunu bıraktığında sana bir kez gösterilen bir yönetim anahtarı verilir. Bu anahtar, notunu silmenin veya düzenlemenin <strong>tek yolu</strong>dur. Sunucuda yalnız bu anahtarın tek yönlü özeti tutulur; anahtarı kaybedersen, biz de dahil kimse bu notu senin adına kurtaramaz. Anahtarını güvenli bir yerde sakla.</p>
+    <h2>2. Sıfır Bilgili Yönetim Anahtarı (Zero-Knowledge Key)</h2>
+    <p>Notunuzu oluşturduğunuzda sistem size yalnızca bir kez gösterilen benzersiz bir <strong>Yönetim Anahtarı</strong> üretir:</p>
+    <ul>
+      <li>Bu anahtar, bıraktığınız notu dilediğiniz an düzenlemenin veya sistemden tamamen silmenin <strong>tek ve yetkili yoludur</strong>.</li>
+      <li>Sunucularımızda anahtarınızın açık hali kesinlikle tutulmaz; yalnızca tek yönlü kriptografik özeti (SHA-256 hash) saklanır.</li>
+      <li><strong>Önemli Uyarı:</strong> Yönetim anahtarınızı kaybederseniz, mimarimiz sıfır bilgi prensibine dayandığı için site yöneticileri dahil hiç kimse notunuzu sizin adınıza geri getiremez veya düzenleyemez. Lütfen anahtarınızı güvenli bir yere kaydediniz.</li>
+    </ul>
 
-    <h2>Opsiyonel e-posta teslimatı</h2>
-    <p>Mail adresi girmek zorunda değilsin. Girersen, seçtiğin tarihte (en fazla 5 yıl sonrasına kadar) notun o adrese gönderilir. Bu adrese <strong>önceden bir onay maili gitmez</strong> — teslimat, yalnızca senin (veya notu senin adına bırakan kişinin) belirlediği tarihte gerçekleşir. Teslimat garantisi verilmez; alıcı sunucusundaki sorunlar veya adresin geçersizleşmesi nedeniyle teslim edilemeyebilir.</p>
+    <h2>3. İsteğe Bağlı E-posta Teslimatı</h2>
+    <p>Not bırakırken e-posta adresi girmek tamamen isteğe bağlıdır:</p>
+    <ul>
+      <li>E-posta adresi girdiğinizde, notunuz belirttiğiniz tarihte (5 yıla kadar) doğrudan o adrese ulaştırılır.</li>
+      <li>Girdiğiniz adrese önceden bir onay veya bülten e-postası gönderilmez; teslimat yalnızca belirlediğiniz tarihte tetiklenir.</li>
+      <li>E-posta adresi, not başarıyla teslim edildiğinde (veya 6 deneme sonrasında teslim edilemediğinde) <strong>veritabanından kalıcı olarak silinir</strong>.</li>
+    </ul>
 
-    <h2>Yasak içerik</h2>
-    <p>Şiddet, cinsel istismar, nefret söylemi, taciz, yasa dışı faaliyet teşviki veya kişisel verilerin izinsiz paylaşımı içeren notlar kabul edilmez; bu tür içerikler otomatik moderasyon tarafından reddedilir. Site yöneticisi, kurallara aykırı bulduğu bir notu yönetim anahtarı olmadan da kaldırabilir.</p>
+    <h2>4. Kabul Edilebilir İçerik ve Moderasyon</h2>
+    <p>Sanal Kavanoz barışçıl, samimi ve güvenli bir topluluk alanıdır. Aşağıdaki içeriklerin kavanoza atılması kesinlikle yasaktır:</p>
+    <ul>
+      <li>Şiddet, tehdit, taciz, nefret söylemi ve ayrımcılık içeren ifadeler,</li>
+      <li>Cinsel istismar veya pornografik içerikler,</li>
+      <li>Yasa dışı maddelere, suça veya dolandırıcılığa teşvik eden mesajlar,</li>
+      <li>Başkalarına ait kişisel verilerin (T.C. kimlik no, telefon, adres, özel yazışmalar vb.) izinsiz ifşası.</li>
+    </ul>
+    <p>Gönderilen her not, yerel güvenlik filtreleri ve <strong>NVIDIA NIM yapay zekâ güvenlik modeli</strong> tarafından taranır. Kuralları ihlal eden notlar sisteme kabul edilmez. Site yöneticisi, yasal zorunluluk veya ağır kural ihlali durumunda ilgili notu sistemden çıkarma hakkını saklı tutar.</p>
 
-    <h2>Sorumluluğun sınırlanması</h2>
-    <p>Hizmet "olduğu gibi" sunulur. Yayınlanan içeriğin doğruluğundan, yönetim anahtarının kaybedilmesinden doğacak erişim kaybından, teslimat zamanlamasındaki gecikmelerden veya üçüncü taraf servislerin (mail sunucusu, hCaptcha, içerik moderasyon API'si) kesintilerinden doğabilecek dolaylı zararlardan sorumlu tutulamayız.</p>
+    <h2>5. Sorumluluğun Sınırlandırılması</h2>
+    <p>Sanal Kavanoz açık kaynak kodlu ve ücretsiz bir topluluk projesidir. Hizmet "olduğu gibi" (AS-IS) sağlanır. Kullanıcılar tarafından paylaşılan içeriklerin doğruluğundan, yönetim anahtarının kaybedilmesinden kaynaklanan veri erişim kayıplarından veya e-posta servis sağlayıcılarının teslimat gecikmelerinden doğabilecek dolaylı durumlardan platform sorumlu tutulamaz.</p>
 
-    <h2>İletişim</h2>
-    <p>Sorular için: <span class="protected-contact" data-domain="dixtuel" data-locale="tr">[e-posta korumalı]</span></p>
+    <h2>6. İletişim</h2>
+    <p>Sorularınız, telif bildirimleri veya uygunsuz içerik şikayetleri için doğrudan veri sorumlusuna ulaşabilirsiniz:</p>
+    <p><span class="protected-contact" data-domain="dixtuel" data-locale="tr">[e-posta korumalı]</span></p>
   </main>
 
   <footer class="site wrap">
@@ -57,7 +81,7 @@
       <span>© <span id="year">2026</span> Sanal Kavanoz</span>
       <div class="footer-links">
         <a href="/">Ana Sayfa</a>
-        <a href="/privacy.html">Gizlilik & KVKK</a>
+        <a href="/privacy.html">Gizlilik &amp; KVKK</a>
         <a href="/accessibility.html">Erişilebilirlik</a>
         <a href="https://your-site.example" id="credit-link">dixtuel + kıyıcı</a>
       </div>
