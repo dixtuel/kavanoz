@@ -1,4 +1,4 @@
-import { tursoQuery, ensureTables } from "./turso.js";
+import { tursoQuery, tursoBatch, ensureTables } from "./turso.js";
 import { encrypt, decrypt, compressText, decompressText } from "./crypto.js";
 
 function jarCapacity(env) {
@@ -17,38 +17,45 @@ async function getOrCreateActiveJar(env) {
 export async function createNote(env, { message, displayName, email, mailSendAt, lang, retentionMode, retentionUntil, managementKeyHash, visibility }) {
   await ensureTables(env);
   const jar = await getOrCreateActiveJar(env);
-
-  const result = await tursoQuery(
-    env,
-    `INSERT INTO notes (jar_id, message_enc, display_name, lang, email_enc, mail_send_at, mail_status, retention_mode, retention_until, management_key_hash, visibility)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
-    [
-      jar.id,
-      encrypt(env, compressText(message)),
-      displayName || null,
-      lang || "tr",
-      email ? encrypt(env, email) : null,
-      mailSendAt || null,
-      email ? "pending" : "none",
-      retentionMode,
-      retentionUntil || null,
-      managementKeyHash,
-      visibility === "private" ? "private" : "public",
-    ]
-  );
-
   const newCount = jar.noteCount + 1;
-  await tursoQuery(env, `UPDATE jars SET note_count = note_count + 1 WHERE id=?`, [jar.id]);
   const capacity = jarCapacity(env);
-  if (newCount >= capacity) {
-    await tursoQuery(
-      env,
-      `UPDATE jars SET status='archived', archived_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=? AND status='active'`,
-      [jar.id]
-    );
+  const willArchive = newCount >= capacity;
+
+  const statements = [
+    {
+      sql: `INSERT INTO notes (jar_id, message_enc, display_name, lang, email_enc, mail_send_at, mail_status, retention_mode, retention_until, management_key_hash, visibility)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+      args: [
+        jar.id,
+        encrypt(env, compressText(message)),
+        displayName || null,
+        lang || "tr",
+        email ? encrypt(env, email) : null,
+        mailSendAt || null,
+        email ? "pending" : "none",
+        retentionMode,
+        retentionUntil || null,
+        managementKeyHash,
+        visibility === "private" ? "private" : "public",
+      ],
+    },
+    {
+      sql: `UPDATE jars SET note_count = note_count + 1 WHERE id=?`,
+      args: [jar.id],
+    },
+  ];
+
+  if (willArchive) {
+    statements.push({
+      sql: `UPDATE jars SET status='archived', archived_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=? AND status='active'`,
+      args: [jar.id],
+    });
   }
 
-  return { id: Number(result.rows[0].id), jarId: jar.id, jarFilled: newCount >= capacity };
+  const results = await tursoBatch(env, statements);
+  const insertRow = results[0].rows[0];
+
+  return { id: Number(insertRow.id), jarId: jar.id, jarFilled: willArchive };
 }
 
 function noteRowToPublic(env, row) {
@@ -143,8 +150,10 @@ export async function findNoteByManagementKeyHash(env, hash) {
 }
 
 export async function deleteNoteById(env, id, jarId) {
-  await tursoQuery(env, `DELETE FROM notes WHERE id=?`, [id]);
-  await tursoQuery(env, `UPDATE jars SET note_count = MAX(note_count - 1, 0) WHERE id=?`, [jarId]);
+  await tursoBatch(env, [
+    { sql: "DELETE FROM notes WHERE id=?", args: [id] },
+    { sql: "UPDATE jars SET note_count = MAX(note_count - 1, 0) WHERE id=?", args: [jarId] },
+  ]);
 }
 
 export async function updateNoteById(env, id, fields) {

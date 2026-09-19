@@ -5,7 +5,11 @@ const { sendDeliveryMail } = require("../server/mailer");
 // systemd timer tarafından her 10 dakikada bir tetiklenen oneshot iş.
 // 7/24 çalışan ayrı bir process yok — VDS boştayken sıfır kaynak tüketimi hedefi budur.
 async function main() {
-  await db.init();
+  if (process.argv.includes("--init")) {
+    await db.init();
+  } else {
+    await db.ensureInitialized();
+  }
 
   // Önceki çalıştırma reboot/crash ile yarım kaldıysa 'sending' kayıtlarını geri al.
   await db.recoverStuckMail();

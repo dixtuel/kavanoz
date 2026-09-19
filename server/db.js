@@ -29,17 +29,15 @@ function decompressText(stored) {
 }
 
 async function init() {
-  await client.execute(`
-    CREATE TABLE IF NOT EXISTS jars (
+  await client.batch([
+    `CREATE TABLE IF NOT EXISTS jars (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       status TEXT NOT NULL DEFAULT 'active' CHECK (status IN ('active','archived')),
       note_count INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (strftime('%Y-%m-%dT%H:%M:%fZ','now')),
       archived_at TEXT
-    );
-  `);
-  await client.execute(`
-    CREATE TABLE IF NOT EXISTS notes (
+    );`,
+    `CREATE TABLE IF NOT EXISTS notes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       jar_id INTEGER NOT NULL REFERENCES jars(id),
       message_enc TEXT NOT NULL,
@@ -55,14 +53,25 @@ async function init() {
       retention_until TEXT,
       management_key_hash TEXT NOT NULL,
       visibility TEXT NOT NULL DEFAULT 'public' CHECK (visibility IN ('public','private'))
-    );
-  `);
-  await client.execute(`ALTER TABLE notes ADD COLUMN visibility TEXT NOT NULL DEFAULT 'public' CHECK (visibility IN ('public','private'));`).catch(() => {});
-  await client.execute(`CREATE INDEX IF NOT EXISTS idx_notes_jar ON notes(jar_id, id);`);
-  await client.execute(`CREATE INDEX IF NOT EXISTS idx_notes_mail ON notes(mail_status, mail_send_at, mail_next_attempt_at);`);
-  await client.execute(`CREATE INDEX IF NOT EXISTS idx_notes_retention ON notes(retention_mode, retention_until);`);
-  await client.execute(`CREATE UNIQUE INDEX IF NOT EXISTS idx_notes_key ON notes(management_key_hash);`);
-  await client.execute(`CREATE INDEX IF NOT EXISTS idx_jars_status ON jars(status, id);`);
+    );`,
+    `CREATE INDEX IF NOT EXISTS idx_notes_jar ON notes(jar_id, id);`,
+    `CREATE INDEX IF NOT EXISTS idx_notes_mail ON notes(mail_status, mail_send_at, mail_next_attempt_at);`,
+    `CREATE INDEX IF NOT EXISTS idx_notes_retention ON notes(retention_mode, retention_until);`,
+    `CREATE UNIQUE INDEX IF NOT EXISTS idx_notes_key ON notes(management_key_hash);`,
+    `CREATE INDEX IF NOT EXISTS idx_jars_status ON jars(status, id);`
+  ]);
+}
+
+async function ensureInitialized() {
+  try {
+    await client.execute("SELECT 1 FROM jars LIMIT 1");
+  } catch (err) {
+    if (err.message && err.message.includes("no such table")) {
+      await init();
+    } else {
+      throw err;
+    }
+  }
 }
 
 async function getOrCreateActiveJar() {
@@ -76,36 +85,41 @@ async function getOrCreateActiveJar() {
 
 async function createNote({ message, displayName, email, mailSendAt, lang, retentionMode, retentionUntil, managementKeyHash, visibility }) {
   const jar = await getOrCreateActiveJar();
-
-  const result = await client.execute({
-    sql: `INSERT INTO notes (jar_id, message_enc, display_name, lang, email_enc, mail_send_at, mail_status, retention_mode, retention_until, management_key_hash, visibility)
-          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
-    args: [
-      jar.id,
-      encrypt(compressText(message)),
-      displayName || null,
-      lang || "tr",
-      email ? encrypt(email) : null,
-      mailSendAt || null,
-      email ? "pending" : "none",
-      retentionMode,
-      retentionUntil || null,
-      managementKeyHash,
-      visibility === "private" ? "private" : "public",
-    ],
-  });
-
   const newCount = jar.noteCount + 1;
-  await client.execute({ sql: `UPDATE jars SET note_count = note_count + 1 WHERE id=?`, args: [jar.id] });
-  if (newCount >= JAR_CAPACITY) {
-    // Kavanoz ağzına kadar doldu: rafa kaldır. Bir sonraki not otomatik olarak yeni (boş) kavanozu bulur/oluşturur.
-    await client.execute({
+  const willArchive = newCount >= JAR_CAPACITY;
+
+  const statements = [
+    {
+      sql: `INSERT INTO notes (jar_id, message_enc, display_name, lang, email_enc, mail_send_at, mail_status, retention_mode, retention_until, management_key_hash, visibility)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`,
+      args: [
+        jar.id,
+        encrypt(compressText(message)),
+        displayName || null,
+        lang || "tr",
+        email ? encrypt(email) : null,
+        mailSendAt || null,
+        email ? "pending" : "none",
+        retentionMode,
+        retentionUntil || null,
+        managementKeyHash,
+        visibility === "private" ? "private" : "public",
+      ],
+    },
+    { sql: `UPDATE jars SET note_count = note_count + 1 WHERE id=?`, args: [jar.id] },
+  ];
+
+  if (willArchive) {
+    statements.push({
       sql: `UPDATE jars SET status='archived', archived_at=strftime('%Y-%m-%dT%H:%M:%fZ','now') WHERE id=? AND status='active'`,
       args: [jar.id],
     });
   }
 
-  return { id: Number(result.rows[0].id), jarId: jar.id, jarFilled: newCount >= JAR_CAPACITY };
+  const results = await client.batch(statements);
+  const insertResult = results[0];
+
+  return { id: Number(insertResult.rows[0].id), jarId: jar.id, jarFilled: willArchive };
 }
 
 function noteRowToPublic(row) {
@@ -190,8 +204,10 @@ async function findNoteByManagementKeyHash(hash) {
 }
 
 async function deleteNoteById(id, jarId) {
-  await client.execute({ sql: `DELETE FROM notes WHERE id=?`, args: [id] });
-  await client.execute({ sql: `UPDATE jars SET note_count = MAX(note_count - 1, 0) WHERE id=?`, args: [jarId] });
+  await client.batch([
+    { sql: "DELETE FROM notes WHERE id=?", args: [id] },
+    { sql: "UPDATE jars SET note_count = MAX(note_count - 1, 0) WHERE id=?", args: [jarId] },
+  ]);
 }
 
 async function updateNoteById(id, fields) {
@@ -301,6 +317,7 @@ async function purgeExpiredByRetention() {
 
 module.exports = {
   init,
+  ensureInitialized,
   createNote,
   listJarNotes,
   getNote,
