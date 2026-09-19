@@ -78,32 +78,19 @@
       Body = Matter.Body,
       Events = Matter.Events;
 
-    var perfProfile = (typeof window !== "undefined" && window.ClientPerf)
-      ? window.ClientPerf.ClientProfiler.profile()
-      : { tier: "high", dprCap: 2 };
-    var savedKavanozPref = (typeof window !== "undefined" && window.ClientPerf)
-      ? window.ClientPerf.ClientPref.load("kavanoz_pref")
-      : null;
-    var isLowMode = (this.opts && this.opts.lowMode !== undefined)
-      ? !!this.opts.lowMode
-      : (savedKavanozPref && savedKavanozPref.l !== undefined ? savedKavanozPref.l === 1 : perfProfile.tier === "low");
-
-    this.isLowMode = isLowMode;
-    this.maxNotes = isLowMode ? 20 : 50;
-
-    if (typeof window !== "undefined" && window.ClientPerf) {
-      window.ClientPerf.ClientPref.applyLowModeClass(isLowMode);
-    }
+    var self = this;
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
 
     var engine = Engine.create({
       enableSleeping: true,
-      positionIterations: isLowMode ? 4 : 6,
-      velocityIterations: isLowMode ? 2 : 4,
+      positionIterations: 6,
+      velocityIterations: 4,
     });
     engine.gravity.y = 1.0;
     this.engine = engine;
+    this.isLowMode = false;
+    this.maxNotes = 50;
 
-    var dpr = isLowMode ? 1 : Math.min(window.devicePixelRatio || 1, 2);
     var render = Render.create({
       canvas: this.canvas,
       engine: engine,
@@ -116,6 +103,12 @@
       },
     });
     this.render = render;
+
+    if (typeof window !== "undefined" && window.ClientPerf && window.ClientPerf.subscribe) {
+      window.ClientPerf.subscribe(function (state) {
+        self.applyPerfState(state);
+      });
+    }
 
     // Sızdırmaz kavanoz iç fizik kafesi (Kalın ve tam kapalı sınırlar)
     var w = this.width, h = this.height;
@@ -323,16 +316,16 @@
       glass.classList.add("shaking");
       setTimeout(function () { glass.classList.remove("shaking"); }, 350);
     }
-  KavanozJar.prototype.toggleLowMode = function (enabled) {
-    this.isLowMode = enabled !== undefined ? !!enabled : !this.isLowMode;
+  KavanozJar.prototype.applyPerfState = function (state) {
+    if (!state) return;
+    this.isLowMode = state.isLowMode;
     this.maxNotes = this.isLowMode ? 20 : 50;
     if (this.engine) {
       this.engine.positionIterations = this.isLowMode ? 4 : 6;
       this.engine.velocityIterations = this.isLowMode ? 2 : 4;
     }
     if (this.render) {
-      var dpr = this.isLowMode ? 1 : Math.min(window.devicePixelRatio || 1, 2);
-      this.render.options.pixelRatio = dpr;
+      this.render.options.pixelRatio = state.dprCap || 1;
     }
     if (global.Matter && this.engine && this.notes.length > this.maxNotes) {
       var removeCount = this.notes.length - this.maxNotes;
@@ -341,6 +334,15 @@
         global.Matter.World.remove(this.engine.world, oldest);
       }
     }
+  };
+
+  KavanozJar.prototype.toggleLowMode = function (enabled) {
+    if (typeof window !== "undefined" && window.ClientPerf && window.ClientPerf.setOverride) {
+      var next = enabled !== undefined ? !!enabled : !this.isLowMode;
+      window.ClientPerf.setOverride(next ? 'force_low' : 'force_high');
+      return next;
+    }
+    this.applyPerfState({ isLowMode: !this.isLowMode, dprCap: !this.isLowMode ? 1 : 2 });
     return this.isLowMode;
   };
 

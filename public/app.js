@@ -427,16 +427,21 @@
   }
 
   if (lowModeBtn) {
-    var initialLow = window.__kavanozJar ? window.__kavanozJar.isLowMode : (document.documentElement.classList.contains("low-mode"));
-    updateLowModeBtnUI(initialLow);
+    if (window.ClientPerf && window.ClientPerf.subscribe) {
+      window.ClientPerf.subscribe(function (s) {
+        updateLowModeBtnUI(s.isLowMode);
+      });
+    } else {
+      updateLowModeBtnUI(document.documentElement.classList.contains("low-mode"));
+    }
 
     lowModeBtn.addEventListener("click", function () {
-      var nextState = window.__kavanozJar ? window.__kavanozJar.toggleLowMode() : !document.documentElement.classList.contains("low-mode");
-      if (window.ClientPerf) {
-        window.ClientPerf.ClientPref.save("kavanoz_pref", { l: nextState ? 1 : 0, c: 1 });
-        window.ClientPerf.ClientPref.applyLowModeClass(nextState);
+      if (window.__kavanozJar) {
+        window.__kavanozJar.toggleLowMode();
+      } else if (window.ClientPerf && window.ClientPerf.setOverride) {
+        var cur = window.ClientPerf.getState().isLowMode;
+        window.ClientPerf.setOverride(cur ? 'force_high' : 'force_low');
       }
-      updateLowModeBtnUI(nextState);
     });
   }
 
