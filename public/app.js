@@ -413,6 +413,33 @@
     });
   }
 
+  // Low mode toggle handler
+  var lowModeBtn = document.getElementById("low-mode-toggle");
+  function updateLowModeBtnUI(isLow) {
+    if (!lowModeBtn) return;
+    if (isLow) {
+      lowModeBtn.classList.add("active");
+      lowModeBtn.setAttribute("aria-pressed", "true");
+    } else {
+      lowModeBtn.classList.remove("active");
+      lowModeBtn.setAttribute("aria-pressed", "false");
+    }
+  }
+
+  if (lowModeBtn) {
+    var initialLow = window.__kavanozJar ? window.__kavanozJar.isLowMode : (document.documentElement.classList.contains("low-mode"));
+    updateLowModeBtnUI(initialLow);
+
+    lowModeBtn.addEventListener("click", function () {
+      var nextState = window.__kavanozJar ? window.__kavanozJar.toggleLowMode() : !document.documentElement.classList.contains("low-mode");
+      if (window.ClientPerf) {
+        window.ClientPerf.ClientPref.save("kavanoz_pref", { l: nextState ? 1 : 0, c: 1 });
+        window.ClientPerf.ClientPref.applyLowModeClass(nextState);
+      }
+      updateLowModeBtnUI(nextState);
+    });
+  }
+
   // ---------------- Kavanozdaki Yazılar Çekmecesi ----------------
   var jarDrawerToggle = document.getElementById("jar-drawer-toggle");
   var jarDrawerPanel = document.getElementById("jar-drawer-panel");

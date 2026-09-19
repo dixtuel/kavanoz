@@ -78,11 +78,32 @@
       Body = Matter.Body,
       Events = Matter.Events;
 
-    var engine = Engine.create();
+    var perfProfile = (typeof window !== "undefined" && window.ClientPerf)
+      ? window.ClientPerf.ClientProfiler.profile()
+      : { tier: "high", dprCap: 2 };
+    var savedKavanozPref = (typeof window !== "undefined" && window.ClientPerf)
+      ? window.ClientPerf.ClientPref.load("kavanoz_pref")
+      : null;
+    var isLowMode = (this.opts && this.opts.lowMode !== undefined)
+      ? !!this.opts.lowMode
+      : (savedKavanozPref && savedKavanozPref.l !== undefined ? savedKavanozPref.l === 1 : perfProfile.tier === "low");
+
+    this.isLowMode = isLowMode;
+    this.maxNotes = isLowMode ? 20 : 50;
+
+    if (typeof window !== "undefined" && window.ClientPerf) {
+      window.ClientPerf.ClientPref.applyLowModeClass(isLowMode);
+    }
+
+    var engine = Engine.create({
+      enableSleeping: true,
+      positionIterations: isLowMode ? 4 : 6,
+      velocityIterations: isLowMode ? 2 : 4,
+    });
     engine.gravity.y = 1.0;
     this.engine = engine;
 
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    var dpr = isLowMode ? 1 : Math.min(window.devicePixelRatio || 1, 2);
     var render = Render.create({
       canvas: this.canvas,
       engine: engine,
@@ -200,6 +221,28 @@
     Runner.run(runner, engine);
     Render.run(render);
 
+    this.runner = runner;
+    this.engine = engine;
+    this.render = render;
+
+    // CPU and Battery saver: pause physics when tab is inactive
+    var isSimulating = true;
+    document.addEventListener("visibilitychange", function () {
+      if (document.hidden) {
+        if (isSimulating) {
+          Runner.stop(runner);
+          Render.stop(render);
+          isSimulating = false;
+        }
+      } else {
+        if (!isSimulating) {
+          Runner.run(runner, engine);
+          Render.run(render);
+          isSimulating = true;
+        }
+      }
+    });
+
     this._dropZoneX = [w * 0.25, w * 0.75];
   };
 
@@ -216,9 +259,11 @@
   KavanozJar.prototype.setNotes = function (notesList) {
     this.clearNotes();
     if (!notesList || notesList.length === 0) return;
-    var count = Math.min(notesList.length, MAX_NOTES);
+    var limit = this.maxNotes || MAX_NOTES;
+    var count = Math.min(notesList.length, limit);
     var self = this;
     var dropped = 0;
+    var delay = this.isLowMode ? 100 : 50;
     var interval = setInterval(function () {
       if (dropped >= count) {
         clearInterval(interval);
@@ -226,7 +271,7 @@
       }
       self.addNote(1, [notesList[dropped]]);
       dropped++;
-    }, 50);
+    }, delay);
   };
 
   KavanozJar.prototype.addNote = function (count, notesData) {
@@ -234,8 +279,9 @@
     if (!Matter || !this.engine) return;
     var Bodies = Matter.Bodies, World = Matter.World;
     count = count || 1;
+    var limit = this.maxNotes || MAX_NOTES;
     for (var i = 0; i < count; i++) {
-      if (this.notes.length >= MAX_NOTES) {
+      if (this.notes.length >= limit) {
         var oldest = this.notes.shift();
         World.remove(this.engine.world, oldest);
       }
@@ -277,6 +323,25 @@
       glass.classList.add("shaking");
       setTimeout(function () { glass.classList.remove("shaking"); }, 350);
     }
+  KavanozJar.prototype.toggleLowMode = function (enabled) {
+    this.isLowMode = enabled !== undefined ? !!enabled : !this.isLowMode;
+    this.maxNotes = this.isLowMode ? 20 : 50;
+    if (this.engine) {
+      this.engine.positionIterations = this.isLowMode ? 4 : 6;
+      this.engine.velocityIterations = this.isLowMode ? 2 : 4;
+    }
+    if (this.render) {
+      var dpr = this.isLowMode ? 1 : Math.min(window.devicePixelRatio || 1, 2);
+      this.render.options.pixelRatio = dpr;
+    }
+    if (global.Matter && this.engine && this.notes.length > this.maxNotes) {
+      var removeCount = this.notes.length - this.maxNotes;
+      for (var i = 0; i < removeCount; i++) {
+        var oldest = this.notes.shift();
+        global.Matter.World.remove(this.engine.world, oldest);
+      }
+    }
+    return this.isLowMode;
   };
 
   global.KavanozJar = KavanozJar;

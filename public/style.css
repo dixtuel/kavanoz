@@ -1406,3 +1406,42 @@ footer.site-footer-full {
   display: none !important;
   speak: never;
 }
+
+/* --- Adaptive Low-Power / Old WebView / Save-Data Mode --- */
+html.low-mode .jar-canvas-glass {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+}
+html.low-mode .modal-card {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15) !important;
+}
+html.low-mode .floating-envelope {
+  animation: none !important;
+}
+.low-mode-toggle {
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.75rem;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  transition: all 0.2s ease;
+}
+.low-mode-toggle:hover {
+  background: rgba(0, 0, 0, 0.04);
+  color: var(--ink-base);
+}
+.low-mode-toggle.active {
+  background: rgba(90, 122, 106, 0.15);
+  border-color: var(--sage-btn);
+  color: var(--sage-btn);
+  font-weight: 600;
+}
