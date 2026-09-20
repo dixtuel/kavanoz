@@ -68,13 +68,14 @@
       <li><strong>hCaptcha (Intuition Machines, Inc.):</strong> Form alanlarını otomatik bot saldırılarına karşı korur.</li>
       <li><strong>NVIDIA NIM Güvenlik Modeli:</strong> Gönderilen metinler, nefret söylemi ve zararlı içerik tespiti için güvenli TLS bağlantısı üzerinden anlık olarak doğrulanır; yapay zekâ eğitimi için kaydedilmez.</li>
       <li><strong>Cloudflare Pages &amp; Edge:</strong> Güvenli içerik dağıtımı ve DDoS saldırı engelleme.</li>
+      <li><strong>Cloudflare Web Analytics:</strong> Yalnızca onay verirseniz kullanılan, çerezsiz, IP/kişisel veri saklamayan performans ölçüm aracı. Detay için bkz. madde 7.</li>
     </ul>
 
     <h2>7. Çerezler ve İstemci Performansı</h2>
     <p>Sitemizde kullanıcıları fişleyen izleme çerezleri bulunmaz:</p>
     <ul>
       <li><strong>Dil Tercihi:</strong> Seçtiğiniz dil yalnızca tarayıcınızın <code>localStorage</code> alanında tutulur.</li>
-      <li><strong>Onay Tercihi:</strong> Onay durumunuz <code>kavanoz_pref</code> isimli şifreli ve minimal bir çerez ile hatırlanır.</li>
+      <li><strong>Web Analytics Onay Tercihi:</strong> Sayfaya ilk girişte gösterilen "Kabul et / Sadece gerekli" seçiminiz, çerez değil, tarayıcınızın <code>localStorage</code>'ında (<code>cf_analytics_consent</code> anahtarı) tutulur. Yalnızca "Kabul et" seçilirse <strong>Cloudflare Web Analytics</strong> yüklenir — bu araç da çerez kullanmaz, IP adresinizi veya kişisel verinizi saklamaz, yalnızca anonim toplu ziyaret/performans istatistiği üretir. Tercihinizi istediğiniz zaman tarayıcı verilerinizi temizleyerek sıfırlayabilirsiniz.</li>
       <li><strong>Düşük Güç ve Veri Tasarrufu:</strong> Tarayıcınızın pil ve bağlantı hızı durumları tamamen cihazınızda yerel olarak değerlendirilir; donanım durumunuz sunucuya raporlanmaz.</li>
     </ul>
 

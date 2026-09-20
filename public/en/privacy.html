@@ -68,13 +68,14 @@
       <li><strong>hCaptcha (Intuition Machines, Inc.):</strong> Anti-bot challenge verification on submissions.</li>
       <li><strong>NVIDIA NIM Safety Model:</strong> Incoming messages are screened in real-time over TLS to catch illegal or abusive content; your text is never used to train models.</li>
       <li><strong>Cloudflare Pages &amp; Edge:</strong> Global CDN distribution and layer-7 DDoS mitigation.</li>
+      <li><strong>Cloudflare Web Analytics:</strong> Used only if you consent; cookie-free and stores no IP or personal data. See section 7.</li>
     </ul>
 
     <h2>7. Cookies &amp; Client-Side Performance</h2>
     <p>We do not use tracking or behavioral profiling cookies:</p>
     <ul>
       <li><strong>Language Choice:</strong> Saved solely in your browser's local storage (<code>localStorage</code>).</li>
-      <li><strong>Consent State:</strong> Stored in an encrypted, minimal <code>kavanoz_pref</code> cookie on your browser.</li>
+      <li><strong>Web Analytics Consent:</strong> The "Accept / Essential only" choice shown on your first visit is not a cookie — it's stored in your browser's <code>localStorage</code> (key <code>cf_analytics_consent</code>). Only choosing "Accept" loads <strong>Cloudflare Web Analytics</strong>, which itself uses no cookies and stores no IP address or personal data, producing only aggregated, anonymous traffic statistics. Reset anytime by clearing your browser data.</li>
       <li><strong>Battery &amp; Low-Power Modes:</strong> Battery status and network constraints are computed dynamically via client-side web APIs; no hardware metrics are ever sent to our servers.</li>
     </ul>
 
