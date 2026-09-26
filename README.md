@@ -154,9 +154,8 @@ systemctl enable --now kavanoz-worker.timer
 | `NIM_TIMEOUT_MS` | Hayır | Moderasyon zaman aşımı süresi (varsayılan: `8000`) |
 | `SMTP_HOST` | Hayır | E-posta gönderimi için SMTP sunucu adresi |
 | `SMTP_PORT` | Hayır | SMTP portu (`587` veya `465`) |
-| `SMTP_USER` | Hayır | SMTP kullanıcı adı |
-| `SMTP_PASS` | Hayır | SMTP parolası |
-| `MAIL_FROM` | Hayır | Giden e-postaların `From` başlığı |
+| `SMTP_TLS_SERVERNAME` | Hayır | STARTTLS sertifika adı; boş bırakılırsa `SMTP_HOST` kullanılır |
+| `MAIL_FROM` | Evet (mail için) | Giden e-postaların `From` başlığı; kodda varsayılan adres yoktur |
 | `PUBLIC_BASE_URL` | Hayır | E-posta şablonlarında kullanılan site URL'i (`https://kavanoz.sely.tr`) |
 | `CORS_ALLOWED_ORIGINS`| Hayır | İzin verilen CORS alan adları |
 | `PORT` | Hayır | Node.js sunucu portu (varsayılan: `3030`) |

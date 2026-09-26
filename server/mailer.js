@@ -1,7 +1,5 @@
 const nodemailer = require("nodemailer");
 
-const FROM = process.env.MAIL_FROM || "Sanal Kavanoz <no-reply@dixtuel.tr>";
-
 let transporter;
 function getTransporter() {
   if (!transporter) {
@@ -13,7 +11,8 @@ function getTransporter() {
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT || 25),
       secure: false,
-      tls: { rejectUnauthorized: false },
+      requireTLS: true,
+      tls: { servername: process.env.SMTP_TLS_SERVERNAME || process.env.SMTP_HOST },
     });
   }
   return transporter;
@@ -39,9 +38,12 @@ const TEXT = {
 };
 
 async function sendDeliveryMail(id, email, message, lang) {
+  const from = process.env.MAIL_FROM;
+  if (!from) throw new Error("MAIL_FROM must be configured");
+
   const t = TEXT[lang] || TEXT.tr;
   await getTransporter().sendMail({
-    from: FROM,
+    from,
     to: email,
     subject: t.subject,
     text: t.body(message),
