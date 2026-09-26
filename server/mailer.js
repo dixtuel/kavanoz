@@ -3,10 +3,8 @@ const nodemailer = require("nodemailer");
 let transporter;
 function getTransporter() {
   if (!transporter) {
-    // Yerel Postfix'e doğrudan, kimlik doğrulamasız röle: mynetworks loopback/docker-bridge
-    // alt ağını zaten güvenilir kabul ediyor (mikoshi-ai'nin web_panel.py'deki aynı deseni,
-    // 127.0.0.1:25). Bir "no-reply" sistem/PAM kullanıcısı YOK — SMTP AUTH burada
-    // çalışmaz ve gerekmez. Container içinden host'a `host.docker.internal` ile ulaşılır.
+    // Yalnız Kavanoz worker'ın ayrılmış sabit IP'si Postfix mynetworks içinde röle iznine sahiptir.
+    // STARTTLS zorunludur ve TLS sertifikası SMTP_TLS_SERVERNAME ile doğrulanır.
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT || 25),
